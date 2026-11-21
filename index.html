@@ -948,11 +948,6 @@
             .form-row-2{grid-template-columns:1fr !important;}
         }
 
-        /* ── TECHBR STRATEGIC PARTNER STRIP ── */
-
-
-        /* ── NEURAL PLANT AI FEATURED FILM ───────────────────────── */
-
         /* ── CHATBOT WIDGET ──────────────────────────────────────── */
         .chat-widget{position:fixed;bottom:28px;right:28px;z-index:9999;font-family:'Segoe UI',Arial,sans-serif;}
         .chat-fab{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1a56db 0%,#0e3d9e 100%);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 22px rgba(26,86,219,0.45);transition:transform 0.2s,box-shadow 0.2s;}
@@ -2770,8 +2765,6 @@ function setLang(lang) {
     if (drConsentTxt && t.demo_consent) drConsentTxt.innerHTML = t.demo_consent;
     const drPrivacy = document.getElementById('dr-privacy');
     if (drPrivacy && t.demo_privacy) drPrivacy.innerHTML = t.demo_privacy;
-
-
 
     // ── Demo form: input placeholders ─────────────────────────────────────
     const drName    = document.getElementById('dr-name');
@@ -4653,6 +4646,14 @@ function tsCookieReset() {
     if (had === 'accepted') { location.reload(); return; }
     document.getElementById('ts-cookie').style.display = 'block';
 }
+(function () {
+    try {
+        var t = (typeof i18n !== 'undefined' && typeof currentLang !== 'undefined') ? i18n[currentLang] : null;
+        if (t) document.querySelectorAll('#ts-cookie [data-i18n]').forEach(function (el) {
+            var k = el.getAttribute('data-i18n'); if (t[k] !== undefined) el.textContent = t[k];
+        });
+    } catch (e) {}
+})();
 (function () {
     var v = null; try { v = localStorage.getItem('ts_cookie_consent'); } catch (e) {}
     if (v !== 'accepted' && v !== 'rejected') document.getElementById('ts-cookie').style.display = 'block';

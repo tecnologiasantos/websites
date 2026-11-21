@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; connect-src 'self' https://mre-ai-trial.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>MRE·AI free trial · Tecnologia Santos</title>
+<link rel="stylesheet" href="../trial.css">
+<script src="../trial.js"></script>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="../../" data-keep-lang><span class="logo-mark">TS</span><span class="txt">Tecnologia Santos</span></a>
+  <div class="nav-right">
+    <button type="button" class="btn btn-ghost btn-sm no-print" id="signout" hidden data-t="a_signout">Sign out</button>
+    <div class="langs no-print" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="pt">PT</button><button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <!-- signing in / gate -->
+  <section class="card" id="gate" style="max-width:560px;margin:40px auto" hidden>
+    <h2 id="gate-title" data-t="gate_title">Please sign in</h2>
+    <p class="muted" id="gate-text" data-t="gate_text" style="margin-bottom:18px"></p>
+    <a class="btn btn-primary" href="../#login" data-keep-lang id="gate-btn" data-t="gate_btn">Get a sign-in link</a>
+  </section>
+  <section class="card" id="loading" style="max-width:560px;margin:40px auto;text-align:center">
+    <p class="muted" data-t="signing_in">Signing you in…</p>
+  </section>
+
+  <div id="app" hidden>
+    <div class="bar">
+      <div>
+        <div class="label" data-t="s_label">MRE·AI · Free trial</div>
+        <h1 style="margin:0" id="org-name">—</h1>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="pill" id="credits"></span>
+        <span class="pill" id="until" style="background:#edf2f7;color:#4a5568"></span>
+      </div>
+    </div>
+
+    <section class="card no-print" id="new">
+      <h2 data-t="a_new">New comparison</h2>
+      <div class="field">
+        <label for="job" data-t="l_job">Job description</label>
+        <textarea id="job" maxlength="6000" data-tp="ph_job"></textarea>
+        <div class="hint"><span></span><span id="job-count">0 / 6000</span></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label data-t="l_cvs">Candidates’ CVs</label>
+        <div class="drop" id="drop" tabindex="0" role="button"><span data-th="drop"></span></div>
+        <input type="file" id="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" multiple hidden>
+        <div class="cvs" id="cvs"></div>
+      </div>
+      <div id="run-msg" class="msg" hidden></div>
+      <div class="run">
+        <button type="button" class="btn btn-primary" id="run"><span id="run-label" data-t="b_run">Compare candidates</span></button>
+        <span class="muted small" data-t="run_note"></span>
+      </div>
+    </section>
+
+    <section class="card" id="over" hidden>
+      <h2 data-t="over_title">You have used your trial</h2>
+      <p class="muted" data-t="over_text"></p>
+    </section>
+
+    <section class="card" id="results" hidden>
+      <div class="bar" style="margin-bottom:12px">
+        <div><h2 style="margin:0" data-t="r_title">Ranking</h2><div class="muted small" id="res-job"></div></div>
+        <button type="button" class="btn btn-ghost btn-sm no-print" id="print" data-t="b_print">Print or save as PDF</button>
+      </div>
+      <div class="res-sum" id="res-sum"></div>
+      <div id="res-list"></div>
+      <p class="disclaimer" data-t="r_disclaimer"></p>
+    </section>
+
+    <section class="card no-print" id="history">
+      <h2 data-t="h_title">Previous comparisons</h2>
+      <div class="hist" id="hist"></div>
+    </section>
+
+    <section class="card no-print">
+      <h3 data-t="acc_title">Your data</h3>
+      <p class="muted small" style="margin-bottom:12px" data-t="acc_text"></p>
+      <button type="button" class="btn btn-danger btn-sm" id="delete" data-t="b_delete">Delete my account</button>
+    </section>
+  </div>
+</main>
+
+<footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · support@tecnologiasantos.com</footer>
+<script src="app.js"></script>
+</body>
+</html>

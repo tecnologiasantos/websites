@@ -2879,6 +2879,16 @@ const EMAILJS_AUTOREPLY_ID = 'template_stz32py';
 
 (function() { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); })();
 
+// Auto-reply text for the contact form (EmailJS template 2 is generic: {{subject}} / {{message}})
+const CONTACT_AUTOREPLY = {
+    en: { subject: 'We received your message · Tecnologia Santos',
+          message: n => `Hello ${n},\n\nThank you for contacting Tecnologia Santos. We received your message and will reply within one business day.\n\nTecnologia Santos · tecnologiasantos.com` },
+    pt: { subject: 'Recebemos sua mensagem · Tecnologia Santos',
+          message: n => `Olá ${n},\n\nObrigado por entrar em contato com a Tecnologia Santos. Recebemos sua mensagem e responderemos em até um dia útil.\n\nTecnologia Santos · tecnologiasantos.com` },
+    es: { subject: 'Recibimos tu mensaje · Tecnologia Santos',
+          message: n => `Hola ${n},\n\nGracias por contactar a Tecnologia Santos. Recibimos tu mensaje y responderemos en un día hábil.\n\nTecnologia Santos · tecnologiasantos.com` },
+};
+
 function submitContactForm() {
     const name    = document.getElementById('cf-name').value.trim();
     const email   = document.getElementById('cf-email').value.trim();
@@ -2911,7 +2921,10 @@ function submitContactForm() {
         .then(() => emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_AUTOREPLY_ID, {
             to_email:  email,
             from_name: name,
-            reply_to:  'support@tecnologiasantos.com'
+            reply_to:  'support@tecnologiasantos.com',
+            // Template 2 is generic ({{subject}} / {{message}}); it is shared with the MRE·AI trial.
+            subject:   CONTACT_AUTOREPLY[currentLang].subject,
+            message:   CONTACT_AUTOREPLY[currentLang].message(name)
         }))
         .then(() => {
             document.getElementById('form-body').style.display    = 'none';

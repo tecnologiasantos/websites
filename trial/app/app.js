@@ -56,9 +56,16 @@
 
   // ── Anonymization (before anything leaves the browser) ───────────────────
   const PERSONAL_LINE = /^.*\b(data de nascimento|nascimento|nascid[oa]|date of birth|birth ?date|born|fecha de nacimiento|idade|age|edad|estado civil|marital status|nacionalidade|nationality|nacionalidad|naturalidade|endere[cç]o|address|direcci[oó]n|sexo|g[eê]nero|gender|religi[aãoó]n?|religion|filhos|children|hijos|CNH|RG|CPF|DNI|passaporte|passport|pasaporte)\b.*$/gim;
+  const looksLikeName = s => /^[\p{L}][\p{L}'.\- ]{2,48}$/u.test(s) && s.split(/\s+/).length >= 2 && s.split(/\s+/).length <= 5;
   function guessName(text, fileName) {
-    const first = (text.split('\n').map(s => s.trim()).find(s => s.length > 2) || '');
-    if (/^[\p{L}][\p{L}'.\- ]{2,48}$/u.test(first) && first.split(/\s+/).length >= 2 && first.split(/\s+/).length <= 5) return first;
+    const found = [];
+    // "Nome: Maria Silva" / "Name: ..." / "Nombre: ..."
+    const labeled = text.match(/^[ \t]*(?:nome(?: completo)?|full name|name|nombre(?: completo)?)[ \t]*[:\-–][ \t]*(.+)$/im);
+    if (labeled) found.push(labeled[1]);
+    // First line, also when it carries a title: "Maria Silva - Analista de TI", "Maria Silva | Engenheira"
+    const first = text.split('\n').map(s => s.trim()).find(s => s.length > 2) || '';
+    found.push(first, first.split(/\s+[-–—|·•,]\s+|\s*[|·•,]\s*/)[0]);
+    for (const c of found) { const v = (c || '').trim(); if (looksLikeName(v)) return v; }
     return fileName.replace(/\.[^.]+$/, '').replace(/[_\-.]+/g, ' ').replace(/\b(cv|resume|r[eé]sum[eé]|curr[ií]culo|curriculum|vitae|final|novo|new|\d+)\b/gi, '').replace(/\s+/g, ' ').trim();
   }
   const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

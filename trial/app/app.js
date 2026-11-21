@@ -157,14 +157,15 @@
     $('results').hidden = false;
     $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)}`;
     const sum = $('res-sum'); sum.textContent = '';
+    // The model may write the label in the result language: "Candidate A", "Candidato A", "Candidata A".
+    const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
     let summary = ev.ranking.summary;
-    Object.entries(names).forEach(([id, nm]) => { summary = summary.split('Candidate ' + id).join(nm); });
+    Object.entries(names).forEach(([id, nm]) => { summary = summary.replace(labelRe(id), () => nm); });
     sum.appendChild(el('b', '', t('r_summary') + ': ')); sum.appendChild(document.createTextNode(summary));
     const list = $('res-list'); list.textContent = '';
     ev.ranking.candidates.forEach((c, i) => {
-      const label = 'Candidate ' + c.id;
       const nm = names[c.id] || (LANG === 'pt' ? 'Candidato ' : LANG === 'es' ? 'Candidato ' : 'Candidate ') + c.id;
-      const restore = s => (names[c.id] ? s.split(label).join(names[c.id]) : s);
+      const restore = s => (names[c.id] ? s.replace(labelRe(c.id), () => names[c.id]) : s);
       const card = el('div', 'cand');
       const top = el('div', 'cand-top');
       top.appendChild(el('div', 'rank', String(i + 1)));

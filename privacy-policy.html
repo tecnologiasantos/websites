@@ -97,7 +97,7 @@
 <!-- ══════════════════════ PORTUGUÊS ══════════════════════ -->
 <div class="lang-block active" id="block-pt">
     <h1 class="doc-title">Política de Privacidade</h1>
-    <p class="doc-updated">Última atualização: <strong>20/11/2026</strong> · Aplica-se a tecnologiasantos.com e às campanhas de anúncios que direcionam a este site.</p>
+    <p class="doc-updated">Última atualização: <strong>21/11/2026</strong> · Aplica-se a tecnologiasantos.com e às campanhas de anúncios que direcionam a este site.</p>
 
     <div class="policy">
         <section>
@@ -109,7 +109,7 @@
         <section>
             <h2>2. Quando esta política se aplica</h2>
             <p>Esta política descreve como coletamos e usamos dados quando você visita tecnologiasantos.com, usa o assistente de chat, envia o formulário de contato ou chega até nós por meio de um anúncio ou post impulsionado no LinkedIn, Meta (Facebook/Instagram), Google ou outras redes. Ao clicar em um anúncio, a própria plataforma também pode coletar dados sobre essa interação, de acordo com a sua própria política — por exemplo, a <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener">Política de Privacidade do LinkedIn</a>.</p>
-            <p>Os produtos e serviços que desenvolvemos para clientes (como o SantosBot, o MRE-AI e o MiraTech) são regidos por contratos e avisos de privacidade próprios; esta política cobre apenas o site institucional e suas campanhas.</p>
+            <p>Os produtos e serviços que desenvolvemos para clientes (como o SantosBot, o MRE-AI e o MiraTech) são regidos por contratos e avisos de privacidade próprios; esta política cobre apenas o site institucional e suas campanhas, incluindo o teste grátis do MRE·AI oferecido no site.</p>
         </section>
 
         <section>
@@ -119,6 +119,7 @@
                 <tr><td>Formulário de contato</td><td>Nome, e-mail, telefone (opcional) e a mensagem enviada</td><td>Responder à sua solicitação comercial</td></tr>
                 <tr><td>Demonstração do MiraTech</td><td>Nome, e-mail corporativo, empresa, cargo (opcional) e, se você marcar a opção, o consentimento para receber novidades</td><td>Liberar o acesso à demonstração e, somente com o seu consentimento, enviar novidades sobre o lançamento e ofertas</td></tr>
                 <tr><td>Avaliador de currículos do MiraTech</td><td>Descrições de vaga e currículos (PDF) enviados por você</td><td>Gerar a pontuação de aderência com a API do Claude (Anthropic). Os arquivos são processados durante a sessão e não ficam armazenados nos nossos sistemas</td></tr>
+                <tr><td>Teste grátis do MRE·AI (tecnologiasantos.com/trial)</td><td>Nome, e-mail, empresa, cargo (opcional), idioma, data do aceite dos termos, consentimento opcional para novidades; descrições de vaga e currículos enviados por você; os rankings gerados</td><td>Criar e manter sua conta de teste e enviar o link de acesso por e-mail; gerar o ranking com a API do Claude (Anthropic). O texto dos currículos é anonimizado no seu navegador, enviado à Anthropic só para a avaliação e não é armazenado. Os rankings ficam guardados por 30 dias e a conta é excluída após 12 meses sem uso, ou antes, a qualquer momento, pelo botão "Excluir minha conta" no próprio teste</td></tr>
                 <tr><td>Assistente de chat (SantosBot)</td><td>O conteúdo das mensagens digitadas na conversa e dados técnicos da requisição (como endereço IP, processado pela infraestrutura Cloudflare)</td><td>Gerar uma resposta automática à sua pergunta, com base em nossa base de conhecimento</td></tr>
                 <tr><td>Cookies e tecnologias de medição</td><td>Identificadores de dispositivo/navegador, páginas visitadas, idioma do navegador, origem do clique (ex.: um anúncio do LinkedIn)</td><td>Medir o desempenho de campanhas e o uso do site; exibir o site no seu idioma</td></tr>
                 <tr><td>Verificação anti-robô (Cloudflare Turnstile)</td><td>Sinais técnicos do navegador, sem uso de imagens tipo "captcha"</td><td>Impedir envios automatizados/spam no formulário e no chat</td></tr>
@@ -135,9 +136,9 @@
                 <li><strong>Google Tag Manager / Google Analytics</strong> — estatísticas de uso e navegação no site.</li>
                 <li><strong>Meta Pixel (Facebook/Instagram Ads)</strong> — medição de conversões de campanhas publicitárias.</li>
                 <li><strong>LinkedIn Ads</strong> — quando você chega ao site a partir de um anúncio ou post impulsionado no LinkedIn, a plataforma pode registrar essa visita para relatórios de desempenho da campanha.</li>
-                <li><strong>Cloudflare</strong> — verificação anti-robô (Turnstile) e infraestrutura (Cloudflare Workers) que processa as mensagens do assistente de chat.</li>
-                <li><strong>Anthropic (API do Claude)</strong> — modelo de inteligência artificial que gera as respostas do assistente de chat. O conteúdo das mensagens que você digita no chat é enviado à Anthropic para esse fim.</li>
-                <li><strong>EmailJS</strong> — serviço que envia o conteúdo do formulário de contato por e-mail até nossa equipe.</li>
+                <li><strong>Cloudflare</strong> — verificação anti-robô (Turnstile) e infraestrutura (Cloudflare Workers e banco de dados Cloudflare D1) que processa as mensagens do assistente de chat e guarda as contas e os rankings do teste grátis do MRE·AI.</li>
+                <li><strong>Anthropic (API do Claude)</strong> — modelo de inteligência artificial que gera as respostas do assistente de chat. O conteúdo das mensagens que você digita no chat é enviado à Anthropic para esse fim. No teste grátis do MRE·AI, a Anthropic recebe a descrição da vaga e o texto anonimizado dos currículos para gerar o ranking.</li>
+                <li><strong>EmailJS</strong> — serviço que envia o conteúdo do formulário de contato por e-mail até nossa equipe e os e-mails do teste grátis do MRE·AI (link de acesso e avisos).</li>
                 <li><strong>GitHub Pages</strong> — hospedagem do site.</li>
                 <li><strong>Amazon Web Services (AWS S3)</strong> — hospedagem de documentos públicos (PDFs e materiais de divulgação) referenciados no site.</li>
             </ul>
@@ -196,7 +197,7 @@
 <!-- ══════════════════════ ENGLISH ══════════════════════ -->
 <div class="lang-block" id="block-en">
     <h1 class="doc-title">Privacy Policy</h1>
-    <p class="doc-updated">Last updated: <strong>20/11/2026</strong> · Applies to tecnologiasantos.com and to advertising campaigns that direct traffic to this site.</p>
+    <p class="doc-updated">Last updated: <strong>21/11/2026</strong> · Applies to tecnologiasantos.com and to advertising campaigns that direct traffic to this site.</p>
 
     <div class="policy">
         <section>
@@ -208,7 +209,7 @@
         <section>
             <h2>2. When this policy applies</h2>
             <p>This policy describes how we collect and use data when you visit tecnologiasantos.com, use the chat assistant, submit the contact form, or reach us through an ad or boosted post on LinkedIn, Meta (Facebook/Instagram), Google or other networks. When you click an ad, the platform itself may also collect data about that interaction under its own policy — for example, LinkedIn's <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
-            <p>The products and services we build for clients (such as SantosBot, MRE-AI and MiraTech) are governed by their own contracts and privacy notices; this policy covers only the corporate website and its campaigns.</p>
+            <p>The products and services we build for clients (such as SantosBot, MRE-AI and MiraTech) are governed by their own contracts and privacy notices; this policy covers only the corporate website and its campaigns, including the MRE·AI free trial offered on the site.</p>
         </section>
 
         <section>
@@ -218,6 +219,7 @@
                 <tr><td>Contact form</td><td>Name, email, phone (optional) and the message you send</td><td>Respond to your business inquiry</td></tr>
                 <tr><td>MiraTech demo</td><td>Name, work email, company, role (optional) and, if you tick the box, your consent to receive updates</td><td>Grant access to the demo and, only with your consent, send launch updates and offers</td></tr>
                 <tr><td>MiraTech resume evaluator</td><td>Job descriptions and resumes (PDF) you upload</td><td>Generate the match score using the Claude API (Anthropic). Files are processed during the session and are not stored in our systems</td></tr>
+                <tr><td>MRE·AI free trial (tecnologiasantos.com/trial)</td><td>Name, e-mail, company, job title (optional), language, date you accepted the terms, optional consent to receive news; job descriptions and CVs you upload; the rankings generated</td><td>Create and keep your trial account and e-mail you the sign-in link; generate the ranking with the Claude API (Anthropic). CV text is anonymized in your browser, sent to Anthropic only for the evaluation, and not stored. Rankings are kept for 30 days and the account is deleted after 12 months without use, or earlier, at any time, with the "Delete my account" button in the trial</td></tr>
                 <tr><td>Chat assistant (SantosBot)</td><td>The content of the messages you type in the conversation and technical request data (such as IP address, processed by Cloudflare infrastructure)</td><td>Generate an automated reply to your question based on our knowledge base</td></tr>
                 <tr><td>Cookies and measurement technologies</td><td>Device/browser identifiers, pages visited, browser language, click source (e.g. a LinkedIn ad)</td><td>Measure campaign performance and site usage; display the site in your language</td></tr>
                 <tr><td>Bot-check (Cloudflare Turnstile)</td><td>Technical browser signals, without traditional "captcha" images</td><td>Prevent automated/spam submissions on the form and chat</td></tr>
@@ -234,9 +236,9 @@
                 <li><strong>Google Tag Manager / Google Analytics</strong> — website usage and navigation statistics.</li>
                 <li><strong>Meta Pixel (Facebook/Instagram Ads)</strong> — conversion measurement for advertising campaigns.</li>
                 <li><strong>LinkedIn Ads</strong> — when you arrive at the site from a LinkedIn ad or boosted post, LinkedIn may log that visit for campaign performance reporting.</li>
-                <li><strong>Cloudflare</strong> — bot-check (Turnstile) and the infrastructure (Cloudflare Workers) that processes chat assistant messages.</li>
-                <li><strong>Anthropic (Claude API)</strong> — the artificial intelligence model that generates the chat assistant's replies. The content of the messages you type in the chat is sent to Anthropic for this purpose.</li>
-                <li><strong>EmailJS</strong> — the service that emails the contact form's content to our team.</li>
+                <li><strong>Cloudflare</strong> — bot-check (Turnstile) and the infrastructure (Cloudflare Workers and the Cloudflare D1 database) that processes chat assistant messages and stores MRE·AI free trial accounts and rankings.</li>
+                <li><strong>Anthropic (Claude API)</strong> — the artificial intelligence model that generates the chat assistant's replies. The content of the messages you type in the chat is sent to Anthropic for this purpose. In the MRE·AI free trial, Anthropic receives the job description and the anonymized CV text to generate the ranking.</li>
+                <li><strong>EmailJS</strong> — the service that emails the contact form's content to our team and sends the MRE·AI free trial e-mails (sign-in link and notices).</li>
                 <li><strong>GitHub Pages</strong> — website hosting.</li>
                 <li><strong>Amazon Web Services (AWS S3)</strong> — hosting of public documents (PDFs and marketing materials) referenced on the site.</li>
             </ul>
@@ -295,7 +297,7 @@
 <!-- ══════════════════════ ESPAÑOL ══════════════════════ -->
 <div class="lang-block" id="block-es">
     <h1 class="doc-title">Política de Privacidad</h1>
-    <p class="doc-updated">Última actualización: <strong>20/11/2026</strong> · Aplica a tecnologiasantos.com y a las campañas publicitarias que dirigen tráfico a este sitio.</p>
+    <p class="doc-updated">Última actualización: <strong>21/11/2026</strong> · Aplica a tecnologiasantos.com y a las campañas publicitarias que dirigen tráfico a este sitio.</p>
 
     <div class="policy">
         <section>
@@ -307,7 +309,7 @@
         <section>
             <h2>2. Cuándo aplica esta política</h2>
             <p>Esta política describe cómo recopilamos y usamos datos cuando usted visita tecnologiasantos.com, usa el asistente de chat, envía el formulario de contacto o llega a nosotros a través de un anuncio o publicación impulsada en LinkedIn, Meta (Facebook/Instagram), Google u otras redes. Al hacer clic en un anuncio, la propia plataforma también puede recopilar datos sobre esa interacción según su propia política — por ejemplo, la <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener">Política de Privacidad de LinkedIn</a>.</p>
-            <p>Los productos y servicios que desarrollamos para clientes (como SantosBot, MRE-AI y MiraTech) se rigen por contratos y avisos de privacidad propios; esta política cubre únicamente el sitio institucional y sus campañas.</p>
+            <p>Los productos y servicios que desarrollamos para clientes (como SantosBot, MRE-AI y MiraTech) se rigen por contratos y avisos de privacidad propios; esta política cubre únicamente el sitio institucional y sus campañas, incluida la prueba gratuita de MRE·AI ofrecida en el sitio.</p>
         </section>
 
         <section>
@@ -317,6 +319,7 @@
                 <tr><td>Formulario de contacto</td><td>Nombre, correo electrónico, teléfono (opcional) y el mensaje enviado</td><td>Responder a su solicitud comercial</td></tr>
                 <tr><td>Demostración de MiraTech</td><td>Nombre, correo corporativo, empresa, cargo (opcional) y, si marca la casilla, su consentimiento para recibir novedades</td><td>Habilitar el acceso a la demostración y, solo con su consentimiento, enviar novedades del lanzamiento y ofertas</td></tr>
                 <tr><td>Evaluador de currículums de MiraTech</td><td>Descripciones de puesto y currículums (PDF) que usted envía</td><td>Generar el puntaje de afinidad con la API de Claude (Anthropic). Los archivos se procesan durante la sesión y no se almacenan en nuestros sistemas</td></tr>
+                <tr><td>Prueba gratuita de MRE·AI (tecnologiasantos.com/trial)</td><td>Nombre, correo, empresa, cargo (opcional), idioma, fecha de aceptación de los términos, consentimiento opcional para recibir novedades; descripciones de puesto y CVs que usted envía; los rankings generados</td><td>Crear y mantener su cuenta de prueba y enviarle el enlace de acceso por correo; generar el ranking con la API de Claude (Anthropic). El texto de los CVs se anonimiza en su navegador, se envía a Anthropic solo para la evaluación y no se almacena. Los rankings se guardan 30 días y la cuenta se elimina tras 12 meses sin uso, o antes, en cualquier momento, con el botón "Eliminar mi cuenta" de la prueba</td></tr>
                 <tr><td>Asistente de chat (SantosBot)</td><td>El contenido de los mensajes escritos en la conversación y datos técnicos de la solicitud (como la dirección IP, procesada por la infraestructura de Cloudflare)</td><td>Generar una respuesta automática a su pregunta a partir de nuestra base de conocimiento</td></tr>
                 <tr><td>Cookies y tecnologías de medición</td><td>Identificadores de dispositivo/navegador, páginas visitadas, idioma del navegador, origen del clic (p. ej., un anuncio de LinkedIn)</td><td>Medir el desempeño de campañas y el uso del sitio; mostrar el sitio en su idioma</td></tr>
                 <tr><td>Verificación anti-robots (Cloudflare Turnstile)</td><td>Señales técnicas del navegador, sin imágenes de "captcha" tradicionales</td><td>Evitar envíos automatizados/spam en el formulario y el chat</td></tr>
@@ -333,9 +336,9 @@
                 <li><strong>Google Tag Manager / Google Analytics</strong> — estadísticas de uso y navegación del sitio.</li>
                 <li><strong>Meta Pixel (Facebook/Instagram Ads)</strong> — medición de conversiones de campañas publicitarias.</li>
                 <li><strong>LinkedIn Ads</strong> — cuando usted llega al sitio desde un anuncio o publicación impulsada en LinkedIn, la plataforma puede registrar esa visita para los informes de desempeño de la campaña.</li>
-                <li><strong>Cloudflare</strong> — verificación anti-robots (Turnstile) e infraestructura (Cloudflare Workers) que procesa los mensajes del asistente de chat.</li>
-                <li><strong>Anthropic (API de Claude)</strong> — modelo de inteligencia artificial que genera las respuestas del asistente de chat. El contenido de los mensajes que usted escribe en el chat se envía a Anthropic con ese fin.</li>
-                <li><strong>EmailJS</strong> — servicio que envía el contenido del formulario de contacto por correo a nuestro equipo.</li>
+                <li><strong>Cloudflare</strong> — verificación anti-robots (Turnstile) e infraestructura (Cloudflare Workers y la base de datos Cloudflare D1) que procesa los mensajes del asistente de chat y guarda las cuentas y los rankings de la prueba gratuita de MRE·AI.</li>
+                <li><strong>Anthropic (API de Claude)</strong> — modelo de inteligencia artificial que genera las respuestas del asistente de chat. El contenido de los mensajes que usted escribe en el chat se envía a Anthropic con ese fin. En la prueba gratuita de MRE·AI, Anthropic recibe la descripción del puesto y el texto anonimizado de los CVs para generar el ranking.</li>
+                <li><strong>EmailJS</strong> — servicio que envía el contenido del formulario de contacto por correo a nuestro equipo y los correos de la prueba gratuita de MRE·AI (enlace de acceso y avisos).</li>
                 <li><strong>GitHub Pages</strong> — alojamiento del sitio.</li>
                 <li><strong>Amazon Web Services (AWS S3)</strong> — alojamiento de documentos públicos (PDF y materiales de difusión) referenciados en el sitio.</li>
             </ul>

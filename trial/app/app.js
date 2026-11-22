@@ -233,9 +233,13 @@
     $('until').textContent = !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
     const active = left > 0;
     $('new').hidden = !active; $('over').hidden = active;
-    $('over').querySelector('h2').textContent = isPaid() ? t('over_paid_title') : t('over_title');
-    $('over').querySelector('p').textContent = isPaid() ? t('over_paid_text') : t('over_text');
-    renderBilling();
+    $('over').querySelector('h2').textContent = (isPaid() && t('over_paid_title')) || t('over_title');
+    $('over').querySelector('p').textContent = (isPaid() && t('over_paid_text')) || t('over_text');
+    const planLabel = t('b_plan') && t('b_plan')[me.plan];
+    $('s-label').textContent = isPaid() && t('s_label_paid') && planLabel ? t('s_label_paid')(planLabel) : t('s_label');
+    $('run-note').textContent = (isPaid() && t('run_note_paid')) || t('run_note');
+    // Billing never breaks the rest of the page (e.g. an old cached trial.js without its texts).
+    try { renderBilling(); } catch (e) { $('billing').hidden = true; $('plans').hidden = true; }
   }
 
   // ── Plan and billing (Stripe Checkout, card only) ───────────────────────
@@ -243,6 +247,12 @@
   function renderBilling() {
     const b = me.billing, box = $('billing'), plans = $('plans');
     const live = !!b && ['active', 'trialing', 'past_due'].includes(b.status);
+    // The Worker turns billing on per user (test mode: only listed e-mails). Companies that
+    // already have a Stripe customer keep the card so they can manage it.
+    if (!me.billing_enabled && !(b && b.has_customer)) {
+      box.hidden = true; plans.hidden = true; window.TS_PLANS = null;
+      return;
+    }
     box.hidden = false;
     const msg = $('billing-msg');
     if (b && b.status === 'past_due') showMsg(msg, 'err', t('b_past_due'));

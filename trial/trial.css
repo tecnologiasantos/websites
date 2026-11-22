@@ -129,3 +129,42 @@ details.terms ol{margin:10px 0 0 18px;display:grid;gap:6px}
 footer{border-top:1px solid var(--border);background:var(--white);padding:18px 24px;text-align:center;font-size:13px;color:var(--muted)}
 footer a{color:inherit}
 @media print{.nav,.no-print,footer{display:none!important}main{padding:0}.card{box-shadow:none;border:0}}
+
+/* job upload + delete dialog */
+.job-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.job-head label{margin:0}
+.dlg{border:none;border-radius:var(--radius);padding:24px;max-width:480px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.dlg::backdrop{background:rgba(15,23,42,.55)}
+.dlg h3{margin-top:0;color:var(--danger)}
+.del-list{margin:10px 0 14px;padding-left:18px}
+.del-list li{margin:4px 0}
+.chk{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.dlg input[type=text]{width:100%}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.btn-danger-solid{background:var(--danger);color:#fff;border:1px solid var(--danger)}
+.btn-danger-solid:disabled{opacity:.45;cursor:not-allowed}
+.hint .warn{color:var(--amber);font-weight:600}
+.hint .bad{color:var(--danger);font-weight:600}
+
+/* roles, team, usage, audit */
+.pill.role{background:#eef2ff;color:#3730a3}
+.dlg h3.neutral{color:var(--text)}
+.usage{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px}
+.usage b{display:block;margin-bottom:6px}
+.usage ul{list-style:none;display:grid;gap:4px}
+.usage li{display:flex;justify-content:space-between;gap:10px}
+.hist .by{color:var(--blue);font-weight:600}
+.members{display:grid;gap:8px}
+.member{border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.member .who b{display:block}
+.member .who .small{display:block}
+.member .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tg{border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;background:var(--blue-light);color:var(--blue)}
+.tg.ok{background:var(--teal-light);color:var(--teal)}.tg.warn{background:var(--amber-light);color:var(--amber)}
+.member .acts{display:flex;gap:6px;flex-wrap:wrap}
+.invite{display:grid;grid-template-columns:1fr 1.3fr .9fr auto;gap:10px;align-items:end}
+.invite .field{margin:0}
+.audit-t{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.audit-t th,.audit-t td{text-align:left;border-bottom:1px solid var(--border);padding:7px 6px;vertical-align:top}
+.audit-t th{color:var(--muted);font-weight:600}
+@media (max-width:720px){.invite{grid-template-columns:1fr}}

@@ -33,6 +33,15 @@
     <p class="muted" data-t="signing_in">Signing you in…</p>
   </section>
 
+  <section class="card" id="consent" style="max-width:620px;margin:40px auto" hidden>
+    <h2 data-t="consent_title">Before you start</h2>
+    <p class="muted" data-t="consent_text" style="margin-bottom:16px"></p>
+    <label class="check"><input type="checkbox" id="c-terms"> <span data-th="consent_chk"></span></label>
+    <label class="check"><input type="checkbox" id="c-mk"> <span data-t="consent_mk"></span></label>
+    <div id="c-msg" class="msg" hidden></div>
+    <button type="button" class="btn btn-primary" id="c-btn" disabled data-t="consent_btn">Accept and continue</button>
+  </section>
+
   <div id="app" hidden>
     <div class="bar">
       <div>
@@ -40,6 +49,7 @@
         <h1 style="margin:0" id="org-name">—</h1>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="pill role" id="role"></span>
         <span class="pill" id="credits"></span>
         <span class="pill" id="until" style="background:#edf2f7;color:#4a5568"></span>
       </div>
@@ -48,9 +58,13 @@
     <section class="card no-print" id="new">
       <h2 data-t="a_new">New comparison</h2>
       <div class="field">
-        <label for="job" data-t="l_job">Job description</label>
+        <div class="job-head">
+          <label for="job" data-t="l_job">Job description</label>
+          <button type="button" class="btn btn-ghost btn-sm" id="job-upload" data-t="b_job_upload">Upload file</button>
+        </div>
+        <input type="file" id="job-file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
         <textarea id="job" maxlength="6000" data-tp="ph_job"></textarea>
-        <div class="hint"><span></span><span id="job-count">0 / 6000</span></div>
+        <div class="hint"><span id="job-src"></span><span id="job-count">0 / 6000</span></div>
       </div>
       <div class="field" style="margin-bottom:0">
         <label data-t="l_cvs">Candidates’ CVs</label>
@@ -82,7 +96,37 @@
 
     <section class="card no-print" id="history">
       <h2 data-t="h_title">Previous comparisons</h2>
+      <div class="usage" id="usage" hidden></div>
       <div class="hist" id="hist"></div>
+    </section>
+
+    <section class="card no-print" id="team" hidden>
+      <h2 data-t="team_title">Team</h2>
+      <p class="muted small" data-t="team_lead" style="margin-bottom:14px"></p>
+      <div id="team-pending" class="msg info" hidden></div>
+      <div class="members" id="members"></div>
+      <div id="team-msg" class="msg" hidden></div>
+      <h3 data-t="t_invite" style="margin-top:20px">Invite someone</h3>
+      <p class="muted small" id="invite-off" hidden></p>
+      <form class="invite" id="invite" novalidate>
+        <div class="field"><label for="i-name" data-t="t_name">Name</label><input id="i-name" maxlength="100" autocomplete="off"></div>
+        <div class="field"><label for="i-email" data-t="t_email">Work e-mail</label><input id="i-email" type="email" maxlength="254" autocomplete="off"></div>
+        <div class="field"><label for="i-role" data-t="t_role">Role</label><select id="i-role"><option value="member" data-t="role_member">Recruiter</option><option value="admin" data-t="role_admin">Administrator</option></select></div>
+        <div class="field"><label>&nbsp;</label><button type="submit" class="btn btn-primary btn-sm" id="i-btn" data-t="b_invite">Send invitation</button></div>
+      </form>
+      <p class="muted small" id="invite-hint"></p>
+    </section>
+
+    <section class="card no-print" id="audit" hidden>
+      <div class="bar" style="margin-bottom:6px">
+        <h2 style="margin:0" data-t="audit_title">Audit log</h2>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-ghost btn-sm" id="audit-load" data-t="b_audit_load">Show audit log</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="audit-csv" hidden data-t="b_audit_csv">Export CSV</button>
+        </div>
+      </div>
+      <p class="muted small" data-t="audit_lead"></p>
+      <div id="audit-list"></div>
     </section>
 
     <section class="card no-print">
@@ -91,6 +135,38 @@
       <button type="button" class="btn btn-danger btn-sm" id="delete" data-t="b_delete">Delete my account</button>
     </section>
   </div>
+
+  <dialog id="del-dlg" class="dlg">
+    <h3 data-t="del_title">Delete account</h3>
+    <p class="muted small" id="del-lead"></p>
+    <ul class="del-list small">
+      <li id="del-li1"></li><li id="del-li2"></li><li id="del-li3"></li><li id="del-li4"></li>
+    </ul>
+    <label class="chk small"><input type="checkbox" id="del-chk"> <span data-t="del_chk"></span></label>
+    <div class="field" style="margin:12px 0 0">
+      <label for="del-word" class="small" id="del-word-label"></label>
+      <input type="text" id="del-word" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="del-msg" class="msg" hidden></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="del-cancel" data-t="del_cancel">Cancel</button>
+      <button type="button" class="btn btn-danger-solid btn-sm" id="del-ok" disabled>Delete permanently</button>
+    </div>
+  </dialog>
+
+  <dialog id="cf-dlg" class="dlg">
+    <h3 id="cf-title"></h3>
+    <p class="muted small" id="cf-text"></p>
+    <div class="field" id="cf-typed" style="margin:12px 0 0" hidden>
+      <label for="cf-word" class="small" id="cf-word-label"></label>
+      <input type="text" id="cf-word" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="cf-msg" class="msg" hidden></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="cf-cancel" data-t="cf_cancel">Cancel</button>
+      <button type="button" class="btn btn-primary btn-sm" id="cf-ok" data-t="cf_confirm">Confirm</button>
+    </div>
+  </dialog>
 </main>
 
 <footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · support@tecnologiasantos.com</footer>

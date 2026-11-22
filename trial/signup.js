@@ -47,7 +47,7 @@
         consent_terms: true, consent_marketing: $('s-marketing').checked,
         website: $('hp-website').value, email2: $('hp-email2').value, cfToken,
       });
-      done(r.status === 'pending_approval' ? t('ok_pending') : t('ok_check'));
+      done(r.status === 'pending_approval' ? t('ok_pending') : r.status === 'pending_team' ? t('ok_pending_team') : t('ok_check'));
     } catch (err) {
       showMsg(msg, 'err', err.message);
       if (tsSignup !== null) window.turnstile.reset(tsSignup);

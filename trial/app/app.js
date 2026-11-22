@@ -233,9 +233,10 @@
     $('until').textContent = !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
     const active = left > 0;
     $('new').hidden = !active; $('over').hidden = active;
-    $('over').querySelector('h2').textContent = isPaid() ? t('over_paid_title') : t('over_title');
-    $('over').querySelector('p').textContent = isPaid() ? t('over_paid_text') : t('over_text');
-    renderBilling();
+    $('over').querySelector('h2').textContent = (isPaid() && t('over_paid_title')) || t('over_title');
+    $('over').querySelector('p').textContent = (isPaid() && t('over_paid_text')) || t('over_text');
+    // Billing never breaks the rest of the page (e.g. an old cached trial.js without its texts).
+    try { renderBilling(); } catch (e) { $('billing').hidden = true; $('plans').hidden = true; }
   }
 
   // ── Plan and billing (Stripe Checkout, card only) ───────────────────────

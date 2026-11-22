@@ -1,5 +1,8 @@
 // MRE·AI free trial · pricing plans (Tabela de preços v1.0, 21/11/2026)
 // Load AFTER trial.js. Renders into <div id="plans"></div>.
+// On the public page the buttons open an e-mail. Inside the app, app.js sets window.TS_PLANS =
+// { currency: 'BRL'|'USD'|null (fixed account currency), checkout({plan, cycle, currency}, btn), pack({currency}, btn) }
+// and the buttons start Stripe Checkout instead. window.TSPlans.render() re-renders.
 // R$ prices are set for the Brazilian market; they are not an exchange-rate conversion.
 'use strict';
 
@@ -163,7 +166,10 @@
     cur: ls(true, CUR_KEY),        // null = follow language (pt → BRL, en/es → USD)
     cycle: ls(true, CYCLE_KEY) || 'm',
   };
-  const currency = () => (state.cur === 'BRL' || state.cur === 'USD') ? state.cur : (LANG === 'pt' ? 'BRL' : 'USD');
+  const hook = () => window.TS_PLANS || null;
+  const lockedCur = () => (hook() && (hook().currency === 'BRL' || hook().currency === 'USD')) ? hook().currency : null;
+  const currency = () => lockedCur() || ((state.cur === 'BRL' || state.cur === 'USD') ? state.cur : (LANG === 'pt' ? 'BRL' : 'USD'));
+  const CYCLE_API = { m: 'mensal', q: 'trimestral', a: 'anual' };
 
   function money(v, cur) {
     const loc = LANG === 'pt' ? 'pt-BR' : LANG === 'es' ? 'es' : 'en-US';
@@ -188,6 +194,7 @@
     const cycleName = tx(['pl_monthly', 'pl_quarterly', 'pl_annual'][ci]);
     const per = tx(['pl_per_month', 'pl_per_quarter', 'pl_per_year'][ci]);
 
+    const packOnly = !!(hook() && hook().packOnly);   // in the app, for companies that already subscribe
     const cards = PLANS.map(p => {
       const pr = P[p.id];
       const name = tx('n_' + p.id);
@@ -199,7 +206,9 @@
         <div class="plan-eq">${esc(eq)}</div>
         <div class="plan-cr">${esc(tx('pl_credits')(p.credits))}</div>
         <p class="muted small">${esc(tx('d_' + p.id))}</p>
-        <a class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'} btn-block" href="${mailto(name, cycleName, cur)}">${esc(tx('pl_cta'))}</a>
+        ${hook()
+          ? `<button type="button" class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'} btn-block" data-buy="${p.id}">${esc(tx('pl_cta'))}</button>`
+          : `<a class="btn ${p.featured ? 'btn-primary' : 'btn-ghost'} btn-block" href="${mailto(name, cycleName, cur)}">${esc(tx('pl_cta'))}</a>`}
       </div>`;
     }).join('');
 
@@ -213,16 +222,18 @@
         <h2>${esc(tx('pl_title'))}</h2>
         <p class="lead">${esc(tx('pl_lead'))}</p>
       </div>
-      <div class="plans-ctl">
+      ${packOnly ? '' : `<div class="plans-ctl">
         <div class="seg">${seg([['m', tx('pl_monthly')], ['q', tx('pl_quarterly'), tx('pl_save_q')], ['a', tx('pl_annual'), tx('pl_save_a')]], state.cycle, 'cycle')}</div>
-        <div class="seg"><span class="seg-label" style="align-self:center;padding-left:6px">${esc(tx('pl_currency'))}</span>${seg([['BRL', 'R$'], ['USD', 'US$']], cur, 'cur')}</div>
+        <div class="seg"><span class="seg-label" style="align-self:center;padding-left:6px">${esc(tx('pl_currency'))}</span>${seg([['BRL', 'R$'], ['USD', 'US$']].filter(([v]) => !lockedCur() || v === lockedCur()), cur, 'cur')}</div>
       </div>
-      <div class="plan-grid">${cards}</div>
+      <div class="plan-grid">${cards}</div>`}
       <div class="card pack">
         <div><h3>${esc(tx('n_pacote'))}</h3><p class="muted small">${esc(tx('d_pacote'))}</p></div>
         <div style="display:flex;gap:16px;align-items:center">
           <div class="plan-price">${money(P.pacote, cur)}</div>
-          <a class="btn btn-ghost" href="${mailto(tx('n_pacote'), '25', cur)}">${esc(tx('pl_cta_pack'))}</a>
+          ${hook()
+            ? `<button type="button" class="btn btn-ghost" data-pack>${esc(tx('pl_cta_pack'))}</button>`
+            : `<a class="btn btn-ghost" href="${mailto(tx('n_pacote'), '25', cur)}">${esc(tx('pl_cta_pack'))}</a>`}
         </div>
       </div>
       <div class="plans-foot">
@@ -237,7 +248,15 @@
     root.querySelectorAll('[data-cur]').forEach(b => b.addEventListener('click', () => {
       state.cur = b.dataset.cur; ls(false, CUR_KEY, state.cur); render();
     }));
+    const h = hook();
+    if (h) {
+      root.querySelectorAll('[data-buy]').forEach(b => b.addEventListener('click', () =>
+        h.checkout({ plan: b.dataset.buy, cycle: CYCLE_API[state.cycle] || 'mensal', currency: cur.toLowerCase() }, b)));
+      root.querySelectorAll('[data-pack]').forEach(b => b.addEventListener('click', () =>
+        h.pack({ currency: cur.toLowerCase() }, b)));
+    }
   }
+  window.TSPlans = { render };
 
   function init() {
     const st = document.createElement('style');

@@ -79,4 +79,19 @@
   renderTerms();
   renderTurnstile($('ts-signup')).then(id => { tsSignup = id; });
   if (location.hash === '#login') showTab('login');
+  
+  // Signed in already (same tab): offer to go back to the app instead of the forms
+  $('to-login').addEventListener('click', e => { e.preventDefault(); showTab('login'); });
+  $('other-account').addEventListener('click', () => {
+    setSession(null);
+    $('active').hidden = true;
+    document.querySelector('.tabs').hidden = false;
+    showTab('signup');
+  });
+  if (getSession() && location.hash !== '#login') {
+    document.querySelector('.tabs').hidden = true;
+    $('f-signup').hidden = true;
+    $('f-login').hidden = true;
+    $('active').hidden = false;
+  }
 })();

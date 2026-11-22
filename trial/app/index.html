@@ -84,6 +84,17 @@
       <p class="muted" data-t="over_text"></p>
     </section>
 
+    <section class="card no-print" id="billing" hidden>
+      <h2 data-t="b_title">Plan and billing</h2>
+      <div id="billing-msg" class="msg" hidden></div>
+      <p id="billing-status"></p>
+      <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary btn-sm" id="billing-portal" hidden data-t="b_manage">Manage subscription</button>
+      </div>
+      <p class="muted small" id="billing-note" data-t="b_secure"></p>
+    </section>
+    <div id="plans" class="no-print" hidden></div>
+
     <section class="card" id="results" hidden>
       <div class="bar" style="margin-bottom:12px">
         <div><h2 style="margin:0" data-t="r_title">Ranking</h2><div class="muted small" id="res-job"></div></div>
@@ -171,5 +182,6 @@
 
 <footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · support@tecnologiasantos.com</footer>
 <script src="app.js"></script>
+<script src="../plans.js"></script>
 </body>
 </html>

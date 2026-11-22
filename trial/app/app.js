@@ -219,14 +219,78 @@
     });
   }
 
+  // Comparisons the company can use now: this month's (or the trial's) plus an unexpired pack.
+  const creditsLeft = () => (me.trial_expires_at > Date.now() ? me.credits_remaining : 0) +
+    (me.pack_expires_at > Date.now() ? (me.pack_credits || 0) : 0);
+  const isPaid = () => me.plan && me.plan !== 'trial' && me.plan !== 'canceled' && me.plan !== 'pilot';
+
   function renderMe() {
     $('org-name').textContent = me.organization;
     $('role').textContent = roleName(me.role);
     $('team').hidden = !isManager(); $('audit').hidden = !isManager();
-    const c = $('credits'); c.textContent = t('a_credits')(me.credits_remaining); c.classList.toggle('warn', me.credits_remaining <= 1);
-    $('until').textContent = me.trial_expires_at ? t('a_until')(fmtDate(me.trial_expires_at)) : '';
-    const active = me.credits_remaining > 0 && me.trial_expires_at > Date.now();
+    const left = creditsLeft();
+    const c = $('credits'); c.textContent = t('a_credits')(left); c.classList.toggle('warn', left <= 1);
+    $('until').textContent = !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
+    const active = left > 0;
     $('new').hidden = !active; $('over').hidden = active;
+    $('over').querySelector('h2').textContent = isPaid() ? t('over_paid_title') : t('over_title');
+    $('over').querySelector('p').textContent = isPaid() ? t('over_paid_text') : t('over_text');
+    renderBilling();
+  }
+
+  // ── Plan and billing (Stripe Checkout, card only) ───────────────────────
+  let billingFlag = null;
+  function renderBilling() {
+    const b = me.billing, box = $('billing'), plans = $('plans');
+    const live = !!b && ['active', 'trialing', 'past_due'].includes(b.status);
+    box.hidden = false;
+    const msg = $('billing-msg');
+    if (b && b.status === 'past_due') showMsg(msg, 'err', t('b_past_due'));
+    else if (billingFlag === 'success') showMsg(msg, 'ok', t('b_success'));
+    else if (billingFlag === 'cancel') showMsg(msg, 'info', t('b_cancel'));
+    else msg.hidden = true;
+    const planName = t('b_plan')[me.plan] || me.plan;
+    const parts = [t('b_status')(planName, live && b.cycle ? t('b_cycle')[b.cycle] : '')];
+    if (live && b.next_refill_at > Date.now()) parts.push(t('b_refill')(fmtDate(b.next_refill_at)));
+    if (me.pack_credits > 0 && me.pack_expires_at > Date.now()) parts.push(t('b_pack')(me.pack_credits, fmtDate(me.pack_expires_at)));
+    if (!isManager()) parts.push(t('b_members'));
+    $('billing-status').textContent = parts.join(' ');
+    $('billing-portal').hidden = !(isManager() && b && b.has_customer);
+    // Plan cards: managers without an active subscription. The pack card stays available to them too.
+    window.TS_PLANS = isManager()
+      ? { currency: b && b.currency ? b.currency.toUpperCase() : null, packOnly: live, checkout: buyPlan, pack: buyPack } : null;
+    plans.hidden = !isManager();
+    if (window.TSPlans) window.TSPlans.render();
+  }
+
+  async function goToStripe(path, body, btn) {
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = t('b_opening');
+    try {
+      const r = await api('POST', path, body);
+      location.assign(r.url);
+    } catch (err) {
+      if (err.status === 401) return gate();
+      btn.disabled = false; btn.textContent = label;
+      showMsg($('billing-msg'), 'err', err.message);
+      $('billing').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+  const buyPlan = (body, btn) => goToStripe('/api/billing/checkout', body, btn);
+  const buyPack = (body, btn) => goToStripe('/api/billing/pack', body, btn);
+
+  // Back from Stripe: the webhook can take a few seconds, so reload /api/me until the change shows.
+  async function afterCheckout() {
+    for (let i = 0; i < 6; i++) {
+      await new Promise(r => setTimeout(r, 2500));
+      try {
+        const fresh = await api('GET', '/api/me');
+        const changed = fresh.plan !== me.plan || fresh.pack_credits !== me.pack_credits || fresh.credits_remaining !== me.credits_remaining;
+        me = fresh;
+        if (changed) { renderMe(); return; }
+      } catch (e) { return; }
+    }
+    renderMe();
   }
 
   function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); } }
@@ -249,7 +313,7 @@
       saveNames(r.id, names);
       const ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: cvs.length, ranking: r.ranking, author: r.author };
       past.unshift(ev);
-      me.credits_remaining = r.credits_remaining;
+      try { me = await api('GET', '/api/me'); } catch (e) { me.credits_remaining = r.credits_remaining; me.pack_credits = 0; }
       if (isManager()) await loadHistory();
       renderMe(); renderHistory(); renderResults(ev);
       cvs = []; renderCvs();
@@ -257,7 +321,7 @@
     } catch (err) {
       if (err.status === 401) return gate();
       showMsg(msg, 'err', err.message);
-      if (err.code === 'no_credits' || err.code === 'trial_expired') { me.credits_remaining = 0; renderMe(); }
+      if (err.code === 'no_credits' || err.code === 'trial_expired') { me.credits_remaining = 0; me.pack_credits = 0; renderMe(); }
     } finally {
       btn.disabled = false; sp.remove(); $('run-label').textContent = t('b_run');
     }
@@ -281,6 +345,12 @@
   }
 
   async function start() {
+    const q = new URLSearchParams(location.search);
+    if (q.has('billing')) {
+      billingFlag = q.get('billing') === 'success' ? 'success' : 'cancel';
+      q.delete('billing');
+      window.history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+    }
     const m = location.hash.match(/token=([A-Za-z0-9_-]{20,100})/);
     if (m) {
       window.history.replaceState(null, '', location.pathname + location.search);
@@ -299,6 +369,7 @@
       if (isManager()) await loadTeam();
     } catch (err) { return gate(err.status === 401 ? undefined : err.message); }
     showApp();
+    if (billingFlag === 'success') afterCheckout();
   }
 
   // Invited people accept the terms on their first sign-in.
@@ -523,6 +594,8 @@
       setSession(null); gate(t('deleted')); $('gate-title').textContent = t('deleted'); $('gate-btn').hidden = true;
     } catch (err) { showMsg($('del-msg'), 'err', err.message); dReady(); }
   });
+
+  $('billing-portal').addEventListener('click', e => goToStripe('/api/billing/portal', {}, e.currentTarget));
 
   setupLangButtons(rerender);
   applyTexts();

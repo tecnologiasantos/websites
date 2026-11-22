@@ -57,6 +57,7 @@
         <div class="ts-box" id="ts-signup"></div>
         <div id="s-msg" class="msg" hidden></div>
         <button type="submit" class="btn btn-primary btn-block" id="s-btn" data-t="b_signup">Send my access link</button>
+        <p class="muted small" style="margin-top:12px;text-align:center"><span data-t="have_account">Already signed up?</span> <a href="#login" id="to-login" data-t="have_account_link">Get a sign-in link</a></p>
       </form>
 
       <form id="f-login" novalidate hidden>
@@ -67,6 +68,13 @@
         <button type="submit" class="btn btn-primary btn-block" id="l-btn" data-t="b_login">Send sign-in link</button>
       </form>
 
+      <div id="active" hidden>
+      <h2 data-t="act_title">You are signed in</h2>
+      <p class="muted" style="margin-bottom:18px" data-t="act_text"></p>
+      <a class="btn btn-primary btn-block" href="app/" data-keep-lang data-t="b_open_app">Open my app</a>
+      <button type="button" class="btn btn-ghost btn-block" id="other-account" style="margin-top:10px" data-t="b_other_account">Use another e-mail</button>
+      </div>
+      
       <div id="done" class="done" hidden>
         <div class="big">✉️</div>
         <h2 data-t="ok_title">Almost there</h2>

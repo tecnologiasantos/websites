@@ -223,6 +223,8 @@
   const creditsLeft = () => (me.trial_expires_at > Date.now() ? me.credits_remaining : 0) +
     (me.pack_expires_at > Date.now() ? (me.pack_credits || 0) : 0);
   const isPaid = () => me.plan && me.plan !== 'trial' && me.plan !== 'canceled' && me.plan !== 'pilot';
+  // A bought pack without a paid plan: the page stops calling itself a free trial.
+  const hasPackOnly = () => !isPaid() && me.pack_expires_at > Date.now() && (me.pack_credits || 0) > 0 && !!t('s_label_pack');
 
   function renderMe() {
     $('org-name').textContent = me.organization;
@@ -230,14 +232,16 @@
     $('team').hidden = !isManager(); $('audit').hidden = !isManager();
     const left = creditsLeft();
     const c = $('credits'); c.textContent = t('a_credits')(left); c.classList.toggle('warn', left <= 1);
-    $('until').textContent = !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
+    $('until').textContent = hasPackOnly() ? t('a_pack_until')(fmtDate(me.pack_expires_at))
+      : !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
     const active = left > 0;
     $('new').hidden = !active; $('over').hidden = active;
     $('over').querySelector('h2').textContent = (isPaid() && t('over_paid_title')) || t('over_title');
     $('over').querySelector('p').textContent = (isPaid() && t('over_paid_text')) || t('over_text');
     const planLabel = t('b_plan') && t('b_plan')[me.plan];
-    $('s-label').textContent = isPaid() && t('s_label_paid') && planLabel ? t('s_label_paid')(planLabel) : t('s_label');
-    $('run-note').textContent = (isPaid() && t('run_note_paid')) || t('run_note');
+    $('s-label').textContent = isPaid() && t('s_label_paid') && planLabel ? t('s_label_paid')(planLabel)
+      : hasPackOnly() ? t('s_label_pack') : t('s_label');
+    $('run-note').textContent = (isPaid() && t('run_note_paid')) || (hasPackOnly() && t('run_note_pack')) || t('run_note');
     // Billing never breaks the rest of the page (e.g. an old cached trial.js without its texts).
     try { renderBilling(); } catch (e) { $('billing').hidden = true; $('plans').hidden = true; }
   }

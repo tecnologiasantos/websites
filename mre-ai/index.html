@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://mre-ai-trial.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://mre-ai-trial.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>MRE·AI free trial · Tecnologia Santos</title>
 <meta name="description" content="Try MRE·AI free: rank up to 5 CVs against your own job description with AI. 3 free comparisons, CVs anonymized in your browser.">
@@ -83,11 +83,75 @@
       </div>
     </section>
   </div>
+  <!-- MRE·AI: vídeo-convite + manual por idioma. Colar dentro de <main>, entre <div class="grid2"> e <div id="plans">. -->
+  <style>
+    .mre-media{margin:32px 0;padding:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .mre-media h2{margin:0 0 4px;font-size:1.35rem;color:var(--text)}
+    .mre-media p{margin:0 0 16px;color:var(--muted)}
+    .mre-media .mm-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+    .mre-media video{width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;display:block}
+    .mre-media .mm-links{display:flex;flex-direction:column;gap:10px}
+    .mre-media .mm-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:10px;font-weight:600;text-decoration:none;border:1px solid var(--border);color:var(--text);background:var(--bg)}
+    .mre-media .mm-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .mre-media .mm-btn.primary:hover{background:var(--blue-dark)}
+    .mre-media [data-media-lang][hidden]{display:none}
+    @media (max-width:720px){.mre-media .mm-grid{grid-template-columns:1fr}}
+  </style>
+
+  <section class="mre-media" id="mre-media" aria-label="MRE·AI video and user manual">
+
+    <div data-media-lang="en" hidden>
+      <h2>Get to know MRE·AI</h2>
+      <p>Watch the invitation video and download the user manual.</p>
+      <div class="mm-grid">
+        <video controls playsinline preload="none"
+               src="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/english/MRE-AI_invite_EN.mp4#t=0.5">
+          Your browser does not support video.
+        </video>
+        <div class="mm-links">
+          <a class="mm-btn primary" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/english/MRE-AI_User_Manual_EN.pdf" target="_blank" rel="noopener">📄 User manual (PDF)</a>
+          <a class="mm-btn" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/english/MRE-AI_invite_EN.mp4" target="_blank" rel="noopener">▶ Open video in a new tab</a>
+        </div>
+      </div>
+    </div>
+
+    <div data-media-lang="pt" hidden>
+      <h2>Conheça o MRE·AI</h2>
+      <p>Assista ao vídeo-convite e baixe o manual do usuário.</p>
+      <div class="mm-grid">
+        <video controls playsinline preload="none"
+               src="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/portuguese/MRE-AI_convite_PT.mp4#t=0.5">
+          Seu navegador não suporta vídeo.
+        </video>
+        <div class="mm-links">
+          <a class="mm-btn primary" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/portuguese/Manual_do_Usuario_MRE-AI.pdf" target="_blank" rel="noopener">📄 Manual do usuário (PDF)</a>
+          <a class="mm-btn" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/portuguese/MRE-AI_convite_PT.mp4" target="_blank" rel="noopener">▶ Abrir vídeo em nova aba</a>
+        </div>
+      </div>
+    </div>
+
+    <div data-media-lang="es" hidden>
+      <h2>Conoce MRE·AI</h2>
+      <p>Mira el video de invitación y descarga el manual del usuario.</p>
+      <div class="mm-grid">
+        <video controls playsinline preload="none"
+               src="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/spanish/MRE-AI_invitacion_ES.mp4#t=0.5">
+          Tu navegador no admite video.
+        </video>
+        <div class="mm-links">
+          <a class="mm-btn primary" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/spanish/Manual_del_Usuario_MRE-AI_ES.pdf" target="_blank" rel="noopener">📄 Manual del usuario (PDF)</a>
+          <a class="mm-btn" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/spanish/MRE-AI_invitacion_ES.mp4" target="_blank" rel="noopener">▶ Abrir video en otra pestaña</a>
+        </div>
+      </div>
+    </div>
+
+  </section>
   <div id="plans"></div>
 </main>
 
 <footer>© 2026 Tecnologia Santos · <a href="../privacy-policy.html">Privacy Policy</a> · <a href="../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
 <script src="signup.js?v=20261123a"></script>
   <script src="plans.js?v=20261123a"></script>
+<script src="media.js?v=20261123b"></script>
 </body>
 </html>

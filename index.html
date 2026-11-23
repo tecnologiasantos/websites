@@ -1219,7 +1219,14 @@
         <p class="section-label" data-i18n="mt_label">AI-Powered Hiring</p>
         <h2 class="section-title" data-i18n="mt_title">MiraTech AI evaluates candidates instantly</h2>
         <p class="section-sub" data-i18n="mt_sub">Paste a job description, upload resumes, and let MiraTech AI score every candidate in seconds. Less guesswork, consistent criteria — clear match scores to support your team’s decision.</p>
-        <div style="margin:22px 0 36px;"><a href="mre-ai/" id="mt-trial-cta" style="display:inline-block;background:#1a56db;color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(26,86,219,.3);" onclick="this.href='mre-ai/?lang='+currentLang" data-i18n="mt_trial_cta">Try MRE·AI free on your own vacancy →</a></div>
+        <div style="margin:22px 0 36px;"><a href="mre-ai/" id="mt-trial-cta" style="display:inline-block;background:#1a56db;color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(26,86,219,.3);" onclick="this.href='mre-ai/?lang='+currentLang" data-i18n="mt_trial_cta">Try MRE·AI free on your own vacancy →</a>
+            <p id="mt-more" style="margin:14px 0 0;font-size:.92rem;color:#5b6475;">
+                <span data-i18n="mt_more_lead">Want more details?</span>
+                <a id="mt-video-link" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/english/MRE-AI_invite_EN.mp4" target="_blank" rel="noopener" style="color:#1a56db;font-weight:600;text-decoration:none;white-space:nowrap;"><i class="fa-solid fa-circle-play"></i> <span data-i18n="mt_more_video">Watch the video</span></a>
+                <span aria-hidden="true">&middot;</span>
+                <a id="mt-manual-link" href="https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/english/MRE-AI_User_Manual_EN.pdf" target="_blank" rel="noopener" style="color:#1a56db;font-weight:600;text-decoration:none;white-space:nowrap;"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="mt_more_manual">Read the user manual (PDF)</span></a>
+            </p>
+        </div>
 
         <div class="mira-demo-grid">
             <!-- Left: steps -->
@@ -1756,6 +1763,7 @@ const i18n = {
         mt_chip_starter: 'Starter · UPC only', mt_chip_growth: 'Growth · UPC + JRC', mt_chip_ent: 'Enterprise · Full AI + Insight',
         mt_cta: 'Open MiraTech Platform', mt_eval_btn: 'Internal Evaluator',
         mt_trial_cta: 'Try MRE·AI free on your own vacancy →',
+        mt_more_lead: 'Want more details?', mt_more_video: 'Watch the video', mt_more_manual: 'Read the user manual (PDF)',
         mt_demo_badge: 'Free Demo Available',
         mt_demo_free: '3 evals · No credit card',
         mt_demo_title: 'Try it free — no account needed',
@@ -1973,6 +1981,7 @@ const i18n = {
         mt_chip_starter: 'Starter · Apenas UPC', mt_chip_growth: 'Growth · UPC + JRC', mt_chip_ent: 'Enterprise · IA Completa + Insight',
         mt_cta: 'Abrir Plataforma MiraTech', mt_eval_btn: 'Avaliador Interno',
         mt_trial_cta: 'Teste o MRE·AI grátis na sua própria vaga →',
+        mt_more_lead: 'Quer saber mais?', mt_more_video: 'Assista ao vídeo', mt_more_manual: 'Leia o manual do usuário (PDF)',
         mt_demo_badge: 'Demo Gratuito Disponível',
         mt_demo_free: '3 avaliações · Sem cartão',
         mt_demo_title: 'Experimente grátis — sem cadastro',
@@ -2190,6 +2199,7 @@ const i18n = {
         mt_chip_starter: 'Starter · Solo UPC', mt_chip_growth: 'Growth · UPC + JRC', mt_chip_ent: 'Enterprise · IA Completa + Insight',
         mt_cta: 'Abrir Plataforma MiraTech',
         mt_trial_cta: 'Prueba MRE·AI gratis en tu propia vacante →',
+        mt_more_lead: '¿Quieres saber más?', mt_more_video: 'Mira el video', mt_more_manual: 'Lee el manual del usuario (PDF)',
         mt_demo_badge: 'Demo Gratuito Disponible',
         mt_demo_free: '3 evaluaciones · Sin tarjeta',
         mt_demo_title: 'Pruébalo gratis — sin cuenta',
@@ -2304,6 +2314,13 @@ const i18n = {
 
 let currentLang = 'en';
 
+const MRE_AI_MEDIA_BASE = 'https://techbr-poc-bu-east-1.s3.sa-east-1.amazonaws.com/marketing/miratech/MRE-AI/';
+const MRE_AI_MEDIA = {
+    en: { video: MRE_AI_MEDIA_BASE + 'english/MRE-AI_invite_EN.mp4',      manual: MRE_AI_MEDIA_BASE + 'english/MRE-AI_User_Manual_EN.pdf' },
+    pt: { video: MRE_AI_MEDIA_BASE + 'portuguese/MRE-AI_convite_PT.mp4',  manual: MRE_AI_MEDIA_BASE + 'portuguese/Manual_do_Usuario_MRE-AI.pdf' },
+    es: { video: MRE_AI_MEDIA_BASE + 'spanish/MRE-AI_invitacion_ES.mp4',  manual: MRE_AI_MEDIA_BASE + 'spanish/Manual_del_Usuario_MRE-AI_ES.pdf' }
+};
+
 function toggleLangMenu() {
     document.getElementById('langDropdown').classList.toggle('open');
 }
@@ -2336,6 +2353,13 @@ function setLang(lang) {
     });
 
     document.getElementById('langDropdown').classList.remove('open');
+
+    // MRE·AI video and user manual links in the visitor's language
+    const mre = MRE_AI_MEDIA[lang] || MRE_AI_MEDIA.en;
+    const mv = document.getElementById('mt-video-link');
+    const mm = document.getElementById('mt-manual-link');
+    if (mv) mv.href = mre.video;
+    if (mm) mm.href = mre.manual;
 
     // Update chatbot labels
     const cn = document.getElementById('chat-header-name');

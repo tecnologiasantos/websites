@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRE·AI – Termos de Uso / Terms of Service / Términos de Uso · Tecnologia Santos</title>
+<meta name="description" content="Termos de Uso do MRE·AI (planos pagos, pacotes e teste grátis) — Tecnologia Santos.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://tecnologiasantos.com/terms-of-service.html">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+        --blue:#1a56db;--blue-dark:#1040b0;--blue-light:#e8f0fe;
+        --teal:#0e9f6e;--teal-light:#e4f9f2;
+        --text:#1a202c;--text-muted:#4a5568;--border:#e2e8f0;
+        --bg:#f7f9fc;--white:#ffffff;--radius:12px;
+        --shadow:0 2px 12px rgba(0,0,0,0.08);
+    }
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+
+    nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;}
+    .nav-logo{font-size:18px;font-weight:700;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:8px;}
+    .nav-back{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;}
+    .nav-back:hover{color:var(--blue);}
+
+    .lang-switcher{position:relative;display:flex;align-items:center;}
+    .lang-btn{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);}
+    .lang-btn img{width:18px;height:18px;border-radius:50%;object-fit:cover;}
+    .lang-dropdown{display:none;position:absolute;top:44px;right:0;background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);min-width:160px;overflow:hidden;}
+    .lang-dropdown.open{display:block;}
+    .lang-option{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);}
+    .lang-option:hover{background:var(--bg);}
+    .lang-option img{width:18px;height:18px;border-radius:50%;object-fit:cover;}
+    .lang-option.active{font-weight:700;color:var(--blue);}
+
+    .container{max-width:820px;margin:0 auto;padding:48px 24px 96px;}
+    .doc-title{font-size:clamp(26px,4vw,36px);font-weight:700;margin-bottom:8px;}
+    .doc-updated{color:var(--text-muted);font-size:14px;margin-bottom:36px;}
+    .doc-updated strong{color:var(--text);}
+
+    .policy section{margin-bottom:34px;}
+    .policy h2{font-size:20px;font-weight:700;margin-bottom:12px;color:var(--text);border-bottom:2px solid var(--teal-light);padding-bottom:8px;}
+    .policy p{margin-bottom:12px;font-size:15.5px;color:var(--text);}
+    .policy ul{margin:0 0 12px 22px;font-size:15.5px;}
+    .policy li{margin-bottom:8px;}
+    .policy a{color:var(--blue);text-decoration:none;}
+    .policy a:hover{text-decoration:underline;}
+    .policy strong{color:var(--text);}
+
+    table.data-table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:14px;}
+    table.data-table th,table.data-table td{text-align:left;padding:10px 12px;border:1px solid var(--border);vertical-align:top;}
+    table.data-table th{background:var(--blue-light);color:var(--blue-dark);font-weight:700;}
+    table.data-table tr:nth-child(even) td{background:#fbfcfe;}
+
+    .contact-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);}
+    .contact-box a{font-weight:600;}
+
+    footer{text-align:center;padding:28px 24px;color:var(--text-muted);font-size:13px;border-top:1px solid var(--border);}
+
+    .lang-block{display:none;}
+    .lang-block.active{display:block;}
+
+    @media (max-width:600px){
+        .container{padding:32px 16px 72px;}
+        table.data-table{font-size:12.5px;}
+    }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-logo"><span>🌐</span> Tecnologia Santos</a>
+    <div style="display:flex;align-items:center;gap:18px;">
+        <a href="index.html" class="nav-back" id="backLink">← Voltar ao site</a>
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn" onclick="toggleLangMenu()">
+                <img id="activeFlagImg" src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" alt="PT">
+                <span id="activeLangLabel">PT</span>
+            </button>
+            <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-option active" onclick="setLang('pt')" id="opt-pt">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" alt="PT"> Português
+                </div>
+                <div class="lang-option" onclick="setLang('en')" id="opt-en">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg" alt="EN"> English
+                </div>
+                <div class="lang-option" onclick="setLang('es')" id="opt-es">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="ES"> Español
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+<!-- ══════════════════════ PORTUGUÊS ══════════════════════ -->
+<div class="lang-block active" id="block-pt">
+    <h1 class="doc-title">Termos de Uso do MRE·AI</h1>
+    <p class="doc-updated">Última atualização: <strong>23/11/2026</strong> · Planos pagos, pacotes avulsos e teste grátis do MRE·AI.</p>
+
+    <div class="policy">
+        <section>
+            <h2>1. Quem somos e aceitação</h2>
+            <p>Estes Termos regem o uso do <strong>MRE·AI</strong>, serviço de comparação de currículos oferecido pela <strong>Tecnologia Santos</strong>, empresa individual de Ronaldo Nascimento dos Santos, com sede em Ribeirão Preto, SP, Brasil ("nós").</p>
+            <p>Ao criar uma conta, aceitar os termos do teste grátis ou contratar um plano ou pacote, a empresa usuária ("você") concorda com estes Termos e com a nossa <a href="privacy-policy.html">Política de Privacidade</a>. Quem contrata declara ter poderes para fazê-lo em nome da empresa.</p>
+        </section>
+
+        <section>
+            <h2>2. O que é o MRE·AI</h2>
+            <p>Cada <strong>comparação</strong> avalia uma descrição de vaga com até 5 currículos e devolve um ranking de 0 a 100, com pontos fortes, lacunas e justificativa, gerado por inteligência artificial (API do Claude, da Anthropic).</p>
+            <p>O MRE·AI é uma <strong>ferramenta de apoio</strong>: a IA pode errar ou omitir informações, e a decisão de contratar ou não um candidato é sempre de uma pessoa da sua empresa. Não use o resultado como único critério nem para fins discriminatórios.</p>
+        </section>
+
+        <section>
+            <h2>3. Conta e equipe</h2>
+            <p>A conta pertence à empresa. O <strong>Titular</strong> e os <strong>Administradores</strong> podem contratar e gerenciar planos, pacotes e a equipe; <strong>Recrutadores</strong> usam as comparações, mas não veem nem alteram a cobrança. Você é responsável por quem convida e pelo uso feito com as credenciais da sua equipe.</p>
+        </section>
+
+        <section>
+            <h2>4. Teste grátis</h2>
+            <p>O teste grátis oferece 3 comparações válidas por 14 dias, uma vez por empresa (domínio de e-mail), nas condições exibidas no cadastro. Ao fim do teste, nada é cobrado automaticamente: para continuar, é preciso contratar um plano ou pacote.</p>
+        </section>
+
+        <section>
+            <h2>5. Planos, pacotes e preços</h2>
+            <ul>
+            <li><strong>Planos mensais de comparações:</strong> Essencial (40 por mês), Profissional (150 por mês) e Equipe (500 por mês), com cobrança mensal, a cada 3 meses ou anual.</li>
+            <li><strong>Pacote avulso:</strong> 25 comparações válidas por 60 dias, com pagamento único.</li>
+            </ul>
+            <p>Os preços são os exibidos na página de planos e no checkout no momento da contratação, em reais (R$) ou dólares (US$). A moeda escolhida no primeiro pagamento fica fixa para a empresa.</p>
+        </section>
+
+        <section>
+            <h2>6. Pagamento</h2>
+            <p>O pagamento é feito por <strong>cartão de crédito</strong> na página segura da <strong>Stripe</strong>. Não recebemos nem guardamos o número do seu cartão. Emitimos o documento fiscal correspondente a cada pagamento, conforme a legislação aplicável.</p>
+        </section>
+
+        <section>
+            <h2>7. Renovação automática</h2>
+            <p>As assinaturas <strong>renovam automaticamente</strong> ao fim de cada ciclo (mensal, de 3 meses ou anual), com cobrança no mesmo cartão, até que sejam canceladas. Se a cobrança falhar, a Stripe tenta novamente e você pode atualizar o cartão em "Gerenciar assinatura"; sem pagamento, o acesso às comparações do plano é suspenso.</p>
+        </section>
+
+        <section>
+            <h2>8. Como as comparações são contadas</h2>
+            <ul>
+            <li>As comparações do plano são renovadas <strong>todo mês</strong>, inclusive nos ciclos de 3 meses e anual, e <strong>não acumulam</strong> de um mês para o outro.</li>
+            <li>As comparações do pacote avulso valem por 60 dias. Ao comprar um novo pacote, as não usadas se somam e a validade de 60 dias recomeça.</li>
+            <li>As comparações do mês (ou do teste) são usadas primeiro; as do pacote, depois.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Troca de plano e cancelamento</h2>
+            <p>O Titular ou um Administrador pode trocar de plano ou cancelar a assinatura a qualquer momento em <strong>"Gerenciar assinatura"</strong>, sem multa. Na troca de plano, a diferença é calculada pela Stripe proporcionalmente ao período restante e mostrada antes da confirmação.</p>
+            <p>No cancelamento, o plano continua válido <strong>até o fim do período já pago</strong> e não é renovado; não há reembolso proporcional do período restante, exceto nos casos previstos nestes Termos ou em lei. Comparações de um pacote ainda válido continuam disponíveis.</p>
+        </section>
+
+        <section>
+            <h2>10. Direito de arrependimento e reembolsos</h2>
+            <p>Quando a contratação for uma relação de consumo, você pode desistir em até <strong>7 dias</strong> contados do pagamento, nos termos do art. 49 do Código de Defesa do Consumidor, com <strong>reembolso integral</strong>. Basta pedir pelo e-mail <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>.</p>
+            <p>Outros pedidos de reembolso são analisados caso a caso. Quando um pagamento é reembolsado integralmente: no pacote avulso, as comparações dele ainda não usadas são retiradas (as já usadas não são cobradas); na assinatura, ela é encerrada na hora. O estorno aparece na fatura do cartão em geral em 5 a 10 dias, conforme o banco.</p>
+        </section>
+
+        <section>
+            <h2>11. Contestações (chargeback)</h2>
+            <p>Se um pagamento for contestado junto ao banco ou à operadora do cartão, as comparações ligadas a ele ficam suspensas até a conclusão. Se a contestação for decidida a nosso favor, elas são devolvidas; antes de contestar, fale conosco: resolvemos a maioria dos casos diretamente.</p>
+        </section>
+
+        <section>
+            <h2>12. Currículos e dados de candidatos</h2>
+            <p>Em relação aos dados dos candidatos, a sua empresa é a <strong>controladora</strong> e deve ter base legal para tratá-los (por exemplo, a candidatura à vaga); nós atuamos como <strong>operadora</strong>, tratando-os só para gerar o ranking. Os currículos são anonimizados no seu navegador antes do envio, o texto deles não é armazenado e os rankings são apagados após 30 dias, conforme a <a href="privacy-policy.html">Política de Privacidade</a>.</p>
+            <p>Não envie dados sensíveis desnecessários (como saúde, religião ou origem racial) nem conteúdo ilícito.</p>
+        </section>
+
+        <section>
+            <h2>13. Uso aceitável</h2>
+            <p>É proibido tentar burlar limites de comparações, revender o acesso, automatizar o uso fora da interface oferecida, explorar falhas de segurança ou usar o serviço para fins ilegais ou discriminatórios. Podemos suspender a conta em caso de violação, com aviso prévio sempre que possível.</p>
+        </section>
+
+        <section>
+            <h2>14. Disponibilidade e suporte</h2>
+            <p>Trabalhamos para manter o serviço disponível, mas ele pode ter interrupções para manutenção ou por falhas de terceiros (como provedores de nuvem e de IA). O suporte é feito por e-mail em <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>, em dias úteis.</p>
+        </section>
+
+        <section>
+            <h2>15. Responsabilidade</h2>
+            <p>Na máxima extensão permitida por lei, não respondemos por decisões de contratação tomadas com base nos rankings, nem por danos indiretos ou lucros cessantes, e nossa responsabilidade total fica limitada aos valores pagos por você nos 12 meses anteriores ao fato. Nada nestes Termos limita direitos que a lei garante ao consumidor.</p>
+        </section>
+
+        <section>
+            <h2>16. Alterações de preços e destes Termos</h2>
+            <p>Podemos alterar preços e estes Termos. Mudanças de preço valem a partir da renovação seguinte e são avisadas por e-mail ao Titular com pelo menos <strong>30 dias</strong> de antecedência; você pode cancelar antes de a mudança valer. A data no topo indica a versão vigente.</p>
+        </section>
+
+        <section>
+            <h2>17. Lei aplicável e foro</h2>
+            <p>Estes Termos seguem as leis do Brasil. Fica eleito o foro da comarca de Ribeirão Preto, SP, ressalvado o direito do consumidor de propor ação no foro do seu domicílio.</p>
+        </section>
+
+        <section>
+            <h2>18. Contato</h2>
+            <div class="contact-box">
+                <p><strong>Tecnologia Santos</strong><br>Ribeirão Preto, SP, Brasil</p>
+                <p>E-mail: <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a></p>
+                <p>Site: <a href="https://tecnologiasantos.com">tecnologiasantos.com</a></p>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- ══════════════════════ ENGLISH ══════════════════════ -->
+<div class="lang-block" id="block-en">
+    <h1 class="doc-title">MRE·AI Terms of Service</h1>
+    <p class="doc-updated">Last updated: <strong>23/11/2026</strong> · MRE·AI paid plans, comparison packs and free trial.</p>
+
+    <div class="policy">
+        <section>
+            <h2>1. Who we are and acceptance</h2>
+            <p>These Terms govern the use of <strong>MRE·AI</strong>, a resume comparison service offered by <strong>Tecnologia Santos</strong>, a sole proprietorship of Ronaldo Nascimento dos Santos based in Ribeirão Preto, SP, Brazil ("we").</p>
+            <p>By creating an account, accepting the free trial terms or buying a plan or pack, the customer company ("you") agrees to these Terms and to our <a href="privacy-policy.html">Privacy Policy</a>. Whoever buys confirms they are authorized to do so on behalf of the company.</p>
+        </section>
+
+        <section>
+            <h2>2. What MRE·AI is</h2>
+            <p>Each <strong>comparison</strong> evaluates one job description against up to 5 resumes and returns a 0–100 ranking with strengths, gaps and reasoning, generated by artificial intelligence (Anthropic's Claude API).</p>
+            <p>MRE·AI is a <strong>decision-support tool</strong>: the AI can be wrong or miss information, and the decision to hire a candidate is always made by a person at your company. Do not use the result as the only criterion or for discriminatory purposes.</p>
+        </section>
+
+        <section>
+            <h2>3. Account and team</h2>
+            <p>The account belongs to the company. The <strong>Account holder</strong> and <strong>Administrators</strong> can buy and manage plans, packs and the team; <strong>Recruiters</strong> use the comparisons but cannot see or change billing. You are responsible for the people you invite and for use made with your team's credentials.</p>
+        </section>
+
+        <section>
+            <h2>4. Free trial</h2>
+            <p>The free trial gives 3 comparisons valid for 14 days, once per company (e-mail domain), under the conditions shown at sign-up. Nothing is charged automatically when the trial ends: to continue, you need to buy a plan or pack.</p>
+        </section>
+
+        <section>
+            <h2>5. Plans, packs and prices</h2>
+            <ul>
+            <li><strong>Monthly comparison plans:</strong> Essential (40 per month), Professional (150 per month) and Team (500 per month), billed monthly, every 3 months or yearly.</li>
+            <li><strong>Comparison pack:</strong> 25 comparisons valid for 60 days, one-time payment.</li>
+            </ul>
+            <p>Prices are those shown on the plans page and at checkout at the time of purchase, in Brazilian reais (R$) or US dollars (US$). The currency of the first payment stays fixed for the company.</p>
+        </section>
+
+        <section>
+            <h2>6. Payment</h2>
+            <p>Payment is made by <strong>credit card</strong> on <strong>Stripe</strong>'s secure page. We never receive or store your card number. We issue the tax document for each payment as required by applicable law.</p>
+        </section>
+
+        <section>
+            <h2>7. Automatic renewal</h2>
+            <p>Subscriptions <strong>renew automatically</strong> at the end of each cycle (monthly, every 3 months or yearly) and are charged to the same card until cancelled. If a charge fails, Stripe retries and you can update the card in "Manage subscription"; without payment, the plan's comparisons are suspended.</p>
+        </section>
+
+        <section>
+            <h2>8. How comparisons are counted</h2>
+            <ul>
+            <li>Plan comparisons are refilled <strong>every month</strong>, including on 3-month and yearly cycles, and <strong>do not roll over</strong> to the next month.</li>
+            <li>Pack comparisons are valid for 60 days. When you buy a new pack, unused comparisons are added up and the 60-day validity restarts.</li>
+            <li>The month's (or the trial's) comparisons are used first; pack comparisons after them.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Changing plans and cancelling</h2>
+            <p>The Account holder or an Administrator can change plans or cancel at any time in <strong>"Manage subscription"</strong>, with no fee. When you change plans, Stripe prorates the difference for the remaining period and shows it before you confirm.</p>
+            <p>When you cancel, the plan stays valid <strong>until the end of the period already paid</strong> and is not renewed; there is no pro-rata refund for the remaining period, except as provided in these Terms or by law. Comparisons from a still-valid pack remain available.</p>
+        </section>
+
+        <section>
+            <h2>10. Right of withdrawal and refunds</h2>
+            <p>Where the purchase is a consumer relationship under Brazilian law, you may withdraw within <strong>7 days</strong> of payment (art. 49 of the Brazilian Consumer Protection Code) for a <strong>full refund</strong>. Just e-mail <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>.</p>
+            <p>Other refund requests are reviewed case by case. When a payment is fully refunded: for a pack, its unused comparisons are removed (used ones are not charged); for a subscription, it ends immediately. The refund usually shows on your card statement within 5 to 10 days, depending on your bank.</p>
+        </section>
+
+        <section>
+            <h2>11. Disputes (chargebacks)</h2>
+            <p>If a payment is disputed with your bank or card issuer, the comparisons linked to it are suspended until the dispute is closed. If it is decided in our favor, they are given back. Before disputing, please contact us: we solve most cases directly.</p>
+        </section>
+
+        <section>
+            <h2>12. Resumes and candidate data</h2>
+            <p>For candidates' data, your company is the <strong>controller</strong> and must have a legal basis to process it (for example, the job application); we act as a <strong>processor</strong>, handling it only to generate the ranking. Resumes are anonymized in your browser before they are sent, their text is not stored and rankings are deleted after 30 days, as described in the <a href="privacy-policy.html">Privacy Policy</a>.</p>
+            <p>Do not send unnecessary sensitive data (such as health, religion or racial origin) or unlawful content.</p>
+        </section>
+
+        <section>
+            <h2>13. Acceptable use</h2>
+            <p>You may not try to bypass comparison limits, resell access, automate use outside the provided interface, exploit security flaws or use the service for unlawful or discriminatory purposes. We may suspend the account if these Terms are breached, with prior notice whenever possible.</p>
+        </section>
+
+        <section>
+            <h2>14. Availability and support</h2>
+            <p>We work to keep the service available, but it may be interrupted for maintenance or by third-party failures (such as cloud and AI providers). Support is by e-mail at <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>, on business days.</p>
+        </section>
+
+        <section>
+            <h2>15. Liability</h2>
+            <p>To the fullest extent permitted by law, we are not liable for hiring decisions made based on the rankings, or for indirect damages or lost profits, and our total liability is limited to the amounts you paid in the 12 months before the event. Nothing in these Terms limits rights that the law grants to consumers.</p>
+        </section>
+
+        <section>
+            <h2>16. Changes to prices and to these Terms</h2>
+            <p>We may change prices and these Terms. Price changes apply from the next renewal and are announced by e-mail to the Account holder at least <strong>30 days</strong> in advance; you can cancel before the change takes effect. The date at the top shows the version in force.</p>
+        </section>
+
+        <section>
+            <h2>17. Governing law and venue</h2>
+            <p>These Terms are governed by the laws of Brazil. The courts of Ribeirão Preto, SP, have jurisdiction, without prejudice to a consumer's right to sue in the courts of their own domicile.</p>
+        </section>
+
+        <section>
+            <h2>18. Contact</h2>
+            <div class="contact-box">
+                <p><strong>Tecnologia Santos</strong><br>Ribeirão Preto, SP, Brazil</p>
+                <p>E-mail: <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a></p>
+                <p>Website: <a href="https://tecnologiasantos.com">tecnologiasantos.com</a></p>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- ══════════════════════ ESPAÑOL ══════════════════════ -->
+<div class="lang-block" id="block-es">
+    <h1 class="doc-title">Términos de Uso de MRE·AI</h1>
+    <p class="doc-updated">Última actualización: <strong>23/11/2026</strong> · Planes de pago, paquetes y prueba gratuita de MRE·AI.</p>
+
+    <div class="policy">
+        <section>
+            <h2>1. Quiénes somos y aceptación</h2>
+            <p>Estos Términos rigen el uso de <strong>MRE·AI</strong>, servicio de comparación de currículums ofrecido por <strong>Tecnologia Santos</strong>, empresa individual de Ronaldo Nascimento dos Santos, con sede en Ribeirão Preto, SP, Brasil ("nosotros").</p>
+            <p>Al crear una cuenta, aceptar los términos de la prueba gratuita o contratar un plan o paquete, la empresa usuaria ("usted") acepta estos Términos y nuestra <a href="privacy-policy.html">Política de Privacidad</a>. Quien contrata declara tener facultades para hacerlo en nombre de la empresa.</p>
+        </section>
+
+        <section>
+            <h2>2. Qué es MRE·AI</h2>
+            <p>Cada <strong>comparación</strong> evalúa una descripción de vacante con hasta 5 currículums y devuelve un ranking de 0 a 100, con fortalezas, brechas y justificación, generado por inteligencia artificial (API de Claude, de Anthropic).</p>
+            <p>MRE·AI es una <strong>herramienta de apoyo</strong>: la IA puede equivocarse u omitir información, y la decisión de contratar a un candidato siempre la toma una persona de su empresa. No use el resultado como único criterio ni con fines discriminatorios.</p>
+        </section>
+
+        <section>
+            <h2>3. Cuenta y equipo</h2>
+            <p>La cuenta pertenece a la empresa. El <strong>Titular</strong> y los <strong>Administradores</strong> pueden contratar y gestionar planes, paquetes y el equipo; los <strong>Reclutadores</strong> usan las comparaciones, pero no ven ni modifican la facturación. Usted es responsable de las personas que invita y del uso hecho con las credenciales de su equipo.</p>
+        </section>
+
+        <section>
+            <h2>4. Prueba gratuita</h2>
+            <p>La prueba gratuita ofrece 3 comparaciones válidas por 14 días, una vez por empresa (dominio de correo), en las condiciones mostradas en el registro. Al terminar la prueba no se cobra nada automáticamente: para continuar, hay que contratar un plan o paquete.</p>
+        </section>
+
+        <section>
+            <h2>5. Planes, paquetes y precios</h2>
+            <ul>
+            <li><strong>Planes mensuales de comparaciones:</strong> Esencial (40 por mes), Profesional (150 por mes) y Equipo (500 por mes), con cobro mensual, cada 3 meses o anual.</li>
+            <li><strong>Paquete de comparaciones:</strong> 25 comparaciones válidas por 60 días, con pago único.</li>
+            </ul>
+            <p>Los precios son los mostrados en la página de planes y en el pago al momento de la contratación, en reales (R$) o dólares (US$). La moneda del primer pago queda fija para la empresa.</p>
+        </section>
+
+        <section>
+            <h2>6. Pago</h2>
+            <p>El pago se realiza con <strong>tarjeta de crédito</strong> en la página segura de <strong>Stripe</strong>. No recibimos ni guardamos el número de su tarjeta. Emitimos el comprobante fiscal de cada pago según la legislación aplicable.</p>
+        </section>
+
+        <section>
+            <h2>7. Renovación automática</h2>
+            <p>Las suscripciones <strong>se renuevan automáticamente</strong> al final de cada ciclo (mensual, de 3 meses o anual), con cargo a la misma tarjeta, hasta que se cancelen. Si el cobro falla, Stripe lo reintenta y usted puede actualizar la tarjeta en "Gestionar suscripción"; sin pago, se suspenden las comparaciones del plan.</p>
+        </section>
+
+        <section>
+            <h2>8. Cómo se cuentan las comparaciones</h2>
+            <ul>
+            <li>Las comparaciones del plan se renuevan <strong>cada mes</strong>, también en los ciclos de 3 meses y anual, y <strong>no se acumulan</strong> de un mes a otro.</li>
+            <li>Las comparaciones del paquete valen 60 días. Al comprar un nuevo paquete, las no usadas se suman y la validez de 60 días vuelve a empezar.</li>
+            <li>Primero se usan las comparaciones del mes (o de la prueba); después, las del paquete.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>9. Cambio de plan y cancelación</h2>
+            <p>El Titular o un Administrador puede cambiar de plan o cancelar en cualquier momento en <strong>"Gestionar suscripción"</strong>, sin penalidad. Al cambiar de plan, Stripe calcula la diferencia proporcional al período restante y la muestra antes de confirmar.</p>
+            <p>Al cancelar, el plan sigue vigente <strong>hasta el final del período ya pagado</strong> y no se renueva; no hay reembolso proporcional del período restante, salvo lo previsto en estos Términos o en la ley. Las comparaciones de un paquete aún válido siguen disponibles.</p>
+        </section>
+
+        <section>
+            <h2>10. Derecho de desistimiento y reembolsos</h2>
+            <p>Cuando la contratación sea una relación de consumo según la ley brasileña, usted puede desistir dentro de los <strong>7 días</strong> siguientes al pago (art. 49 del Código de Defensa del Consumidor de Brasil), con <strong>reembolso total</strong>. Basta escribir a <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>.</p>
+            <p>Otras solicitudes de reembolso se analizan caso por caso. Cuando un pago se reembolsa por completo: en el paquete, se retiran sus comparaciones aún no usadas (las ya usadas no se cobran); en la suscripción, esta termina de inmediato. El reembolso suele aparecer en el estado de cuenta de la tarjeta en 5 a 10 días, según el banco.</p>
+        </section>
+
+        <section>
+            <h2>11. Disputas (contracargos)</h2>
+            <p>Si un pago se disputa ante el banco o el emisor de la tarjeta, las comparaciones vinculadas quedan suspendidas hasta el cierre. Si la disputa se resuelve a nuestro favor, se devuelven. Antes de disputar, contáctenos: resolvemos la mayoría de los casos directamente.</p>
+        </section>
+
+        <section>
+            <h2>12. Currículums y datos de candidatos</h2>
+            <p>Respecto de los datos de los candidatos, su empresa es la <strong>responsable</strong> y debe tener base legal para tratarlos (por ejemplo, la postulación a la vacante); nosotros actuamos como <strong>encargado</strong>, tratándolos solo para generar el ranking. Los currículums se anonimizan en su navegador antes del envío, su texto no se almacena y los rankings se eliminan a los 30 días, según la <a href="privacy-policy.html">Política de Privacidad</a>.</p>
+            <p>No envíe datos sensibles innecesarios (como salud, religión u origen racial) ni contenido ilícito.</p>
+        </section>
+
+        <section>
+            <h2>13. Uso aceptable</h2>
+            <p>Está prohibido intentar eludir los límites de comparaciones, revender el acceso, automatizar el uso fuera de la interfaz ofrecida, explotar fallas de seguridad o usar el servicio con fines ilegales o discriminatorios. Podemos suspender la cuenta en caso de incumplimiento, con aviso previo siempre que sea posible.</p>
+        </section>
+
+        <section>
+            <h2>14. Disponibilidad y soporte</h2>
+            <p>Trabajamos para mantener el servicio disponible, pero puede tener interrupciones por mantenimiento o por fallas de terceros (como proveedores de nube y de IA). El soporte es por correo en <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a>, en días hábiles.</p>
+        </section>
+
+        <section>
+            <h2>15. Responsabilidad</h2>
+            <p>En la máxima medida permitida por la ley, no respondemos por decisiones de contratación tomadas con base en los rankings, ni por daños indirectos o lucro cesante, y nuestra responsabilidad total se limita a los montos pagados por usted en los 12 meses anteriores al hecho. Nada en estos Términos limita los derechos que la ley otorga al consumidor.</p>
+        </section>
+
+        <section>
+            <h2>16. Cambios de precios y de estos Términos</h2>
+            <p>Podemos modificar los precios y estos Términos. Los cambios de precio rigen desde la siguiente renovación y se avisan por correo al Titular con al menos <strong>30 días</strong> de anticipación; usted puede cancelar antes de que el cambio entre en vigor. La fecha en la parte superior indica la versión vigente.</p>
+        </section>
+
+        <section>
+            <h2>17. Ley aplicable y jurisdicción</h2>
+            <p>Estos Términos se rigen por las leyes de Brasil. Se elige el foro de Ribeirão Preto, SP, sin perjuicio del derecho del consumidor de demandar en el foro de su domicilio.</p>
+        </section>
+
+        <section>
+            <h2>18. Contacto</h2>
+            <div class="contact-box">
+                <p><strong>Tecnologia Santos</strong><br>Ribeirão Preto, SP, Brasil</p>
+                <p>Correo: <a href="mailto:support@tecnologiasantos.com">support@tecnologiasantos.com</a></p>
+                <p>Sitio: <a href="https://tecnologiasantos.com">tecnologiasantos.com</a></p>
+            </div>
+        </section>
+
+    </div>
+</div>
+</div>
+
+<footer>
+    &copy; 2026 Tecnologia Santos. <span data-i18n="rights">Todos os direitos reservados.</span>
+</footer>
+
+<script>
+const FLAGS = {
+    pt: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg',
+    en: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg',
+    es: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg'
+};
+const LABELS = { pt: 'PT', en: 'EN', es: 'ES' };
+const BACK_LABEL = { pt: '← Voltar ao site', en: '← Back to site', es: '← Volver al sitio' };
+const RIGHTS = { pt: 'Todos os direitos reservados.', en: 'All rights reserved.', es: 'Todos los derechos reservados.' };
+const HTML_LANG = { pt: 'pt-BR', en: 'en', es: 'es' };
+
+function toggleLangMenu() {
+    document.getElementById('langDropdown').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+    const sw = document.getElementById('langSwitcher');
+    if (!sw.contains(e.target)) {
+        document.getElementById('langDropdown').classList.remove('open');
+    }
+});
+
+function setLang(lang) {
+    document.getElementById('activeFlagImg').src = FLAGS[lang];
+    document.getElementById('activeFlagImg').alt = LABELS[lang];
+    document.getElementById('activeLangLabel').textContent = LABELS[lang];
+    document.getElementById('backLink').textContent = BACK_LABEL[lang];
+    document.querySelector('[data-i18n="rights"]').textContent = RIGHTS[lang];
+    document.documentElement.lang = HTML_LANG[lang];
+
+    ['pt','en','es'].forEach(l => {
+        document.getElementById('opt-'+l).classList.toggle('active', l === lang);
+        document.getElementById('block-'+l).classList.toggle('active', l === lang);
+    });
+
+    document.getElementById('langDropdown').classList.remove('open');
+}
+
+(function() {
+    const supported = ['pt', 'en', 'es'];
+    const browserLangs = navigator.languages && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || 'pt'];
+    let detected = 'pt';
+    for (const bl of browserLangs) {
+        const prefix = bl.toLowerCase().split('-')[0];
+        if (supported.includes(prefix)) { detected = prefix; break; }
+    }
+    setLang(detected);
+})();
+</script>
+
+</body>
+</html>

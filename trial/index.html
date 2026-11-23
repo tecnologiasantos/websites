@@ -1,93 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://mre-ai-trial.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<title>MRE·AI free trial · Tecnologia Santos</title>
-<meta name="description" content="Try MRE·AI free: rank up to 5 CVs against your own job description with AI. 3 free comparisons, CVs anonymized in your browser.">
-<link rel="stylesheet" href="trial.css?v=20261123a">
-<script src="trial.js?v=20261123a"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
+<meta name="robots" content="noindex">
+<title>MRE·AI · Tecnologia Santos</title>
+<link rel="canonical" href="https://tecnologiasantos.com/mre-ai/">
+<script>location.replace('/mre-ai/' + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=/mre-ai/">
 </head>
 <body>
-<nav class="nav">
-  <a class="logo" href="../" data-keep-lang><span class="logo-mark">TS</span><span class="txt">Tecnologia Santos</span></a>
-  <div class="nav-right">
-    <a class="btn btn-ghost btn-sm" href="../" data-t="nav_back">Back to site</a>
-    <div class="langs" role="group" aria-label="Language">
-      <button type="button" data-lang="en">EN</button><button type="button" data-lang="pt">PT</button><button type="button" data-lang="es">ES</button>
-    </div>
-  </div>
-</nav>
-
-<main>
-  <div class="grid2">
-    <section>
-      <div class="label" data-t="s_label">MRE·AI · Free trial</div>
-      <h1 data-t="s_title">Rank your candidates with AI, on your own vacancy</h1>
-      <p class="lead" data-t="s_lead"></p>
-      <ul class="feats">
-        <li><div class="ic b">3</div><div><b data-t="f1_t"></b><span data-t="f1_d"></span></div></li>
-        <li><div class="ic t">✓</div><div><b data-t="f2_t"></b><span data-t="f2_d"></span></div></li>
-        <li><div class="ic a">★</div><div><b data-t="f3_t"></b><span data-t="f3_d"></span></div></li>
-        <li><div class="ic b">⚑</div><div><b data-t="f4_t"></b><span data-t="f4_d"></span></div></li>
-      </ul>
-      <details class="terms" id="terms">
-        <summary data-t="terms_title">Trial terms</summary>
-        <ol id="terms-list"></ol>
-      </details>
-    </section>
-
-    <section class="card">
-      <div class="tabs" role="tablist">
-        <button type="button" id="tab-signup" class="on" role="tab" data-t="tab_signup">Start free trial</button>
-        <button type="button" id="tab-login" role="tab" data-t="tab_login">Get sign-in link</button>
-      </div>
-
-      <form id="f-signup" novalidate autocomplete="on">
-        <div class="field"><label for="s-name" data-t="l_name">Full name</label><input id="s-name" name="name" required maxlength="100" autocomplete="name"></div>
-        <div class="field"><label for="s-email" data-t="l_email">Work e-mail</label><input id="s-email" name="email" type="email" required maxlength="254" autocomplete="email">
-          <div class="hint" data-t="hint_email"></div></div>
-        <div class="field"><label for="s-company" data-t="l_company">Company</label><input id="s-company" name="company" required maxlength="120" autocomplete="organization"></div>
-        <div class="field"><label for="s-title" data-t="l_title">Job title (optional)</label><input id="s-title" name="job_title" maxlength="100" autocomplete="organization-title"></div>
-        <div class="hp" aria-hidden="true"><input id="hp-website" tabindex="-1" autocomplete="off"><input id="hp-email2" tabindex="-1" autocomplete="off"></div>
-        <label class="check"><input type="checkbox" id="s-terms"><span data-th="c_terms"></span></label>
-        <label class="check"><input type="checkbox" id="s-marketing"><span data-t="c_marketing"></span></label>
-        <div class="ts-box" id="ts-signup"></div>
-        <div id="s-msg" class="msg" hidden></div>
-        <button type="submit" class="btn btn-primary btn-block" id="s-btn" data-t="b_signup">Send my access link</button>
-        <p class="muted small" style="margin-top:12px;text-align:center"><span data-t="have_account">Already signed up?</span> <a href="#login" id="to-login" data-t="have_account_link">Get a sign-in link</a></p>
-      </form>
-
-      <form id="f-login" novalidate hidden>
-        <p class="muted small" style="margin-bottom:14px" data-t="login_lead"></p>
-        <div class="field"><label for="l-email" data-t="l_email">Work e-mail</label><input id="l-email" type="email" required maxlength="254" autocomplete="email"></div>
-        <div class="ts-box" id="ts-login"></div>
-        <div id="l-msg" class="msg" hidden></div>
-        <button type="submit" class="btn btn-primary btn-block" id="l-btn" data-t="b_login">Send sign-in link</button>
-      </form>
-
-      <div id="active" hidden>
-      <h2 data-t="act_title">You are signed in</h2>
-      <p class="muted" style="margin-bottom:18px" data-t="act_text"></p>
-      <a class="btn btn-primary btn-block" href="app/" data-keep-lang data-t="b_open_app">Open my app</a>
-      <button type="button" class="btn btn-ghost btn-block" id="other-account" style="margin-top:10px" data-t="b_other_account">Use another e-mail</button>
-      </div>
-      
-      <div id="done" class="done" hidden>
-        <div class="big">✉️</div>
-        <h2 data-t="ok_title">Almost there</h2>
-        <p class="muted" id="done-text"></p>
-      </div>
-    </section>
-  </div>
-  <div id="plans"></div>
-</main>
-
-<footer>© 2026 Tecnologia Santos · <a href="../privacy-policy.html">Privacy Policy</a> · <a href="../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
-<script src="signup.js?v=20261123a"></script>
-  <script src="plans.js?v=20261123a"></script>
+<p>O MRE·AI mudou de endereço: <a href="/mre-ai/">tecnologiasantos.com/mre-ai/</a></p>
 </body>
 </html>

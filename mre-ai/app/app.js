@@ -365,6 +365,7 @@
     $('run-note').textContent = (isPaid() && t('run_note_paid')) || (hasPackOnly() && t('run_note_pack')) || t('run_note');
     // Billing never breaks the rest of the page (e.g. an old cached trial.js without its texts).
     try { renderBilling(); } catch (e) { $('billing').hidden = true; $('plans').hidden = true; }
+    try { renderJx(); } catch (e) { $('jx').hidden = true; }
   }
 
   // ── Plan and billing (Stripe Checkout, card only) ───────────────────────
@@ -429,6 +430,103 @@
   }
 
   function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); } }
+
+  // ── Job description analysis (Raio-X da Vaga inside MRE·AI) ─────────────
+  // Only the job text is sent; CVs stay in this page. Free: never spends a comparison.
+  let jx = null, jxOriginal = null;
+  const prettyModel = m => {
+    const s = String(m || '');
+    if (/^deepseek/i.test(s)) return 'DeepSeek ' + s.replace(/^deepseek-?/i, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    if (/^glm/i.test(s)) return s.toUpperCase();
+    return s;
+  };
+  function renderJx() {
+    const box = $('jx'), out = $('jx-out');
+    box.hidden = !(me && me.job_analysis);
+    if (!jx) { out.hidden = true; out.textContent = ''; return; }
+    out.textContent = ''; out.hidden = false;
+    const a = jx;
+    const head = el('div', 'jx-head');
+    const sc = el('div', 'jx-score' + (a.score >= 85 ? '' : a.score >= 60 ? ' mid' : ' low'), String(a.score));
+    sc.setAttribute('aria-label', t('jx_score') + ': ' + a.score);
+    head.appendChild(sc);
+    const hw = el('div', 'grow');
+    hw.appendChild(el('div', 'small muted', `${t('jx_score')} · ${t('jx_score_hint')(a.score)}`));
+    if (a.title) hw.appendChild(el('b', '', a.title));
+    if (a.summary) hw.appendChild(el('p', 'small', a.summary));
+    head.appendChild(hw);
+    head.appendChild(Object.assign(el('button', 'btn btn-ghost btn-sm', t('jx_close')), { type: 'button', onclick: () => { jx = null; renderJx(); } }));
+    out.appendChild(head);
+
+    const cols = el('div', 'jx-cols');
+    const bias = el('div'); bias.appendChild(el('h3', '', t('jx_bias')));
+    if (!a.bias || !a.bias.length) bias.appendChild(el('p', 'small muted', t('jx_bias_none')));
+    else {
+      const ul = el('ul');
+      a.bias.forEach(b => {
+        const li = el('li'); li.appendChild(el('span', 'jx-term', '“' + b.term + '”'));
+        if (b.why) li.appendChild(document.createTextNode(' — ' + b.why));
+        if (b.suggestion) { li.appendChild(el('br')); li.appendChild(el('span', 'small muted', `${t('jx_suggest')}: ${b.suggestion}`)); }
+        ul.appendChild(li);
+      });
+      bias.appendChild(ul);
+    }
+    cols.appendChild(bias);
+    const miss = el('div'); miss.appendChild(el('h3', '', t('jx_missing')));
+    if (!a.missing || !a.missing.length) miss.appendChild(el('p', 'small muted', t('jx_missing_none')));
+    else { const ch = el('div', 'jx-chips'); a.missing.forEach(k => ch.appendChild(el('span', 'jx-chip', (t('jx_m') || {})[k] || k))); miss.appendChild(ch); }
+    cols.appendChild(miss);
+    out.appendChild(cols);
+
+    if ((a.must_have && a.must_have.length) || (a.nice_to_have && a.nice_to_have.length)) {
+      const req = el('div', 'jx-cols');
+      [['jx_must', a.must_have], ['jx_nice', a.nice_to_have]].forEach(([k, list]) => {
+        const d = el('div'); if (list && list.length) { d.appendChild(el('h3', '', t(k))); const ul = el('ul'); list.forEach(x => ul.appendChild(el('li', '', x))); d.appendChild(ul); }
+        req.appendChild(d);
+      });
+      out.appendChild(req);
+      if (a.too_many_requirements) out.appendChild(el('p', 'small', a.requirements_note || t('jx_too_many')));
+    }
+
+    const imp = el('div'); imp.appendChild(el('h3', '', t('jx_improved')));
+    imp.appendChild(el('div', 'jx-improved', a.improved));
+    out.appendChild(imp);
+    const acts = el('div', 'jx-actions');
+    const usingImproved = jxOriginal !== null && $('job').value === a.improved.slice(0, MAX_JOB);
+    if (!usingImproved) {
+      acts.appendChild(Object.assign(el('button', 'btn btn-primary btn-sm', t('jx_use')), { type: 'button', onclick: () => {
+        jxOriginal = $('job').value;
+        $('job').value = a.improved.slice(0, MAX_JOB); $('job').dispatchEvent(new Event('input'));
+        $('job-src').className = ''; $('job-src').textContent = '';
+        showMsg($('jx-msg'), 'ok', t('jx_used')); renderJx();
+      } }));
+    } else {
+      acts.appendChild(Object.assign(el('button', 'btn btn-ghost btn-sm', t('jx_undo')), { type: 'button', onclick: () => {
+        $('job').value = jxOriginal; jxOriginal = null; $('job').dispatchEvent(new Event('input'));
+        showMsg($('jx-msg'), 'info', t('jx_undone')); renderJx();
+      } }));
+    }
+    out.appendChild(acts);
+    out.appendChild(el('div', 'jx-foot', `${a.provider === 'claude' ? t('jx_by_claude') : t('jx_by_huawei')(prettyModel(a.model))} · ${t('jx_privacy')}`));
+  }
+  async function analyzeJob() {
+    const msg = $('jx-msg'); msg.hidden = true;
+    const job = $('job').value.trim();
+    if (job.length < 80) return showMsg(msg, 'err', t('jx_need'));
+    const btn = $('jx-btn'); btn.disabled = true;
+    $('jx-label').textContent = t('jx_running');
+    const sp = el('span', 'spinner'); btn.prepend(sp);
+    try {
+      jx = await api('POST', '/api/job-analysis', { job, lang: LANG });
+      jxOriginal = null; renderJx();
+    } catch (err) {
+      if (err.status === 401) return gate();
+      showMsg(msg, 'err', err.message);
+      if (err.code === 'no_credits' || err.code === 'trial_expired') { me.credits_remaining = 0; me.pack_credits = 0; renderMe(); }
+    } finally {
+      btn.disabled = false; sp.remove(); $('jx-label').textContent = t('jx_btn');
+    }
+  }
 
   // ── Run ──────────────────────────────────────────────────────────────────
   async function run() {
@@ -667,6 +765,7 @@
   drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
   $('job').addEventListener('input', () => { $('job-count').textContent = `${$('job').value.length} / ${MAX_JOB}`; });
   $('run').addEventListener('click', run);
+  $('jx-btn').addEventListener('click', analyzeJob);
   $('print').addEventListener('click', () => window.print());
   // Printed rankings include the interview questions.
   window.addEventListener('beforeprint', () => document.querySelectorAll('details.iq').forEach(d => { d.open = true; }));

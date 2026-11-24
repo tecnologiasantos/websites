@@ -184,9 +184,130 @@
       });
       card.appendChild(cols);
       if (c.evidence && c.evidence.length) card.appendChild(el('div', 'ev', t('r_evidence') + ': “' + c.evidence.map(restore).join('” · “') + '”'));
+      if (c.interview_questions && c.interview_questions.length) card.appendChild(questionsBlock(c.interview_questions, restore, nm));
       list.appendChild(card);
     });
+    loadShares(ev);
   }
+
+  // Interview questions per candidate (comparisons made before 2026-11-24 have none).
+  function questionsBlock(qs, restore, name) {
+    const d = el('details', 'iq');
+    d.appendChild(el('summary', '', `${t('r_questions')} (${qs.length})`));
+    const ol = el('ol');
+    qs.forEach(q => {
+      const li = el('li');
+      li.appendChild(el('span', 'qt', (t('q_type') || {})[q.type] || q.type));
+      li.appendChild(document.createTextNode(restore(q.q)));
+      if (q.good_answer) li.appendChild(el('span', 'qa', `${t('r_good')}: ${restore(q.good_answer)}`));
+      ol.appendChild(li);
+    });
+    d.appendChild(ol);
+    const b = el('button', 'btn btn-ghost btn-sm copy', t('b_copy_q')); b.type = 'button';
+    b.addEventListener('click', () => copyText(
+      `${name}\n` + qs.map((q, i) => `${i + 1}. ${restore(q.q)}` + (q.good_answer ? `\n   ${t('r_good')}: ${restore(q.good_answer)}` : '')).join('\n'), b));
+    d.appendChild(b);
+    return d;
+  }
+  async function copyText(text, btn) {
+    try { await navigator.clipboard.writeText(text); }
+    catch (e) { const a = el('textarea'); a.value = text; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (x) {} a.remove(); }
+    if (btn) { const old = btn.textContent; btn.textContent = t('ok_copied'); setTimeout(() => { btn.textContent = old; }, 1600); }
+  }
+
+  // ── Shortlists shared with hiring managers ───────────────────────────────
+  let shares = null, sharesFor = null;
+  async function loadShares(ev) {
+    if (sharesFor !== ev.id) { shares = null; sharesFor = ev.id; renderShares(); }
+    try { const r = await api('GET', '/api/shortlists?evaluation_id=' + encodeURIComponent(ev.id)); if (sharesFor === ev.id) { shares = r.shortlists || []; renderShares(); } }
+    catch (err) { if (err.status === 401) return gate(); shares = []; renderShares(); }
+  }
+  function renderShares() {
+    const box = $('share-list'); box.textContent = '';
+    $('shares').hidden = !(shares && shares.length && current);
+    if ($('shares').hidden) return;
+    const names = loadNames(current.id);
+    const nameOf = (id, label) => label || names[id] || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + id;
+    shares.forEach(sl => {
+      const card = el('div', 'share');
+      const top = el('div', 'share-top');
+      const state = sl.revoked ? t('sh_revoked') : !sl.active ? t('sh_expired')
+        : [t('sh_until')(fmtDate(sl.expires_at)), sl.viewed_at ? t('sh_viewed')(fmtDate(sl.viewed_at)) : t('sh_not_viewed')].join(' · ');
+      top.appendChild(el('span', 'muted', `${t('sh_by')(sl.mine ? t('role_you') : sl.author_name || t('h_removed'))} · ${fmtDate(sl.created_at)} · ${state}`));
+      if (sl.can_revoke) {
+        const b = el('button', 'btn btn-ghost btn-sm', t('b_revoke')); b.type = 'button';
+        b.addEventListener('click', () => askConfirm({ title: t('cf_revoke_title'), text: t('cf_revoke_text'), ok: t('b_revoke'), danger: true,
+          action: async () => { await api('POST', '/api/shortlists/revoke', { id: sl.id }); await loadShares(current); } }));
+        top.appendChild(b);
+      }
+      card.appendChild(top);
+      const ul = el('ul');
+      sl.candidates.forEach(cand => {
+        const li = el('li'); li.appendChild(el('b', '', nameOf(cand.id, cand.label)));
+        const a = sl.responses.find(r => r.candidate_id === cand.id);
+        if (a) {
+          li.appendChild(el('span', 'dec ' + a.decision, t('dec')[a.decision]));
+          li.appendChild(el('span', 'muted small', ' ' + t('sh_answer_by')(a.reviewer_name || '—') + (a.comment ? ` — “${a.comment}”` : '')));
+        } else li.appendChild(el('span', 'muted small', ' — ' + t('sh_waiting')));
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+      box.appendChild(card);
+    });
+  }
+
+  const shDlg = $('sh-dlg');
+  function openShare() {
+    if (!current) return;
+    const names = loadNames(current.id);
+    const pick = $('sh-pick'); pick.textContent = '';
+    current.ranking.candidates.forEach((c, i) => {
+      const lab = el('label', 'check'); lab.style.marginBottom = '0';
+      const box = el('input'); box.type = 'checkbox'; box.value = c.id; box.checked = i < 3;
+      lab.appendChild(box);
+      lab.appendChild(el('span', '', `${i + 1}. ${names[c.id] || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + c.id} · ${c.score}`));
+      pick.appendChild(lab);
+    });
+    $('sh-names').checked = false; $('sh-names').disabled = !Object.keys(names).length;
+    $('sh-evidence').checked = true; $('sh-note').value = '';
+    $('sh-form').hidden = false; $('sh-done').hidden = true; $('sh-ok').hidden = false; $('sh-msg').hidden = true;
+    if (shDlg.showModal) shDlg.showModal();
+  }
+  $('share').addEventListener('click', openShare);
+  $('sh-cancel').addEventListener('click', () => shDlg.close());
+  $('sh-ok').addEventListener('click', async () => {
+    const ids = [...$('sh-pick').querySelectorAll('input:checked')].map(x => x.value);
+    if (!ids.length) return showMsg($('sh-msg'), 'err', t('sh_need'));
+    const names = loadNames(current.id), withNames = $('sh-names').checked;
+    $('sh-ok').disabled = true; $('sh-msg').hidden = true;
+    try {
+      const r = await api('POST', '/api/shortlists', { evaluation_id: current.id, lang: LANG, note: $('sh-note').value.trim(),
+        show_evidence: $('sh-evidence').checked, candidates: ids.map(id => ({ id, label: withNames && names[id] ? names[id] : undefined })) });
+      $('sh-form').hidden = true; $('sh-ok').hidden = true; $('sh-done').hidden = false;
+      $('sh-ready').textContent = t('sh_ready')(fmtDate(r.expires_at));
+      $('sh-url').value = r.url; $('sh-url').select();
+      loadShares(current);
+    } catch (err) {
+      if (err.status === 401) { shDlg.close(); return gate(); }
+      showMsg($('sh-msg'), 'err', err.message);
+    } finally { $('sh-ok').disabled = false; }
+  });
+  $('sh-copy').addEventListener('click', e => copyText($('sh-url').value, e.currentTarget));
+
+  // ── Refer and earn ───────────────────────────────────────────────────────
+  let referral = null;
+  async function loadReferral() {
+    try { referral = await api('GET', '/api/referral'); renderReferral(); } catch (e) { $('referral').hidden = true; }
+  }
+  function renderReferral() {
+    if (!referral || !t('ref_title')) { $('referral').hidden = true; return; }
+    $('referral').hidden = false;
+    $('ref-lead').textContent = t('ref_lead')(referral.bonus_referrer, referral.bonus_referred, referral.bonus_days, referral.max);
+    $('ref-url').value = referral.url;
+    $('ref-stats').textContent = t('ref_stats')(referral.rewarded, referral.max, referral.pending);
+  }
+  $('ref-copy').addEventListener('click', e => copyText(referral ? referral.url : '', e.currentTarget));
+  $('ref-copy-msg').addEventListener('click', e => copyText(referral ? t('ref_msg')(referral.url) : '', e.currentTarget));
 
   function renderHistory() {
     const box = $('hist'); box.textContent = '';
@@ -307,7 +428,7 @@
     renderMe();
   }
 
-  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); } }
+  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); } }
 
   // ── Run ──────────────────────────────────────────────────────────────────
   async function run() {
@@ -383,6 +504,7 @@
       if (isManager()) await loadTeam();
     } catch (err) { return gate(err.status === 401 ? undefined : err.message); }
     showApp();
+    loadReferral();
     if (billingFlag === 'success') afterCheckout();
   }
 
@@ -396,6 +518,7 @@
       await loadHistory();
       if (isManager()) await loadTeam();
       showApp();
+      loadReferral();
     } catch (err) { showMsg($('c-msg'), 'err', err.message); $('c-btn').disabled = false; }
   });
 
@@ -545,6 +668,8 @@
   $('job').addEventListener('input', () => { $('job-count').textContent = `${$('job').value.length} / ${MAX_JOB}`; });
   $('run').addEventListener('click', run);
   $('print').addEventListener('click', () => window.print());
+  // Printed rankings include the interview questions.
+  window.addEventListener('beforeprint', () => document.querySelectorAll('details.iq').forEach(d => { d.open = true; }));
   $('signout').addEventListener('click', async () => { try { await api('POST', '/api/logout'); } catch (e) {} setSession(null); location.href = '../'; });
   // Job description from a file (same readers as the CVs; not anonymized: a job post is not personal data)
   const jobFile = $('job-file');

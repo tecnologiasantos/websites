@@ -4,6 +4,18 @@
   const $ = id => document.getElementById(id);
   let tsSignup = null, tsLogin = null;
 
+  // Referral link (?ref=CODE): kept for this browser so it survives a language switch or a reload.
+  const REF_KEY = 'mre_ref';
+  let ref = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase();
+  if (/^[A-Z0-9]{6,12}$/.test(ref)) { try { localStorage.setItem(REF_KEY, ref); } catch (e) {} }
+  else { ref = ''; try { ref = localStorage.getItem(REF_KEY) || ''; } catch (e) {} }
+  function renderRef() {
+    let b = $('ref-banner');
+    if (!ref || !t('ref_banner')) { if (b) b.hidden = true; return; }
+    if (!b) { b = document.createElement('div'); b.id = 'ref-banner'; b.className = 'msg info ref-banner'; $('f-signup').prepend(b); }
+    b.hidden = false; b.textContent = t('ref_banner');
+  }
+
   function renderTerms() {
     const ol = $('terms-list');
     ol.textContent = '';
@@ -45,8 +57,9 @@
       const r = await api('POST', '/api/signup', {
         name, email, company, job_title: $('s-title').value.trim(), lang: LANG,
         consent_terms: true, consent_marketing: $('s-marketing').checked,
-        website: $('hp-website').value, email2: $('hp-email2').value, cfToken,
+        website: $('hp-website').value, email2: $('hp-email2').value, cfToken, ref: ref || undefined,
       });
+      try { localStorage.removeItem(REF_KEY); } catch (e) {}
       done(r.status === 'pending_approval' ? t('ok_pending') : r.status === 'pending_team' ? t('ok_pending_team') : t('ok_check'));
     } catch (err) {
       showMsg(msg, 'err', err.message);
@@ -74,9 +87,10 @@
   $('tab-signup').addEventListener('click', () => showTab('signup'));
   $('tab-login').addEventListener('click', () => showTab('login'));
 
-  setupLangButtons(renderTerms);
+  setupLangButtons(() => { renderTerms(); renderRef(); });
   applyTexts();
   renderTerms();
+  renderRef();
   renderTurnstile($('ts-signup')).then(id => { tsSignup = id; });
   if (location.hash === '#login') showTab('login');
   

@@ -496,6 +496,66 @@ const T = {
   ]);
 })();
 
+
+// ── Job description analysis (Raio-X da Vaga inside MRE·AI, 2026-11-24) ────────
+(function () {
+  const add = (lang, texts, act, err) => { Object.assign(T[lang], texts); Object.assign(T[lang].act, act); Object.assign(T[lang].err, err); };
+  add('en', {
+    jx_btn: 'Analyze job description', jx_free: 'Free: does not use a comparison', jx_running: 'Analyzing the job description…',
+    jx_need: 'Paste the full job description first (at least 80 characters).',
+    jx_score: 'Clarity score', jx_score_hint: n => n >= 85 ? 'Clear and inclusive' : n >= 60 ? 'Good, with gaps' : 'Unclear or excluding',
+    jx_bias: 'Wording that may turn candidates away', jx_bias_none: 'No excluding wording found.', jx_suggest: 'Try',
+    jx_missing: 'Missing from the posting', jx_missing_none: 'Nothing important is missing.',
+    jx_must: 'Must-have requirements', jx_nice: 'Nice to have', jx_too_many: 'Too many must-have requirements can turn good candidates away.',
+    jx_improved: 'Improved version', jx_use: 'Use improved version', jx_undo: 'Undo', jx_close: 'Close',
+    jx_used: 'The job description was replaced by the improved version. Fill in the [brackets] before comparing.',
+    jx_undone: 'The original job description is back.',
+    jx_by_huawei: m => `Analyzed by ${m} on Huawei Cloud, via Digiti`, jx_by_claude: 'Analyzed by Claude (Anthropic)',
+    jx_privacy: 'Only the job text is analyzed; CVs never leave this page. The text is not stored.',
+    jx_m: { salary: 'Salary range', work_model: 'Work model (on-site, hybrid, remote)', location: 'Location', seniority: 'Seniority',
+      responsibilities: 'Responsibilities', benefits: 'Benefits', hiring_process: 'Hiring process steps', contract_type: 'Contract type' },
+  }, { 'job.analyze': 'Analyzed a job description' }, {
+    job_analysis_failed: 'The analysis could not be completed. Please try again.',
+    job_analysis_unavailable: 'The job description analysis is not available right now.',
+  });
+  add('pt', {
+    jx_btn: 'Analisar descrição da vaga', jx_free: 'Grátis: não usa comparação', jx_running: 'Analisando a descrição da vaga…',
+    jx_need: 'Cole a descrição completa da vaga primeiro (pelo menos 80 caracteres).',
+    jx_score: 'Nota de clareza', jx_score_hint: n => n >= 85 ? 'Clara e inclusiva' : n >= 60 ? 'Boa, com lacunas' : 'Pouco clara ou excludente',
+    jx_bias: 'Linguagem que pode afastar candidatos', jx_bias_none: 'Nenhuma linguagem excludente encontrada.', jx_suggest: 'Prefira',
+    jx_missing: 'O que falta na vaga', jx_missing_none: 'Não falta nada importante.',
+    jx_must: 'Requisitos obrigatórios', jx_nice: 'Desejáveis', jx_too_many: 'Requisitos obrigatórios demais podem afastar bons candidatos.',
+    jx_improved: 'Versão melhorada', jx_use: 'Usar versão melhorada', jx_undo: 'Desfazer', jx_close: 'Fechar',
+    jx_used: 'O texto da vaga foi substituído pela versão melhorada. Complete os campos entre [colchetes] antes de comparar.',
+    jx_undone: 'O texto original da vaga voltou.',
+    jx_by_huawei: m => `Analisado por ${m} na Huawei Cloud, via Digiti`, jx_by_claude: 'Analisado pelo Claude (Anthropic)',
+    jx_privacy: 'Só o texto da vaga é analisado; os currículos não saem desta página. O texto não é guardado.',
+    jx_m: { salary: 'Faixa salarial', work_model: 'Modelo de trabalho (presencial, híbrido, remoto)', location: 'Local', seniority: 'Senioridade',
+      responsibilities: 'Responsabilidades', benefits: 'Benefícios', hiring_process: 'Etapas do processo seletivo', contract_type: 'Tipo de contratação' },
+  }, { 'job.analyze': 'Analisou uma descrição de vaga' }, {
+    job_analysis_failed: 'Não foi possível concluir a análise. Tente novamente.',
+    job_analysis_unavailable: 'A análise da descrição da vaga não está disponível agora.',
+  });
+  add('es', {
+    jx_btn: 'Analizar descripción de la vacante', jx_free: 'Gratis: no usa comparación', jx_running: 'Analizando la descripción de la vacante…',
+    jx_need: 'Pega primero la descripción completa de la vacante (al menos 80 caracteres).',
+    jx_score: 'Nota de claridad', jx_score_hint: n => n >= 85 ? 'Clara e inclusiva' : n >= 60 ? 'Buena, con vacíos' : 'Poco clara o excluyente',
+    jx_bias: 'Lenguaje que puede alejar candidatos', jx_bias_none: 'No se encontró lenguaje excluyente.', jx_suggest: 'Mejor',
+    jx_missing: 'Lo que falta en la vacante', jx_missing_none: 'No falta nada importante.',
+    jx_must: 'Requisitos obligatorios', jx_nice: 'Deseables', jx_too_many: 'Demasiados requisitos obligatorios pueden alejar a buenos candidatos.',
+    jx_improved: 'Versión mejorada', jx_use: 'Usar versión mejorada', jx_undo: 'Deshacer', jx_close: 'Cerrar',
+    jx_used: 'El texto de la vacante se reemplazó por la versión mejorada. Completa los campos entre [corchetes] antes de comparar.',
+    jx_undone: 'Volvió el texto original de la vacante.',
+    jx_by_huawei: m => `Analizado por ${m} en Huawei Cloud, vía Digiti`, jx_by_claude: 'Analizado por Claude (Anthropic)',
+    jx_privacy: 'Solo se analiza el texto de la vacante; los CVs no salen de esta página. El texto no se guarda.',
+    jx_m: { salary: 'Rango salarial', work_model: 'Modalidad (presencial, híbrida, remota)', location: 'Ubicación', seniority: 'Seniority',
+      responsibilities: 'Responsabilidades', benefits: 'Beneficios', hiring_process: 'Etapas del proceso', contract_type: 'Tipo de contrato' },
+  }, { 'job.analyze': 'Analizó una descripción de vacante' }, {
+    job_analysis_failed: 'No se pudo completar el análisis. Inténtalo de nuevo.',
+    job_analysis_unavailable: 'El análisis de la descripción de la vacante no está disponible ahora.',
+  });
+})();
+
 // ── Language ────────────────────────────────────────────────────────────────
 function detectLang() {
   const q = new URLSearchParams(location.search).get('lang');

@@ -196,3 +196,27 @@ footer a{color:inherit}
 .audit-t th,.audit-t td{text-align:left;border-bottom:1px solid var(--border);padding:7px 6px;vertical-align:top}
 .audit-t th{color:var(--muted);font-weight:600}
 @media (max-width:720px){.invite{grid-template-columns:1fr}}
+
+/* Job description analysis (Raio-X da Vaga inside MRE·AI) */
+.jx{margin-top:10px}
+.jx-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.jx .msg{margin-top:10px}
+.jx-out{margin-top:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);padding:16px;display:grid;gap:14px}
+.jx-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.jx-score{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:20px;font-weight:800;flex:0 0 auto;background:var(--teal-light);color:var(--teal)}
+.jx-score.mid{background:var(--amber-light);color:var(--amber)}
+.jx-score.low{background:var(--danger-light);color:var(--danger)}
+.jx-head .grow{flex:1;min-width:200px}
+.jx h3{font-size:14px;margin:0 0 6px}
+.jx ul{margin:0;padding-left:18px;font-size:14px}
+.jx li+li{margin-top:4px}
+.jx-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.jx-chips{display:flex;flex-wrap:wrap;gap:6px}
+.jx-chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--amber-light);color:var(--amber)}
+.jx-term{font-weight:700}
+.jx-improved{white-space:pre-wrap;font-size:14px;background:var(--white);border:1px solid var(--border);border-radius:9px;padding:12px;max-height:320px;overflow:auto}
+.jx-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.jx-foot{font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px}
+@media (max-width:640px){.jx-cols{grid-template-columns:1fr}.jx-out{padding:12px}}
+@media print{.jx{display:none}}
+.btn-ghost .spinner{border-color:rgba(26,86,219,.25);border-top-color:var(--blue);width:14px;height:14px;border-width:2px}

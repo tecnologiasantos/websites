@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://raio-x-vaga.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Raio-X da Vaga · grátis · Tecnologia Santos</title>
+<meta name="description" content="Cole a descrição da vaga e receba em segundos: requisitos, linguagem que afasta candidatos, o que falta e uma versão melhorada. Grátis, em PT, EN e ES.">
+<link rel="stylesheet" href="../mre-ai/trial.css?v=20261124a">
+<link rel="stylesheet" href="rx.css?v=20261124a">
+<script src="rx.js?v=20261124a" defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="../" data-keep-lang><span class="logo-mark">TS</span><span class="txt">Tecnologia Santos</span></a>
+  <div class="nav-right">
+    <a class="btn btn-ghost btn-sm" href="../mre-ai/" data-keep-lang data-t="nav_mre">MRE·AI</a>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="pt">PT</button><button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="rx-hero">
+    <div class="label" data-t="label">Ferramenta gratuita · by MRE·AI</div>
+    <h1 data-t="title">Raio-X da Vaga</h1>
+    <p class="lead" data-t="lead"></p>
+    <div class="rx-badges">
+      <span class="pill" data-t="b1"></span><span class="pill" data-t="b2"></span><span class="pill" data-t="b3"></span>
+    </div>
+  </section>
+
+  <section class="card" id="form-card">
+    <div class="rx-head">
+      <label for="job" class="rx-lbl" data-t="l_job">Descrição da vaga</label>
+      <button type="button" class="btn btn-ghost btn-sm" id="sample" data-t="b_sample">Usar uma vaga de exemplo</button>
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <textarea id="job" maxlength="6000" rows="11" data-tp="ph_job"></textarea>
+      <div class="hint"><span data-t="hint_job"></span><span id="count">0 / 6000</span></div>
+    </div>
+    <div class="ts-box" id="ts"></div>
+    <div id="msg" class="msg" hidden></div>
+    <div class="rx-run">
+      <button type="button" class="btn btn-primary" id="run" data-t="b_run">Analisar vaga</button>
+      <span class="muted small" data-t="privacy_short"></span>
+    </div>
+  </section>
+
+  <section class="card" id="closed" hidden>
+    <h2 data-t="closed_title">A demonstração foi encerrada</h2>
+    <p class="muted" data-t="closed_text"></p>
+    <a class="btn btn-primary" href="../mre-ai/" data-keep-lang data-t="cta_btn" style="margin-top:14px">Conhecer o MRE·AI</a>
+  </section>
+
+  <section id="result" hidden>
+    <div class="card rx-score-card">
+      <div class="rx-score" id="score-ring"><span id="score">0</span><small>/100</small></div>
+      <div>
+        <div class="label" data-t="r_label">Resultado</div>
+        <h2 id="r-title" style="margin-bottom:6px"></h2>
+        <p id="r-summary" class="muted"></p>
+        <p class="muted small" id="r-meta"></p>
+      </div>
+    </div>
+
+    <div class="rx-grid">
+      <div class="card">
+        <h3 data-t="r_must">Obrigatórios</h3>
+        <ul class="rx-list" id="r-must"></ul>
+        <h3 data-t="r_nice" style="margin-top:16px">Desejáveis</h3>
+        <ul class="rx-list" id="r-nice"></ul>
+        <div class="msg info" id="r-req" hidden></div>
+      </div>
+      <div class="card">
+        <h3 data-t="r_bias">Linguagem que pode afastar candidatos</h3>
+        <div id="r-bias"></div>
+        <h3 data-t="r_missing" style="margin-top:16px">O que está faltando</h3>
+        <div class="rx-chips" id="r-missing"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rx-head">
+        <h3 data-t="r_improved" style="margin:0">Versão melhorada</h3>
+        <button type="button" class="btn btn-ghost btn-sm" id="copy" data-t="b_copy">Copiar</button>
+      </div>
+      <pre class="rx-improved" id="r-improved"></pre>
+    </div>
+
+    <div class="card rx-cta">
+      <div>
+        <h2 data-t="cta_title">Vaga pronta? Agora ranqueie os candidatos.</h2>
+        <p class="muted" data-t="cta_text"></p>
+      </div>
+      <a class="btn btn-primary" href="../mre-ai/" data-keep-lang data-t="cta_btn">Testar o MRE·AI grátis</a>
+    </div>
+  </section>
+
+  <p class="rx-notice small muted" data-t="privacy_long"></p>
+</main>
+
+<footer>© 2026 Tecnologia Santos · <a href="../privacy-policy.html">Privacy Policy</a> · <a href="../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
+</body>
+</html>

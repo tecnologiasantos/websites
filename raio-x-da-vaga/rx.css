@@ -1,0 +1,34 @@
+/* Raio-X da Vaga · on top of ../mre-ai/trial.css */
+main{max-width:980px}
+.rx-hero{margin-bottom:22px}
+.rx-hero h1{font-size:40px;margin-bottom:10px}
+.rx-badges{display:flex;flex-wrap:wrap;gap:8px}
+.rx-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.rx-lbl{font-weight:700;font-size:15px}
+.rx-run{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:12px}
+#job{min-height:240px}
+.hint{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-top:6px}
+#result{margin-top:20px}
+#result .card{margin-top:16px}
+.rx-score-card{display:flex;gap:24px;align-items:center}
+.rx-score{position:relative;flex:0 0 116px;height:116px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--c,#1a56db) calc(var(--p,0)*1%),#edf2f7 0)}
+.rx-score span{width:92px;height:92px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:34px;font-weight:800;padding-bottom:12px}
+.rx-score small{position:absolute;bottom:30px;font-size:12px;color:var(--muted)}
+.rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rx-grid .card{margin-top:16px}
+@media (max-width:760px){.rx-grid{grid-template-columns:1fr}.rx-score-card{flex-direction:column;align-items:flex-start}.rx-hero h1{font-size:32px}}
+.rx-list{margin:6px 0 0 18px;display:grid;gap:4px;font-size:14px}
+.rx-bias{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:14px}
+.rx-bias b{color:var(--danger)}
+.rx-bias .arrow{color:var(--teal);font-weight:700}
+.rx-bias .why{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.rx-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rx-chips span{background:var(--amber-light);color:var(--amber);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700}
+.rx-ok{color:var(--teal);font-size:14px;margin-top:6px}
+.rx-improved{white-space:pre-wrap;font-family:inherit;font-size:14px;line-height:1.6;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:10px;max-height:520px;overflow:auto}
+.rx-cta{display:flex;justify-content:space-between;align-items:center;gap:20px;background:var(--blue-light);border-color:#c7d8fb}
+@media (max-width:760px){.rx-cta{flex-direction:column;align-items:flex-start}}
+.rx-notice{margin-top:22px}
+.ts-box{min-height:66px;margin-top:6px}
+.rx-cta .btn{white-space:nowrap;flex:0 0 auto}

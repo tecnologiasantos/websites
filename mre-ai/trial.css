@@ -130,6 +130,34 @@ footer{border-top:1px solid var(--border);background:var(--white);padding:18px 2
 footer a{color:inherit}
 @media print{.nav,.no-print,footer{display:none!important}main{padding:0}.card{box-shadow:none;border:0}}
 
+/* interview questions, shortlists and referrals (2026-11-24) */
+.iq{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+.iq summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--blue)}
+.iq ol{margin:8px 0 0 20px;display:grid;gap:8px;font-size:14px}
+.iq .qt{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-right:6px}
+.iq .qa{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.iq .copy{margin-top:8px}
+@media print{.iq{break-inside:avoid}.iq:not([open]) > *:not(summary){display:block}.iq .copy{display:none}}
+.res-actions{display:flex;gap:8px;flex-wrap:wrap}
+.shares{margin-top:18px}
+.shares h3{font-size:15px;margin-bottom:8px}
+.share{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--white)}
+.share-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.share ul{list-style:none;margin:8px 0 0;display:grid;gap:4px;font-size:14px}
+.dec{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;margin-left:6px}
+.dec.advance{background:var(--teal-light);color:var(--teal)}.dec.maybe{background:var(--amber-light);color:var(--amber)}.dec.reject{background:var(--danger-light);color:var(--danger)}
+.pick{display:grid;gap:6px;margin:6px 0 12px}
+.linkbox{display:flex;gap:8px;margin-top:10px}
+.linkbox input{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg)}
+.dlg textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:70px;font:inherit;font-size:14px}
+.ref-card .linkbox{max-width:560px}
+.ref-banner{margin-bottom:14px}
+.decide{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px}
+.decide label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:14px;cursor:pointer;background:var(--white)}
+.decide input{accent-color:var(--blue)}
+.decide label:has(input:checked){border-color:var(--blue);background:var(--blue-light);font-weight:700}
+.cand textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-height:56px;font:inherit;font-size:14px}
+
 /* job upload + delete dialog */
 .job-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
 .job-head label{margin:0}

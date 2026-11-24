@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://mre-ai-trial.patient-hall-77b9.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>MRE·AI shortlist · Tecnologia Santos</title>
+<link rel="stylesheet" href="../trial.css?v=20261124a">
+<script src="../trial.js?v=20261124a"></script>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="../../" data-keep-lang><span class="logo-mark">TS</span><span class="txt">Tecnologia Santos</span></a>
+  <div class="nav-right">
+    <div class="langs no-print" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="pt">PT</button><button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="card" id="sp-loading" style="max-width:640px;margin:40px auto;text-align:center">
+    <p class="muted" data-t="sp_loading">Opening the shortlist…</p>
+  </section>
+
+  <section class="card" id="sp-gone" style="max-width:640px;margin:40px auto" hidden>
+    <h2 data-t="sp_gone_title">This link is not available</h2>
+    <p class="muted" id="sp-gone-text"></p>
+  </section>
+
+  <div id="sp" hidden>
+    <section class="card">
+      <div class="label">MRE·AI</div>
+      <h1 style="margin:4px 0 6px" data-t="sp_title">Candidates for your review</h1>
+      <div class="muted" id="sp-job" style="font-weight:700"></div>
+      <p class="muted small" id="sp-from" style="margin-top:6px"></p>
+      <div class="msg info" id="sp-note" hidden></div>
+      <p class="muted small" id="sp-valid"></p>
+    </section>
+
+    <section class="card">
+      <div id="sp-list"></div>
+      <div class="field" style="max-width:360px;margin-top:8px">
+        <label for="sp-name" data-t="sp_name">Your name</label>
+        <input id="sp-name" maxlength="100" autocomplete="name">
+      </div>
+      <div id="sp-msg" class="msg" hidden></div>
+      <button type="button" class="btn btn-primary" id="sp-send" data-t="sp_send">Send my answers</button>
+      <p class="disclaimer" data-t="r_disclaimer"></p>
+      <p class="disclaimer" data-t="sp_privacy"></p>
+    </section>
+
+    <p style="text-align:center;margin:8px 0 28px"><a href="../" id="sp-cta" data-t="sp_cta" data-keep-lang>Made with MRE·AI by Tecnologia Santos</a></p>
+  </div>
+</main>
+
+<footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · <a href="../../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
+<script src="s.js?v=20261124a"></script>
+</body>
+</html>

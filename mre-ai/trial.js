@@ -356,6 +356,146 @@ const T = {
   },
 };
 
+// ── Interview questions, shortlists for hiring managers and referrals (2026-11-24) ──
+(function () {
+  const add = (lang, texts, act, err, terms) => {
+    Object.assign(T[lang], texts); Object.assign(T[lang].act, act); Object.assign(T[lang].err, err);
+    T[lang].terms.push(...terms);
+  };
+  add('en', {
+    r_questions: 'Interview questions', r_good: 'A good answer includes',
+    q_type: { verify: 'Verify', gap: 'Probe a gap', behavioral: 'Behavioral' },
+    b_copy_q: 'Copy questions', ok_copied: 'Copied.',
+    b_share: 'Share with hiring manager',
+    sh_title: 'Share with the hiring manager',
+    sh_lead: 'Create a link for the hiring manager to see the candidates you choose and answer Advance, Maybe or Do not advance. No account needed. CV text is never shared: only the evaluation.',
+    sh_pick: 'Candidates to share', sh_names: 'Show the names I typed (otherwise “Candidate A”, “Candidate B”…)',
+    sh_names_hint: 'Names stay in your browser unless you tick this. If you do, they are kept with the link until it expires.',
+    sh_evidence: 'Include the quotes from the CVs', sh_note: 'Message to the hiring manager (optional)',
+    sh_create: 'Create link', sh_close: 'Close', sh_need: 'Choose at least one candidate.',
+    sh_ready: d => `Link ready. Send it to the hiring manager by e-mail or chat. It works until ${d}, and you can turn it off at any time.`,
+    b_copy_link: 'Copy link',
+    sh_list: 'Shared with hiring managers', sh_by: n => `Shared by ${n}`, sh_until: d => `valid until ${d}`,
+    sh_viewed: d => `opened ${d}`, sh_not_viewed: 'not opened yet', sh_revoked: 'turned off', sh_expired: 'expired',
+    sh_waiting: 'No answers yet.', sh_answer_by: n => `Answer from ${n}`,
+    b_revoke: 'Turn off link', cf_revoke_title: 'Turn off this link?', cf_revoke_text: 'The hiring manager will no longer be able to open it. Answers already sent stay here.',
+    dec: { advance: 'Advance', maybe: 'Maybe', reject: 'Do not advance' },
+    ref_title: 'Refer and earn',
+    ref_lead: (mine, theirs, days, max) => `Share your link with other companies. They get ${theirs} extra trial comparisons. When a company you referred runs its first comparison, yours gets ${mine} bonus comparisons, valid for ${days} days (up to ${max} referrals).`,
+    ref_stats: (ok, max, wait) => `${ok} of ${max} referrals rewarded` + (wait ? ` · ${wait} waiting for their first comparison` : ''),
+    b_copy_msg: 'Copy invitation text',
+    ref_msg: url => `I use MRE·AI to rank candidates against the job description in under a minute, with strengths, gaps and interview questions for each one. Try it free with this link and get extra comparisons: ${url}`,
+    ref_banner: 'You were referred to MRE·AI: sign up with your company e-mail and get 2 extra comparisons in your trial.',
+    sp_title: 'Candidates for your review', sp_from: (who, org) => `${who} (${org}) shared these candidates with you.`,
+    sp_note: 'Message', sp_valid: d => `This link works until ${d}.`, sp_rank: (r, n) => `#${r} of ${n}`,
+    sp_answer: 'Your answer', sp_comment: 'Comment (optional)', sp_name: 'Your name', sp_send: 'Send my answers',
+    sp_sent: 'Thank you! Your answers were sent to the recruiter. You can change them while this link works.',
+    sp_need_one: 'Choose an answer for at least one candidate.', sp_need_name: 'Please type your name.',
+    sp_loading: 'Opening the shortlist…', sp_gone_title: 'This link is not available',
+    sp_privacy: 'This page shows only the evaluation made by MRE·AI. CV text and candidates’ contact details are not shared.',
+    sp_cta: 'Made with MRE·AI by Tecnologia Santos. Try it free for your company →',
+  }, {
+    'shortlist.create': 'Shared candidates with a hiring manager', 'shortlist.view': 'A hiring manager opened a shared list',
+    'shortlist.respond': 'A hiring manager answered', 'shortlist.revoke': 'Turned off a shared link',
+    'referral.signup': 'A referred company signed up', 'referral.reward': 'Received referral bonus comparisons',
+  }, {
+    invalid_candidates: 'Choose candidates from this comparison.', shortlist_not_found: 'This link is not valid. Ask the recruiter for a new one.',
+    shortlist_expired: 'This link has expired or was turned off by the recruiter.', reviewer_required: 'Please type your name.',
+    invalid_decisions: 'Choose an answer for the candidates in this list.',
+  }, [
+    'You can share chosen candidates with a hiring manager through a link that works for up to 14 days. Only the evaluation is shared; names only if you choose to show them.',
+    'Referrals: a company that signs up with your link gets 2 extra trial comparisons; when it runs its first comparison, yours gets 3 bonus comparisons valid for 60 days, for up to 5 referred companies. Only new companies count.',
+  ]);
+  add('pt', {
+    r_questions: 'Perguntas para a entrevista', r_good: 'Uma boa resposta inclui',
+    q_type: { verify: 'Verificar', gap: 'Investigar lacuna', behavioral: 'Comportamental' },
+    b_copy_q: 'Copiar perguntas', ok_copied: 'Copiado.',
+    b_share: 'Compartilhar com o gestor',
+    sh_title: 'Compartilhar com o gestor da vaga',
+    sh_lead: 'Crie um link para o gestor ver os candidatos que você escolher e responder Avançar, Talvez ou Não avançar. Ele não precisa de conta. O texto dos currículos nunca é compartilhado: só a avaliação.',
+    sh_pick: 'Candidatos para compartilhar', sh_names: 'Mostrar os nomes que digitei (senão, “Candidato A”, “Candidato B”…)',
+    sh_names_hint: 'Os nomes ficam só no seu navegador, a menos que você marque esta opção. Se marcar, eles ficam guardados com o link até ele expirar.',
+    sh_evidence: 'Incluir os trechos dos currículos', sh_note: 'Mensagem para o gestor (opcional)',
+    sh_create: 'Criar link', sh_close: 'Fechar', sh_need: 'Escolha pelo menos um candidato.',
+    sh_ready: d => `Link pronto. Envie para o gestor por e-mail ou chat. Ele funciona até ${d}, e você pode desativá-lo quando quiser.`,
+    b_copy_link: 'Copiar link',
+    sh_list: 'Compartilhado com gestores', sh_by: n => `Compartilhado por ${n}`, sh_until: d => `válido até ${d}`,
+    sh_viewed: d => `aberto em ${d}`, sh_not_viewed: 'ainda não aberto', sh_revoked: 'desativado', sh_expired: 'expirado',
+    sh_waiting: 'Ainda sem respostas.', sh_answer_by: n => `Resposta de ${n}`,
+    b_revoke: 'Desativar link', cf_revoke_title: 'Desativar este link?', cf_revoke_text: 'O gestor não conseguirá mais abri-lo. As respostas já enviadas continuam aqui.',
+    dec: { advance: 'Avançar', maybe: 'Talvez', reject: 'Não avançar' },
+    ref_title: 'Indique e ganhe',
+    ref_lead: (mine, theirs, days, max) => `Compartilhe seu link com outras empresas. Elas ganham ${theirs} comparações extras no teste. Quando uma empresa indicada por você fizer a primeira comparação, a sua ganha ${mine} comparações de bônus, válidas por ${days} dias (até ${max} indicações).`,
+    ref_stats: (ok, max, wait) => `${ok} de ${max} indicações premiadas` + (wait ? ` · ${wait} aguardando a primeira comparação` : ''),
+    b_copy_msg: 'Copiar texto do convite',
+    ref_msg: url => `Uso o MRE·AI para classificar candidatos com base na descrição da vaga em menos de um minuto, com pontos fortes, lacunas e perguntas de entrevista para cada um. Teste grátis com este link e ganhe comparações extras: ${url}`,
+    ref_banner: 'Você foi indicado ao MRE·AI: cadastre-se com o e-mail da empresa e ganhe 2 comparações extras no seu teste.',
+    sp_title: 'Candidatos para sua avaliação', sp_from: (who, org) => `${who} (${org}) compartilhou estes candidatos com você.`,
+    sp_note: 'Mensagem', sp_valid: d => `Este link funciona até ${d}.`, sp_rank: (r, n) => `${r}º de ${n}`,
+    sp_answer: 'Sua resposta', sp_comment: 'Comentário (opcional)', sp_name: 'Seu nome', sp_send: 'Enviar minhas respostas',
+    sp_sent: 'Obrigado! Suas respostas foram enviadas ao recrutador. Você pode alterá-las enquanto o link funcionar.',
+    sp_need_one: 'Escolha uma resposta para pelo menos um candidato.', sp_need_name: 'Digite seu nome.',
+    sp_loading: 'Abrindo a lista…', sp_gone_title: 'Este link não está disponível',
+    sp_privacy: 'Esta página mostra apenas a avaliação feita pelo MRE·AI. O texto dos currículos e os contatos dos candidatos não são compartilhados.',
+    sp_cta: 'Feito com o MRE·AI, da Tecnologia Santos. Teste grátis na sua empresa →',
+  }, {
+    'shortlist.create': 'Compartilhou candidatos com um gestor', 'shortlist.view': 'Um gestor abriu uma lista compartilhada',
+    'shortlist.respond': 'Um gestor respondeu', 'shortlist.revoke': 'Desativou um link compartilhado',
+    'referral.signup': 'Uma empresa indicada se cadastrou', 'referral.reward': 'Recebeu comparações de bônus por indicação',
+  }, {
+    invalid_candidates: 'Escolha candidatos desta comparação.', shortlist_not_found: 'Este link não é válido. Peça um novo ao recrutador.',
+    shortlist_expired: 'Este link expirou ou foi desativado pelo recrutador.', reviewer_required: 'Digite seu nome.',
+    invalid_decisions: 'Escolha uma resposta para os candidatos desta lista.',
+  }, [
+    'Você pode compartilhar candidatos escolhidos com um gestor por um link que funciona por até 14 dias. Só a avaliação é compartilhada; os nomes, apenas se você escolher mostrá-los.',
+    'Indicações: uma empresa que se cadastra pelo seu link ganha 2 comparações extras no teste; quando ela fizer a primeira comparação, a sua ganha 3 comparações de bônus válidas por 60 dias, para até 5 empresas indicadas. Só empresas novas contam.',
+  ]);
+  add('es', {
+    r_questions: 'Preguntas para la entrevista', r_good: 'Una buena respuesta incluye',
+    q_type: { verify: 'Verificar', gap: 'Indagar brecha', behavioral: 'Conductual' },
+    b_copy_q: 'Copiar preguntas', ok_copied: 'Copiado.',
+    b_share: 'Compartir con el gerente',
+    sh_title: 'Compartir con el gerente de la vacante',
+    sh_lead: 'Crea un enlace para que el gerente vea los candidatos que elijas y responda Avanzar, Tal vez o No avanzar. No necesita cuenta. El texto de los CVs nunca se comparte: solo la evaluación.',
+    sh_pick: 'Candidatos para compartir', sh_names: 'Mostrar los nombres que escribí (si no, “Candidato A”, “Candidato B”…)',
+    sh_names_hint: 'Los nombres quedan solo en tu navegador, salvo que marques esta opción. Si la marcas, se guardan con el enlace hasta que expire.',
+    sh_evidence: 'Incluir las citas de los CVs', sh_note: 'Mensaje para el gerente (opcional)',
+    sh_create: 'Crear enlace', sh_close: 'Cerrar', sh_need: 'Elige al menos un candidato.',
+    sh_ready: d => `Enlace listo. Envíalo al gerente por correo o chat. Funciona hasta el ${d}, y puedes desactivarlo cuando quieras.`,
+    b_copy_link: 'Copiar enlace',
+    sh_list: 'Compartido con gerentes', sh_by: n => `Compartido por ${n}`, sh_until: d => `válido hasta el ${d}`,
+    sh_viewed: d => `abierto el ${d}`, sh_not_viewed: 'aún no abierto', sh_revoked: 'desactivado', sh_expired: 'expirado',
+    sh_waiting: 'Aún sin respuestas.', sh_answer_by: n => `Respuesta de ${n}`,
+    b_revoke: 'Desactivar enlace', cf_revoke_title: '¿Desactivar este enlace?', cf_revoke_text: 'El gerente ya no podrá abrirlo. Las respuestas ya enviadas se mantienen aquí.',
+    dec: { advance: 'Avanzar', maybe: 'Tal vez', reject: 'No avanzar' },
+    ref_title: 'Recomienda y gana',
+    ref_lead: (mine, theirs, days, max) => `Comparte tu enlace con otras empresas. Ellas reciben ${theirs} comparaciones extra en la prueba. Cuando una empresa que recomendaste haga su primera comparación, la tuya recibe ${mine} comparaciones de bono, válidas por ${days} días (hasta ${max} recomendaciones).`,
+    ref_stats: (ok, max, wait) => `${ok} de ${max} recomendaciones premiadas` + (wait ? ` · ${wait} esperando su primera comparación` : ''),
+    b_copy_msg: 'Copiar texto de invitación',
+    ref_msg: url => `Uso MRE·AI para clasificar candidatos según la descripción de la vacante en menos de un minuto, con fortalezas, brechas y preguntas de entrevista para cada uno. Pruébalo gratis con este enlace y recibe comparaciones extra: ${url}`,
+    ref_banner: 'Te recomendaron MRE·AI: regístrate con el correo de tu empresa y recibe 2 comparaciones extra en tu prueba.',
+    sp_title: 'Candidatos para tu evaluación', sp_from: (who, org) => `${who} (${org}) compartió estos candidatos contigo.`,
+    sp_note: 'Mensaje', sp_valid: d => `Este enlace funciona hasta el ${d}.`, sp_rank: (r, n) => `${r}º de ${n}`,
+    sp_answer: 'Tu respuesta', sp_comment: 'Comentario (opcional)', sp_name: 'Tu nombre', sp_send: 'Enviar mis respuestas',
+    sp_sent: '¡Gracias! Tus respuestas se enviaron al reclutador. Puedes cambiarlas mientras el enlace funcione.',
+    sp_need_one: 'Elige una respuesta para al menos un candidato.', sp_need_name: 'Escribe tu nombre.',
+    sp_loading: 'Abriendo la lista…', sp_gone_title: 'Este enlace no está disponible',
+    sp_privacy: 'Esta página muestra solo la evaluación hecha por MRE·AI. El texto de los CVs y los contactos de los candidatos no se comparten.',
+    sp_cta: 'Hecho con MRE·AI, de Tecnologia Santos. Pruébalo gratis en tu empresa →',
+  }, {
+    'shortlist.create': 'Compartió candidatos con un gerente', 'shortlist.view': 'Un gerente abrió una lista compartida',
+    'shortlist.respond': 'Un gerente respondió', 'shortlist.revoke': 'Desactivó un enlace compartido',
+    'referral.signup': 'Una empresa recomendada se registró', 'referral.reward': 'Recibió comparaciones de bono por recomendación',
+  }, {
+    invalid_candidates: 'Elige candidatos de esta comparación.', shortlist_not_found: 'Este enlace no es válido. Pide uno nuevo al reclutador.',
+    shortlist_expired: 'Este enlace expiró o fue desactivado por el reclutador.', reviewer_required: 'Escribe tu nombre.',
+    invalid_decisions: 'Elige una respuesta para los candidatos de esta lista.',
+  }, [
+    'Puedes compartir candidatos elegidos con un gerente mediante un enlace que funciona hasta 14 días. Solo se comparte la evaluación; los nombres, solo si eliges mostrarlos.',
+    'Recomendaciones: una empresa que se registra con tu enlace recibe 2 comparaciones extra en la prueba; cuando haga su primera comparación, la tuya recibe 3 comparaciones de bono válidas por 60 días, para hasta 5 empresas recomendadas. Solo cuentan empresas nuevas.',
+  ]);
+})();
+
 // ── Language ────────────────────────────────────────────────────────────────
 function detectLang() {
   const q = new URLSearchParams(location.search).get('lang');

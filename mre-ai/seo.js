@@ -16,7 +16,7 @@
     es: {
       title: 'MRE·AI prueba gratis · Tecnologia Santos',
       desc: 'Prueba MRE·AI gratis: clasifica hasta 5 CVs con IA en tu propia vacante. 3 comparaciones gratis, CVs anonimizados en tu navegador.',
-      locale: 'es_ES', privacy: 'Política de Privacidad', terms: 'Términos del Servicio'
+      locale: 'es_ES', privacy: 'Política de Privacidad', terms: 'Términos de Uso'
     }
   };
 

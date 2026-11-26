@@ -2515,6 +2515,8 @@ const EMAILJS_PUBLIC_KEY   = 'BGNaedS03VFyFHxpV';
 const EMAILJS_SERVICE_ID   = 'service_52urgzf';
 const EMAILJS_TEMPLATE_ID  = 'template_i88e49t';
 const EMAILJS_AUTOREPLY_ID = 'template_stz32py';
+// The form goes through the MRE·AI Worker (POST /api/contact → Resend); EmailJS above is the fallback.
+const CONTACT_API = 'https://mre-ai-trial.patient-hall-77b9.workers.dev/api/contact';
 
 (function() { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); })();
 
@@ -2547,6 +2549,42 @@ function submitContactForm() {
     document.getElementById('form-sending').style.display = 'block';
     document.getElementById('form-error').style.display   = 'none';
 
+    const showSuccess = () => {
+        document.getElementById('form-body').style.display    = 'none';
+        document.getElementById('form-success').style.display = 'block';
+    };
+    const showError = err => {
+        console.error('Contact form error:', err);
+        document.getElementById('form-sending').style.display = 'none';
+        document.getElementById('form-error').style.display   = 'block';
+        document.getElementById('cf-submit').disabled = false;
+    };
+
+    // 1) Through the MRE·AI Worker: Resend (EmailJS as its fallback), Turnstile and a per-IP limit.
+    // 2) If the Worker cannot be reached (or the security check does not load), EmailJS in the browser, as before.
+    (async () => {
+        let token = null;
+        try { token = await getCfToken(); } catch (e) { console.warn('[Contact] no Turnstile token, using EmailJS', e); }
+        if (token) {
+            let res = null;
+            try {
+                res = await fetch(CONTACT_API, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, message, lang: currentLang, cfToken: token,
+                        website: (document.getElementById('cf-website') || {}).value || '' }),
+                });
+            } catch (e) { console.warn('[Contact] Worker unreachable, using EmailJS', e); }
+            if (res && res.ok) return showSuccess();
+            // Validation, security check, rate limit or both providers failing: show the error, no browser fallback.
+            if (res && res.status < 500 || res && res.status === 502) return showError('worker_' + res.status);
+        }
+        await sendContactWithEmailJS(name, email, phone, message);
+        showSuccess();
+    })().catch(showError);
+}
+
+// Fallback: the same two e-mails through EmailJS in the browser (the previous behaviour).
+function sendContactWithEmailJS(name, email, phone, message) {
     const params = {
         from_name:  name,
         from_email: email,
@@ -2555,8 +2593,7 @@ function submitContactForm() {
         to_email:   'support@tecnologiasantos.com',
         reply_to:   email
     };
-
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
         .then(() => emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_AUTOREPLY_ID, {
             to_email:  email,
             from_name: name,
@@ -2564,17 +2601,7 @@ function submitContactForm() {
             // Template 2 is generic ({{subject}} / {{message}}); it is shared with the MRE·AI trial.
             subject:   CONTACT_AUTOREPLY[currentLang].subject,
             message:   CONTACT_AUTOREPLY[currentLang].message(name)
-        }))
-        .then(() => {
-            document.getElementById('form-body').style.display    = 'none';
-            document.getElementById('form-success').style.display = 'block';
-        })
-        .catch(err => {
-            console.error('EmailJS error:', err);
-            document.getElementById('form-sending').style.display = 'none';
-            document.getElementById('form-error').style.display   = 'block';
-            document.getElementById('cf-submit').disabled = false;
-        });
+        }));
 }
 </script>
 

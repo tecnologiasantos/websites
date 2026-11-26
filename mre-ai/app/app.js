@@ -563,6 +563,7 @@
   // ── Session ──────────────────────────────────────────────────────────────
   function gate(textKey) {
     setSession(null);
+    announceMe(false);
     $('loading').hidden = true; $('app').hidden = true; $('signout').hidden = true; $('gate').hidden = false;
     if (textKey) $('gate-text').textContent = textKey;
   }
@@ -572,9 +573,13 @@
     past = h.evaluations || []; usage = h.usage || null;
   }
 
+  // The help chat (support.js) shows its button from /api/me ("support"); null when signed out.
+  const announceMe = signedIn => document.dispatchEvent(new CustomEvent('mre:me', { detail: signedIn ? me : null }));
+
   function showApp() {
     $('loading').hidden = true; $('gate').hidden = true; $('consent').hidden = true; $('app').hidden = false; $('signout').hidden = false;
     rerender();
+    announceMe(true);
   }
 
   async function start() {

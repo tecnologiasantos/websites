@@ -13,7 +13,8 @@
       fab: 'Help', title: 'MRE·AI help', status: 'Santos · AI assistant', placeholder: 'Type your question…', send: 'Send', close: 'Close help',
       welcome: n => `Hi${n ? ', ' + n : ''}! I'm Santos, the MRE·AI assistant. I can help with your plan, comparisons, payments, your team's access or privacy. How can I help?`,
       note: 'Answers by AI, with your account details. Do not paste CVs here. Urgent? support@tecnologiasantos.com',
-      ticket: c => `I have opened a ticket for the Tecnologia Santos team (${c}). They will look into it and reply by e-mail.`,
+      ticket: (code, c, d) => `Ticket ${code} opened (${c}).\nDescription: ${d}\nStatus: Open\n\nWe also sent this to your e-mail. The Tecnologia Santos team will reply there; mention ${code} if you write to support@tecnologiasantos.com.`,
+      ticketUpd: (code, c, d) => `Ticket ${code} updated (${c}).\nDescription: ${d}`,
       cat: { billing: 'payment', refund: 'refund', access: 'access', bug: 'app error', data_privacy: 'data and privacy', feature_request: 'suggestion', other: 'other' },
       err: {
         support_busy: 'The help chat is busy right now. Please try again in a few minutes or write to support@tecnologiasantos.com.',
@@ -28,7 +29,8 @@
       fab: 'Ajuda', title: 'Ajuda do MRE·AI', status: 'Santos · assistente de IA', placeholder: 'Digite sua dúvida…', send: 'Enviar', close: 'Fechar ajuda',
       welcome: n => `Olá${n ? ', ' + n : ''}! Sou o Santos, assistente do MRE·AI. Posso ajudar com seu plano, comparações, pagamentos, acesso da equipe ou privacidade. Como posso ajudar?`,
       note: 'Respostas por IA, com os dados da sua conta. Não cole currículos aqui. Urgente? support@tecnologiasantos.com',
-      ticket: c => `Abri um chamado para a equipe da Tecnologia Santos (${c}). Ela vai analisar e responder pelo seu e-mail.`,
+      ticket: (code, c, d) => `Chamado ${code} aberto (${c}).\nDescrição: ${d}\nSituação: Aberto\n\nEnviamos estes dados também para o seu e-mail. A equipe da Tecnologia Santos vai responder por lá; cite o número ${code} se escrever para support@tecnologiasantos.com.`,
+      ticketUpd: (code, c, d) => `Chamado ${code} atualizado (${c}).\nDescrição: ${d}`,
       cat: { billing: 'pagamento', refund: 'reembolso', access: 'acesso', bug: 'erro no app', data_privacy: 'dados e privacidade', feature_request: 'sugestão', other: 'outro assunto' },
       err: {
         support_busy: 'A ajuda está ocupada agora. Tente de novo em alguns minutos ou escreva para support@tecnologiasantos.com.',
@@ -43,7 +45,8 @@
       fab: 'Ayuda', title: 'Ayuda de MRE·AI', status: 'Santos · asistente de IA', placeholder: 'Escribe tu pregunta…', send: 'Enviar', close: 'Cerrar ayuda',
       welcome: n => `¡Hola${n ? ', ' + n : ''}! Soy Santos, el asistente de MRE·AI. Puedo ayudarte con tu plan, comparaciones, pagos, el acceso de tu equipo o la privacidad. ¿En qué te ayudo?`,
       note: 'Respuestas por IA, con los datos de tu cuenta. No pegues CVs aquí. ¿Urgente? support@tecnologiasantos.com',
-      ticket: c => `Abrí un ticket para el equipo de Tecnologia Santos (${c}). Lo revisará y te responderá por correo.`,
+      ticket: (code, c, d) => `Ticket ${code} abierto (${c}).\nDescripción: ${d}\nEstado: Abierto\n\nTambién enviamos estos datos a tu correo. El equipo de Tecnologia Santos responderá allí; menciona ${code} si escribes a support@tecnologiasantos.com.`,
+      ticketUpd: (code, c, d) => `Ticket ${code} actualizado (${c}).\nDescripción: ${d}`,
       cat: { billing: 'pago', refund: 'reembolso', access: 'acceso', bug: 'error en la app', data_privacy: 'datos y privacidad', feature_request: 'sugerencia', other: 'otro tema' },
       err: {
         support_busy: 'La ayuda está ocupada ahora. Inténtalo de nuevo en unos minutos o escribe a support@tecnologiasantos.com.',
@@ -73,7 +76,7 @@
 .hp-msg.bot{background:#fff;border:1px solid #e2e8f0;color:#1a202c;align-self:flex-start;border-bottom-left-radius:4px}
 .hp-msg.bot ul{margin:6px 0 2px 16px;padding:0}
 .hp-msg.user{background:#1a56db;color:#fff;align-self:flex-end;border-bottom-right-radius:4px;white-space:pre-wrap}
-.hp-msg.info{align-self:stretch;max-width:none;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:13px}
+.hp-msg.info{align-self:stretch;max-width:none;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:13px;white-space:pre-line}
 .hp-msg.err{align-self:stretch;max-width:none;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;font-size:13px}
 .hp-msg.typing{color:#4a5568;letter-spacing:3px}
 .hp-bar{padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:8px;background:#fff;align-items:flex-end}
@@ -175,7 +178,12 @@
       typing.remove();
       history.push({ role: 'assistant', content: r.text });
       addMsg('bot', r.text);
-      if (r.ticket) addMsg('info', u.ticket(u.cat[r.ticket.category] || u.cat.other));
+      if (r.ticket) {
+        const t = r.ticket, cat = u.cat[t.category] || u.cat.other;
+        // Older Worker without numbers: keep a plain notice.
+        const text = (t.created === false ? u.ticketUpd : u.ticket)(t.code || '', cat, t.summary || '').replace(/ {2,}/g, ' ');
+        addMsg('info', text);
+      }
     } catch (err) {
       typing.remove();
       history.pop();                                // not answered: the person can send it again

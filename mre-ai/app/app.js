@@ -313,6 +313,27 @@
   function renderBonus() {
     $('bonus').hidden = !(me && isManager() && !me.needs_consent && t('bn_title'));
     $('bn-code').placeholder = t('bn_ph') || '';
+    renderBonusMine();
+  }
+  // What the company received: the balance still available and a short history.
+  function renderBonusMine() {
+    const box = $('bn-mine'), list = (me && me.bonuses) || [];
+    box.hidden = !list.length || !t('bn_hist');
+    if (box.hidden) return;
+    const now = Date.now();
+    const src = b => b.source === 'code' && b.code ? t('bn_src_code')(b.code) : t('bn_src_team');
+    const active = list.filter(b => !b.revoked && b.expires_at > now);
+    const packLeft = me.pack_expires_at > now ? (me.pack_credits || 0) : 0;
+    const n = Math.min(packLeft, active.reduce((a, b) => a + b.comparisons, 0));
+    const have = $('bn-have');
+    have.hidden = !(n > 0);
+    if (n > 0) have.textContent = t('bn_have')(n, fmtDate(me.pack_expires_at), [...new Set(active.map(src))].join(', '));
+    $('bn-hist-t').textContent = t('bn_hist');
+    const ul = $('bn-hist'); ul.textContent = '';
+    list.forEach(b => {
+      const st = b.revoked ? t('bn_st').revoked : b.expires_at > now ? t('bn_st').until(fmtDate(b.expires_at)) : t('bn_st').expired(fmtDate(b.expires_at));
+      ul.appendChild(el('li', '', t('bn_item')(fmtDate(b.received_at), src(b), b.comparisons) + ' · ' + st));
+    });
   }
   $('bn-form').addEventListener('submit', async e => {
     e.preventDefault();
@@ -322,6 +343,7 @@
     try {
       const r = await api('POST', '/api/bonus/redeem', { code });
       me.pack_credits = r.pack_credits; me.pack_expires_at = r.pack_expires_at;
+      try { me = await api('GET', '/api/me'); } catch (e) { /* keep the local numbers */ }
       showMsg($('bn-msg'), 'ok', t('bn_ok')(r.comparisons, fmtDate(r.pack_expires_at)));
       $('bn-code').value = '';
       renderMe();

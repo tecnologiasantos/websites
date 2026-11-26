@@ -309,6 +309,29 @@
   $('ref-copy').addEventListener('click', e => copyText(referral ? referral.url : '', e.currentTarget));
   $('ref-copy-msg').addEventListener('click', e => copyText(referral ? t('ref_msg')(referral.url) : '', e.currentTarget));
 
+  // ── Promo code (owners and admins): bonus comparisons, spent after the monthly ones ──
+  function renderBonus() {
+    $('bonus').hidden = !(me && isManager() && !me.needs_consent && t('bn_title'));
+    $('bn-code').placeholder = t('bn_ph') || '';
+  }
+  $('bn-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = $('bn-code').value.trim();
+    if (!code) return;
+    $('bn-btn').disabled = true; $('bn-msg').hidden = true;
+    try {
+      const r = await api('POST', '/api/bonus/redeem', { code });
+      me.pack_credits = r.pack_credits; me.pack_expires_at = r.pack_expires_at;
+      showMsg($('bn-msg'), 'ok', t('bn_ok')(r.comparisons, fmtDate(r.pack_expires_at)));
+      $('bn-code').value = '';
+      renderMe();
+    } catch (err) {
+      if (err.status === 401) return gate();
+      const m = t('bn_err') || {};
+      showMsg($('bn-msg'), 'err', m[err.code] || err.message);
+    } finally { $('bn-btn').disabled = false; }
+  });
+
   function renderHistory() {
     const box = $('hist'); box.textContent = '';
     const u = $('usage'); u.textContent = ''; u.hidden = !(isManager() && usage && usage.total);
@@ -348,6 +371,7 @@
   const hasPackOnly = () => !isPaid() && me.pack_expires_at > Date.now() && (me.pack_credits || 0) > 0 && !!t('s_label_pack');
 
   function renderMe() {
+    renderBonus();
     $('org-name').textContent = me.organization;
     $('role').textContent = roleName(me.role);
     $('team').hidden = !isManager(); $('audit').hidden = !isManager();
@@ -608,6 +632,7 @@
     } catch (err) { return gate(err.status === 401 ? undefined : err.message); }
     showApp();
     loadReferral();
+    renderBonus();
     if (billingFlag === 'success') afterCheckout();
   }
 
@@ -622,6 +647,7 @@
       if (isManager()) await loadTeam();
       showApp();
       loadReferral();
+      renderBonus();
     } catch (err) { showMsg($('c-msg'), 'err', err.message); $('c-btn').disabled = false; }
   });
 

@@ -598,6 +598,10 @@ const T = {
     round_partial: (done, total) => `${done} of ${total} CVs are already in the ranking below. The others did not use any comparison: click “Continue comparison” to send them.`,
     round_continue: (title, n) => `Adding CVs to “${title}” (${n} already in the ranking). Changing the job description starts a new comparison.`,
     h_title: 'Jobs and comparisons (kept 30 days after the last use)', b_csv: 'Download for Excel (CSV)',
+    q_type: { verify: 'Verify', gap: 'Probe a gap', behavioral: 'Behavioral', custom: 'Company' },
+    b_edit_q: 'Edit questions', b_add_qs: 'Add questions', b_add_q: '+ Add question', b_suggest_q: 'Suggest more (free)', q_save: 'Save', q_cancel: 'Cancel',
+    q_ph: 'Question', qa_ph: 'A good answer includes… (optional)', q_suggested: 'Suggestions added at the end. Edit or remove them, then save.',
+    q_all_ph: 'A question for every candidate (e.g. Why do you want to work with us?)', b_q_all: 'Add to every candidate', q_all_done: n => `Question added to ${n} candidate${n === 1 ? '' : 's'}.`,
     csv_h: { rank: 'Rank', candidate: 'Candidate', score: 'Score', fit: 'Fit', ko: 'Required criteria not met', strengths: 'Strengths', gaps: 'Gaps', evidence: 'Evidence from the CV', questions: 'Interview questions', decision: 'Hiring manager decision', comment: 'Hiring manager comment' }, b_add_cvs: 'Add CVs to this job', b_new_job: 'Start a new job instead', r_kept: d => `kept until ${d}`,
     cr_title: 'Criteria for this job (optional)',
     cr_lead: 'With criteria, every CV is scored the same way. “Required” rules a candidate out: they get at most 49 (weak fit) and a warning.',
@@ -608,10 +612,11 @@ const T = {
     r_ko: names => `Does not meet a required criterion: ${names}`, r_criteria: 'Criteria',
     cr_r: ['Not met', 'Weak evidence', 'Partly meets', 'Meets', 'Exceeds'],
     sh_max: n => `Choose at most ${n} candidates.`,
-  }, { 'evaluation.append': 'Added CVs to a comparison', 'job.criteria': 'Got criteria suggested for a job' }, {
+  }, { 'evaluation.questions': 'Edited interview questions', 'evaluation.append': 'Added CVs to a comparison', 'job.criteria': 'Got criteria suggested for a job' }, {
     criteria_failed: 'The criteria could not be suggested. Please try again or type them yourself.',
     invalid_criteria: 'Check the criteria: at most 10, each up to 80 characters.',
     job_changed: 'To add CVs to this comparison, keep exactly the same job description.',
+    invalid_questions: 'Check the questions: at most 8 per candidate, each up to 300 characters.', questions_failed: 'No questions could be suggested. Please try again.',
     round_full: 'One comparison holds at most 50 CVs.', round_busy: 'Another batch was being added. Please try again.',
   }, ['You can send up to 50 CVs at once: every 5 CVs use 1 comparison, and all of them end up in the same ranking.', 'Each comparison keeps its job description, so you can add more CVs to it on later days (up to 50 in all). It is kept for 30 days after the last CVs added.']);
   add('pt', {
@@ -623,6 +628,10 @@ const T = {
     round_partial: (done, total) => `${done} de ${total} currículos já estão no ranking abaixo. Os outros não gastaram comparação: clique em “Continuar comparação” para enviá-los.`,
     round_continue: (title, n) => `Adicionando currículos a “${title}” (${n} já no ranking). Mudar a descrição da vaga começa uma nova comparação.`,
     h_title: 'Vagas e comparações (guardadas 30 dias após o último uso)', b_csv: 'Baixar para Excel (CSV)',
+    q_type: { verify: 'Verificar', gap: 'Investigar lacuna', behavioral: 'Comportamental', custom: 'Da empresa' },
+    b_edit_q: 'Editar perguntas', b_add_qs: 'Adicionar perguntas', b_add_q: '+ Adicionar pergunta', b_suggest_q: 'Sugerir outras (grátis)', q_save: 'Salvar', q_cancel: 'Cancelar',
+    q_ph: 'Pergunta', qa_ph: 'Uma boa resposta inclui… (opcional)', q_suggested: 'Sugestões adicionadas no fim. Edite ou remova e depois salve.',
+    q_all_ph: 'Uma pergunta para todos os candidatos (ex.: Por que você quer trabalhar conosco?)', b_q_all: 'Adicionar a todos', q_all_done: n => `Pergunta adicionada a ${n} candidato${n === 1 ? '' : 's'}.`,
     csv_h: { rank: 'Posição', candidate: 'Candidato', score: 'Nota', fit: 'Aderência', ko: 'Critérios obrigatórios não atendidos', strengths: 'Pontos fortes', gaps: 'Lacunas', evidence: 'Evidências do currículo', questions: 'Perguntas para a entrevista', decision: 'Decisão do gestor', comment: 'Comentário do gestor' }, b_add_cvs: 'Adicionar currículos a esta vaga', b_new_job: 'Começar outra vaga', r_kept: d => `guardada até ${d}`,
     cr_title: 'Critérios da vaga (opcional)',
     cr_lead: 'Com critérios, todos os currículos são pontuados do mesmo jeito. “Obrigatório” é eliminatório: quem não atende fica com no máximo 49 (pouco aderente) e um aviso.',
@@ -633,10 +642,11 @@ const T = {
     r_ko: names => `Não atende critério obrigatório: ${names}`, r_criteria: 'Critérios',
     cr_r: ['Não atende', 'Evidência fraca', 'Atende em parte', 'Atende', 'Supera'],
     sh_max: n => `Escolha no máximo ${n} candidatos.`,
-  }, { 'evaluation.append': 'Adicionou currículos a uma comparação', 'job.criteria': 'Pediu sugestão de critérios da vaga' }, {
+  }, { 'evaluation.questions': 'Editou perguntas da entrevista', 'evaluation.append': 'Adicionou currículos a uma comparação', 'job.criteria': 'Pediu sugestão de critérios da vaga' }, {
     criteria_failed: 'Não foi possível sugerir os critérios. Tente de novo ou digite-os você mesmo.',
     invalid_criteria: 'Confira os critérios: no máximo 10, cada um com até 80 caracteres.',
     job_changed: 'Para adicionar currículos a esta comparação, mantenha exatamente a mesma descrição da vaga.',
+    invalid_questions: 'Confira as perguntas: no máximo 8 por candidato, cada uma com até 300 caracteres.', questions_failed: 'Não foi possível sugerir perguntas. Tente de novo.',
     round_full: 'Uma comparação aceita no máximo 50 currículos.', round_busy: 'Outro lote estava sendo adicionado. Tente de novo.',
   }, ['Você pode enviar até 50 currículos de uma vez: cada 5 currículos usam 1 comparação, e todos entram no mesmo ranking.', 'Cada comparação guarda a descrição da vaga, para você adicionar mais currículos nos dias seguintes (até 50 no total). Ela fica guardada por 30 dias depois dos últimos currículos adicionados.']);
   add('es', {
@@ -648,6 +658,10 @@ const T = {
     round_partial: (done, total) => `${done} de ${total} CVs ya están en el ranking de abajo. Los demás no gastaron comparación: haz clic en “Continuar comparación” para enviarlos.`,
     round_continue: (title, n) => `Agregando CVs a “${title}” (${n} ya en el ranking). Cambiar la descripción de la vacante empieza una nueva comparación.`,
     h_title: 'Vacantes y comparaciones (se guardan 30 días tras el último uso)', b_csv: 'Descargar para Excel (CSV)',
+    q_type: { verify: 'Verificar', gap: 'Indagar brecha', behavioral: 'Conductual', custom: 'De la empresa' },
+    b_edit_q: 'Editar preguntas', b_add_qs: 'Agregar preguntas', b_add_q: '+ Agregar pregunta', b_suggest_q: 'Sugerir otras (gratis)', q_save: 'Guardar', q_cancel: 'Cancelar',
+    q_ph: 'Pregunta', qa_ph: 'Una buena respuesta incluye… (opcional)', q_suggested: 'Sugerencias agregadas al final. Edítalas o quítalas y luego guarda.',
+    q_all_ph: 'Una pregunta para todos los candidatos (ej.: ¿Por qué quieres trabajar con nosotros?)', b_q_all: 'Agregar a todos', q_all_done: n => `Pregunta agregada a ${n} candidato${n === 1 ? '' : 's'}.`,
     csv_h: { rank: 'Posición', candidate: 'Candidato', score: 'Nota', fit: 'Afinidad', ko: 'Criterios obligatorios no cumplidos', strengths: 'Fortalezas', gaps: 'Brechas', evidence: 'Evidencias del CV', questions: 'Preguntas para la entrevista', decision: 'Decisión del gerente', comment: 'Comentario del gerente' }, b_add_cvs: 'Agregar CVs a esta vacante', b_new_job: 'Empezar otra vacante', r_kept: d => `guardada hasta el ${d}`,
     cr_title: 'Criterios de la vacante (opcional)',
     cr_lead: 'Con criterios, todos los CVs se puntúan igual. “Obligatorio” es eliminatorio: quien no lo cumple queda con 49 como máximo (poca afinidad) y un aviso.',
@@ -658,10 +672,11 @@ const T = {
     r_ko: names => `No cumple un criterio obligatorio: ${names}`, r_criteria: 'Criterios',
     cr_r: ['No cumple', 'Evidencia débil', 'Cumple en parte', 'Cumple', 'Supera'],
     sh_max: n => `Elige como máximo ${n} candidatos.`,
-  }, { 'evaluation.append': 'Agregó CVs a una comparación', 'job.criteria': 'Pidió sugerencia de criterios de la vacante' }, {
+  }, { 'evaluation.questions': 'Editó preguntas de la entrevista', 'evaluation.append': 'Agregó CVs a una comparación', 'job.criteria': 'Pidió sugerencia de criterios de la vacante' }, {
     criteria_failed: 'No se pudieron sugerir los criterios. Inténtalo de nuevo o escríbelos tú.',
     invalid_criteria: 'Revisa los criterios: como máximo 10, cada uno de hasta 80 caracteres.',
     job_changed: 'Para agregar CVs a esta comparación, mantén exactamente la misma descripción de la vacante.',
+    invalid_questions: 'Revisa las preguntas: como máximo 8 por candidato, cada una de hasta 300 caracteres.', questions_failed: 'No se pudieron sugerir preguntas. Inténtalo de nuevo.',
     round_full: 'Una comparación admite como máximo 50 CVs.', round_busy: 'Se estaba agregando otro lote. Inténtalo de nuevo.',
   }, ['Puedes enviar hasta 50 CVs a la vez: cada 5 CVs usan 1 comparación, y todos quedan en el mismo ranking.', 'Cada comparación guarda la descripción de la vacante, para que agregues más CVs en los días siguientes (hasta 50 en total). Se guarda 30 días después de los últimos CVs agregados.']);
 })();

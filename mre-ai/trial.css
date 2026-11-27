@@ -250,3 +250,17 @@ footer a{color:inherit}
   .res-actions{display:none!important}
   #res-job{display:none}
 }
+
+/* editing interview questions (2026-11-27) */
+.iq-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.iq-acts .copy{margin-top:0}
+.iq-edit{margin-top:10px}
+.iq-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
+.iq-row select{padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--white);font-size:13px}
+.iq-main{flex:1;display:grid;gap:6px;min-width:0}
+.iq-main textarea,.iq-main input{width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;background:var(--white)}
+.iq-main input{font-size:13px}
+.iq-row .x{border:0;background:none;font-size:20px;line-height:1;color:var(--muted);cursor:pointer;padding:4px 6px}
+.q-all{display:flex;gap:8px;margin:12px 0}
+.q-all input{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px}
+@media print{.iq-acts{display:none}}

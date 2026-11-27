@@ -381,12 +381,19 @@
 
   // ── Export: CSV for Excel / Google Sheets, and the print header for the PDF ─
   // Built here from what the page already has (names typed by the recruiter stay in this browser).
-  function latestAnswers() {
+  // Every answer of every link, per candidate (a panel can answer the same link).
+  function allAnswers() {
     const out = {};
-    (shares || []).forEach(sl => (sl.responses || []).forEach(a => {
-      if (!out[a.candidate_id] || a.updated_at > out[a.candidate_id].updated_at) out[a.candidate_id] = a;
-    }));
+    (shares || []).forEach(sl => (sl.responses || []).forEach(a => { (out[a.candidate_id] || (out[a.candidate_id] = [])).push(a); }));
     return out;
+  }
+  // "3 reviewers · Advance 2 · Maybe 1 · average 4.3"
+  function panelSummary(list) {
+    const n = k => list.filter(a => a.decision === k).length;
+    const rated = list.filter(a => a.overall);
+    const avg = rated.length ? Math.round(rated.reduce((x, a) => x + a.overall, 0) / rated.length * 10) / 10 : null;
+    return t('panel_sum')(list.length, n('advance'), n('maybe'), n('reject'),
+      avg === null ? null : avg.toLocaleString(LANG === 'en' ? 'en' : LANG === 'pt' ? 'pt-BR' : 'es'));
   }
   // Excel reads ';' in Portuguese and Spanish locales, ',' in English. A leading = + - @ would run as a formula: neutralize it.
   const csvCell = v => {
@@ -396,7 +403,7 @@
   };
   function exportCsv() {
     const ev = current; if (!ev) return;
-    const names = loadNames(ev.id), crit = ev.ranking.criteria || [], answers = latestAnswers();
+    const names = loadNames(ev.id), crit = ev.ranking.criteria || [], answers = allAnswers();
     const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
     const H = t('csv_h');
     const head = [H.rank, H.candidate, H.stage, H.score, H.fit, ...crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`),
@@ -410,7 +417,8 @@
         (c.knockout_failed || []).map(id => (crit.find(k => k.id === id) || {}).name || id).join('; '),
         (c.strengths || []).map(restore).join('; '), (c.gaps || []).map(restore).join('; '), (c.evidence || []).map(restore).join('; '),
         (c.interview_questions || []).map(q => restore(q.q)).join(' | '),
-        a ? `${t('dec')[a.decision]} (${a.reviewer_name || '—'})` : '', a && a.comment ? a.comment : '',
+        a ? (a.length > 1 ? panelSummary(a) + ' — ' : '') + a.map(x => `${x.reviewer_name || '—'}: ${t('dec')[x.decision]}${x.overall ? ` (${x.overall}/5)` : ''}`).join('; ') : '',
+        a ? a.filter(x => x.comment).map(x => `${x.reviewer_name || '—'}: ${x.comment}`).join(' | ') : '',
         ...(() => { const sm = cards && cardsFor === ev.id && cards.summary[c.id];
           return sm ? [sm.count, sm.average, `${t('dec').advance}: ${sm.advance}; ${t('dec').maybe}: ${sm.maybe}; ${t('dec').reject}: ${sm.reject}`] : ['', '', '']; })()];
     });
@@ -613,11 +621,20 @@
       const ul = el('ul');
       sl.candidates.forEach(cand => {
         const li = el('li'); li.appendChild(el('b', '', nameOf(cand.id, cand.label)));
-        const a = sl.responses.find(r => r.candidate_id === cand.id);
-        if (a) {
-          li.appendChild(el('span', 'dec ' + a.decision, t('dec')[a.decision]));
-          li.appendChild(el('span', 'muted small', ' ' + t('sh_answer_by')(a.reviewer_name || '—') + (a.comment ? ` — “${a.comment}”` : '')));
-        } else li.appendChild(el('span', 'muted small', ' — ' + t('sh_waiting')));
+        // A panel can answer the same link: one line per reviewer, and the consensus when there are several.
+        const all = sl.responses.filter(r => r.candidate_id === cand.id);
+        if (!all.length) li.appendChild(el('span', 'muted small', ' — ' + t('sh_waiting')));
+        else {
+          if (all.length > 1) li.appendChild(el('span', 'muted small', ' — ' + panelSummary(all)));
+          const sub = el('ul', 'panel');
+          all.forEach(a => {
+            const it = el('li');
+            it.appendChild(el('span', 'dec ' + a.decision, t('dec')[a.decision]));
+            it.appendChild(el('span', 'muted small', ' ' + t('sh_answer_by')(a.reviewer_name || '—') + (a.overall ? ` · ${a.overall}/5` : '') + (a.comment ? ` — “${a.comment}”` : '')));
+            sub.appendChild(it);
+          });
+          li.appendChild(sub);
+        }
         ul.appendChild(li);
       });
       card.appendChild(ul);

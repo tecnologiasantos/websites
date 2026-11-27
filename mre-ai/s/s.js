@@ -7,8 +7,16 @@
   const m = location.hash.match(/t=([A-Za-z0-9_-]{20,100})/);
   const token = m ? m[1] : '';
   const NAME_KEY = 'mre_sl_reviewer';
+  // Several people can answer the same link: each browser keeps its own random reviewer id.
+  const RID_KEY = 'mre_sl_reviewer_id';
+  let reviewerId = '';
+  try { reviewerId = localStorage.getItem(RID_KEY) || ''; } catch (e) {}
+  if (!/^[A-Za-z0-9_-]{16,64}$/.test(reviewerId)) {
+    reviewerId = [...crypto.getRandomValues(new Uint8Array(18))].map(b => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[b % 64]).join('');
+    try { localStorage.setItem(RID_KEY, reviewerId); } catch (e) {}
+  }
   let data = null;
-  const picks = {}, notes = {};
+  const picks = {}, notes = {}, ratings = {};
 
   const label = c => c.label || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + c.id;
   // The evaluation calls candidates "Candidate A"; show the label the recruiter chose instead.
@@ -84,6 +92,15 @@
         lab.appendChild(r); lab.appendChild(el('span', '', t('dec')[v])); dec.appendChild(lab);
       });
       card.appendChild(dec);
+      // Optional overall rating 1–5
+      const rt = el('div', 'decide sp-rate');
+      rt.appendChild(el('span', 'small muted', t('sp_rate')));
+      for (let v = 1; v <= 5; v++) {
+        const lab = el('label'); const r = el('input'); r.type = 'radio'; r.name = 'rate-' + c.id; r.value = v; r.checked = ratings[c.id] === v;
+        r.addEventListener('change', () => { ratings[c.id] = v; });
+        lab.appendChild(r); lab.appendChild(el('span', '', String(v))); rt.appendChild(lab);
+      }
+      card.appendChild(rt);
       const ta = el('textarea'); ta.maxLength = 500; ta.placeholder = t('sp_comment'); ta.setAttribute('aria-label', t('sp_comment'));
       ta.value = notes[c.id] || ''; ta.addEventListener('input', () => { notes[c.id] = ta.value; });
       card.appendChild(ta);
@@ -93,14 +110,15 @@
 
   async function load() {
     if (!token) return gone(t('err').shortlist_not_found);
-    try { data = await api('POST', '/api/s/view', { token }); }
+    try { data = await api('POST', '/api/s/view', { token, reviewer_id: reviewerId }); }
     catch (err) { return gone(err.message); }
     if (data.lang && T[data.lang] && !new URLSearchParams(location.search).get('lang')) {
       let chosen = null; try { chosen = localStorage.getItem(TRIAL.LANG_KEY); } catch (e) {}
       if (!chosen) { LANG = data.lang; applyTexts(); }
     }
-    (data.responses || []).forEach(r => { picks[r.candidate_id] = r.decision; notes[r.candidate_id] = r.comment || ''; if (r.reviewer_name && !$('sp-name').value) $('sp-name').value = r.reviewer_name; });
+    (data.responses || []).forEach(r => { picks[r.candidate_id] = r.decision; notes[r.candidate_id] = r.comment || ''; if (r.overall) ratings[r.candidate_id] = r.overall; if (r.reviewer_name && !$('sp-name').value) $('sp-name').value = r.reviewer_name; });
     try { const n = localStorage.getItem(NAME_KEY); if (n && !$('sp-name').value) $('sp-name').value = n; } catch (e) {}
+    $('sp-panel').textContent = data.other_reviewers ? t('sp_others')(data.other_reviewers) : t('sp_panel');
     $('sp-loading').hidden = true; $('sp').hidden = false;
     render();
   }
@@ -108,12 +126,12 @@
   $('sp-send').addEventListener('click', async () => {
     const msg = $('sp-msg'); msg.hidden = true;
     const reviewer = $('sp-name').value.trim();
-    const decisions = data.candidates.filter(c => picks[c.id]).map(c => ({ id: c.id, decision: picks[c.id], comment: (notes[c.id] || '').trim() }));
+    const decisions = data.candidates.filter(c => picks[c.id]).map(c => ({ id: c.id, decision: picks[c.id], comment: (notes[c.id] || '').trim(), overall: ratings[c.id] || null }));
     if (!decisions.length) return showMsg(msg, 'err', t('sp_need_one'));
     if (!reviewer) { $('sp-name').focus(); return showMsg(msg, 'err', t('sp_need_name')); }
     const btn = $('sp-send'); btn.disabled = true;
     try {
-      await api('POST', '/api/s/respond', { token, reviewer_name: reviewer, decisions });
+      await api('POST', '/api/s/respond', { token, reviewer_name: reviewer, reviewer_id: reviewerId, decisions });
       try { localStorage.setItem(NAME_KEY, reviewer); } catch (e) {}
       showMsg(msg, 'ok', t('sp_sent'));
     } catch (err) {

@@ -52,8 +52,8 @@ h3{font-size:16px;font-weight:700;margin-bottom:6px}
 /* forms */
 .field{margin-bottom:14px}
 .field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--white);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
-.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.j-mb input,.field input,.field textarea,.field select{width:100%;border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--white);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+.j-mb input:focus,.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
 .field textarea{resize:vertical;min-height:170px;line-height:1.5}
 .hint{font-size:12px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;gap:8px}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);margin-bottom:10px}
@@ -318,3 +318,16 @@ footer a{color:inherit}
 .cr-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 .cr-table th,.cr-table td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left}
 .crit-report ul{margin-left:18px}
+
+/* Jobs (Vagas) */
+.j-form{border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0}
+.j-list{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.j-item{border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.j-item.closed{opacity:.7}
+.j-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.j-addr{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;word-break:break-all;color:var(--blue)}
+.j-acts{display:flex;gap:6px;flex-wrap:wrap}
+.j-mb{border-top:1px solid var(--border);padding-top:12px;margin-top:6px;display:flex;flex-direction:column;gap:6px}
+.j-mb-row{display:flex;gap:8px;flex-wrap:wrap}
+.j-mb-row input{flex:1;min-width:220px;width:auto}
+.j-for{background:#ebf4ff;border-radius:10px;padding:8px 12px;margin:0 0 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}

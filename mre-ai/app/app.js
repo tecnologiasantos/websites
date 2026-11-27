@@ -191,10 +191,11 @@
     ev.ranking.candidates.forEach((c, i) => {
       const nm = names[c.id] || (LANG === 'pt' ? 'Candidato ' : LANG === 'es' ? 'Candidato ' : 'Candidate ') + c.id;
       const restore = s => (names[c.id] ? s.replace(labelRe(c.id), () => names[c.id]) : s);
-      const card = el('div', 'cand');
+      const card = el('div', 'cand'); card.dataset.cand = c.id;
       const top = el('div', 'cand-top');
       top.appendChild(el('div', 'rank', String(i + 1)));
       top.appendChild(el('div', 'cand-name', nm));
+      top.appendChild(stageSelect(c.id));
       top.appendChild(el('span', 'fit ' + c.fit, t('fit_' + c.fit)));
       top.appendChild(el('div', 'score', String(c.score)));
       card.appendChild(top);
@@ -214,6 +215,51 @@
     });
     loadShares(ev);
     loadScorecards(ev);
+    loadStages(ev);
+  }
+
+  // ── Hiring stage per candidate ──────────────────────────────────────────
+  // screening (default) → interview → offer → hired, or rejected / withdrew. Filter chips above the list.
+  const STAGES = ['screening', 'interview', 'offer', 'hired', 'rejected', 'withdrew'];
+  let stagesMap = {}, stagesFor = null, stageFilter = 'all';
+  const stageOf = id => (stagesMap[id] && stagesMap[id].stage) || 'screening';
+  async function loadStages(ev) {
+    if (stagesFor !== ev.id) { stagesMap = {}; stagesFor = ev.id; stageFilter = 'all'; }
+    renderStages();
+    try { const r = await api('GET', '/api/stages?evaluation_id=' + encodeURIComponent(ev.id)); if (stagesFor === ev.id) { stagesMap = r.stages || {}; renderStages(); } }
+    catch (err) { if (err.status === 401) return gate(); }
+  }
+  function stageSelect(id) {
+    const sel = el('select', 'stage-sel'); sel.dataset.cand = id; sel.setAttribute('aria-label', t('st_label'));
+    STAGES.forEach(v => { const o = el('option', '', t('st')[v]); o.value = v; sel.appendChild(o); });
+    sel.disabled = !canEditQ(current);
+    sel.addEventListener('change', async () => {
+      const prev = stageOf(id), v = sel.value;
+      stagesMap[id] = { stage: v }; renderStages();
+      try { const r = await api('POST', '/api/stages', { evaluation_id: current.id, candidate_id: id, stage: v }); stagesMap[id] = r; renderStages(); }
+      catch (err) { if (err.status === 401) return gate(); stagesMap[id] = { stage: prev }; renderStages(); showMsg($('q-all-msg'), 'err', err.message); }
+    });
+    return sel;
+  }
+  function renderStages() {
+    document.querySelectorAll('#res-list .stage-sel').forEach(sel => {
+      const st = stageOf(sel.dataset.cand); sel.value = st; sel.className = 'stage-sel st-' + st;
+      const info = stagesMap[sel.dataset.cand];
+      sel.title = info && info.updated_by_name ? t('st_by')(info.updated_by_name, fmtDate(info.updated_at)) : t('st_label');
+    });
+    const bar = $('stage-filter'); if (!bar || !current) return;
+    bar.textContent = '';
+    const counts = { all: current.ranking.candidates.length };
+    current.ranking.candidates.forEach(c => { const st = stageOf(c.id); counts[st] = (counts[st] || 0) + 1; });
+    if (stageFilter !== 'all' && !counts[stageFilter]) stageFilter = 'all';
+    ['all', ...STAGES].forEach(v => {
+      if (v !== 'all' && !counts[v]) return;
+      const b = el('button', 'chip' + (stageFilter === v ? ' on' : ''), `${v === 'all' ? t('st_all') : t('st')[v]} (${counts[v]})`); b.type = 'button';
+      b.addEventListener('click', () => { stageFilter = v; renderStages(); });
+      bar.appendChild(b);
+    });
+    bar.hidden = Object.keys(counts).length <= 2;   // only "all" and "screening": nothing to filter yet
+    document.querySelectorAll('#res-list .cand').forEach(card => { card.hidden = stageFilter !== 'all' && stageOf(card.dataset.cand) !== stageFilter; });
   }
 
   // ── Interview scorecards ────────────────────────────────────────────────
@@ -353,14 +399,14 @@
     const names = loadNames(ev.id), crit = ev.ranking.criteria || [], answers = latestAnswers();
     const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
     const H = t('csv_h');
-    const head = [H.rank, H.candidate, H.score, H.fit, ...crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`),
+    const head = [H.rank, H.candidate, H.stage, H.score, H.fit, ...crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`),
       H.ko, H.strengths, H.gaps, H.evidence, H.questions, H.decision, H.comment, H.interviews, H.average, H.recs];
     const rows = ev.ranking.candidates.map((c, i) => {
       const nm = names[c.id] || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + c.id;
       const restore = x => (names[c.id] ? String(x).replace(labelRe(c.id), () => names[c.id]) : String(x));
       const byId = Object.fromEntries((c.criteria || []).map(r => [r.id, r.rating]));
       const a = answers[c.id];
-      return [i + 1, nm, c.score, t('fit_' + c.fit), ...crit.map(k => (byId[k.id] === undefined ? '' : `${byId[k.id]}/4`)),
+      return [i + 1, nm, stagesFor === ev.id ? t('st')[stageOf(c.id)] : '', c.score, t('fit_' + c.fit), ...crit.map(k => (byId[k.id] === undefined ? '' : `${byId[k.id]}/4`)),
         (c.knockout_failed || []).map(id => (crit.find(k => k.id === id) || {}).name || id).join('; '),
         (c.strengths || []).map(restore).join('; '), (c.gaps || []).map(restore).join('; '), (c.evidence || []).map(restore).join('; '),
         (c.interview_questions || []).map(q => restore(q.q)).join(' | '),
@@ -702,7 +748,8 @@
         const by = el('span', 'by', t('h_by')(who)); if (ev.author.email) by.title = ev.author.email;
         meta.appendChild(by); meta.appendChild(document.createTextNode(' · '));
       }
-      meta.appendChild(document.createTextNode(`${t('h_cvs')(ev.cv_count)} · ${fmtDate(ev.created_at)}`));
+      const st = Object.entries(ev.stages || {}).filter(([k]) => k !== 'screening').map(([k, n]) => `${n} ${t('st')[k].toLowerCase()}`).join(', ');
+      meta.appendChild(document.createTextNode(`${t('h_cvs')(ev.cv_count)} · ${fmtDate(ev.created_at)}` + (st ? ` · ${st}` : '')));
       b.appendChild(meta);
       b.addEventListener('click', () => { renderResults(ev); $('results').scrollIntoView({ behavior: 'smooth' }); });
       box.appendChild(b);

@@ -238,3 +238,15 @@ footer a{color:inherit}
 .crit.r0 .dots,.crit.r1 .dots{color:var(--danger)}
 .crit.req{border-color:var(--blue)}
 #round-note{margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text);background:var(--blue-light);border-radius:8px;padding:8px 12px}
+
+/* export and print (2026-11-27) */
+.print-only{display:none}
+@media print{
+  .print-only{display:block}
+  .print-head{border-bottom:2px solid var(--blue);padding-bottom:8px;margin-bottom:12px}
+  .print-head .ph-brand{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+  .print-head h3{font-size:20px;margin:2px 0}
+  .cand{break-inside:avoid}
+  .res-actions{display:none!important}
+  #res-job{display:none}
+}

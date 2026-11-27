@@ -179,6 +179,7 @@
     $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)} · ${t('h_cvs')(ev.cv_count)}` +
       (ev.delete_after ? ` · ${t('r_kept')(fmtDate(ev.delete_after))}` : '');
     $('add-cvs').hidden = !canAddTo(ev);
+    renderPrintHead(ev);
     const sum = $('res-sum'); sum.textContent = '';
     // The model may write the label in the result language: "Candidate A", "Candidato A", "Candidata A".
     const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
@@ -210,6 +211,56 @@
       list.appendChild(card);
     });
     loadShares(ev);
+  }
+
+  // ── Export: CSV for Excel / Google Sheets, and the print header for the PDF ─
+  // Built here from what the page already has (names typed by the recruiter stay in this browser).
+  function latestAnswers() {
+    const out = {};
+    (shares || []).forEach(sl => (sl.responses || []).forEach(a => {
+      if (!out[a.candidate_id] || a.updated_at > out[a.candidate_id].updated_at) out[a.candidate_id] = a;
+    }));
+    return out;
+  }
+  // Excel reads ';' in Portuguese and Spanish locales, ',' in English. A leading = + - @ would run as a formula: neutralize it.
+  const csvCell = v => {
+    let x = v === null || v === undefined ? '' : String(v);
+    if (/^[=+\-@\t\r]/.test(x)) x = "'" + x;
+    return '"' + x.replace(/"/g, '""') + '"';
+  };
+  function exportCsv() {
+    const ev = current; if (!ev) return;
+    const names = loadNames(ev.id), crit = ev.ranking.criteria || [], answers = latestAnswers();
+    const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
+    const H = t('csv_h');
+    const head = [H.rank, H.candidate, H.score, H.fit, ...crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`),
+      H.ko, H.strengths, H.gaps, H.evidence, H.questions, H.decision, H.comment];
+    const rows = ev.ranking.candidates.map((c, i) => {
+      const nm = names[c.id] || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + c.id;
+      const restore = x => (names[c.id] ? String(x).replace(labelRe(c.id), () => names[c.id]) : String(x));
+      const byId = Object.fromEntries((c.criteria || []).map(r => [r.id, r.rating]));
+      const a = answers[c.id];
+      return [i + 1, nm, c.score, t('fit_' + c.fit), ...crit.map(k => (byId[k.id] === undefined ? '' : `${byId[k.id]}/4`)),
+        (c.knockout_failed || []).map(id => (crit.find(k => k.id === id) || {}).name || id).join('; '),
+        (c.strengths || []).map(restore).join('; '), (c.gaps || []).map(restore).join('; '), (c.evidence || []).map(restore).join('; '),
+        (c.interview_questions || []).map(q => restore(q.q)).join(' | '),
+        a ? `${t('dec')[a.decision]} (${a.reviewer_name || '—'})` : '', a && a.comment ? a.comment : ''];
+    });
+    const sep = LANG === 'en' ? ',' : ';';
+    const text = '\ufeff' + [head, ...rows].map(r => r.map(csvCell).join(sep)).join('\r\n');
+    const slug = (ev.job_title || 'ranking').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 40).toLowerCase();
+    const a = el('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+    a.download = `mre-ai_${slug || 'ranking'}_${new Date(ev.created_at).toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  // Printed header: company, job, date, number of CVs and the criteria with their weights.
+  function renderPrintHead(ev) {
+    const box = $('print-head'); box.textContent = '';
+    box.appendChild(el('div', 'ph-brand', 'MRE·AI · ' + (me ? me.organization : '')));
+    box.appendChild(el('h3', '', ev.job_title || ''));
+    box.appendChild(el('div', 'muted small', `${fmtDate(ev.created_at)} · ${t('h_cvs')(ev.cv_count)}` + (ev.author && ev.author.name ? ` · ${ev.author.name}` : '')));
+    const crit = ev.ranking.criteria || [];
+    if (crit.length) box.appendChild(el('div', 'small', `${t('r_criteria')}: ` + crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`).join(' · ')));
   }
 
   // Saved jobs: more CVs can be added to a comparison whose job text was saved (from 27 Nov 2026),
@@ -969,6 +1020,7 @@
   });
   $('cr-suggest').addEventListener('click', suggestCriteria);
   $('add-cvs').addEventListener('click', addToJob);
+  $('export-csv').addEventListener('click', exportCsv);
   $('round-new').addEventListener('click', newJob);
   $('cr-add').addEventListener('click', () => {
     if (criteria.length >= MAX_CRITERIA) return;

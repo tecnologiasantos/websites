@@ -303,3 +303,18 @@ footer a{color:inherit}
 /* panel on one hiring-manager link (2026-11-27) */
 .share ul.panel{margin:4px 0 2px 14px;gap:2px}
 .sp-rate{align-items:center}
+
+/* paid-plan features (2026-11-27, deployed off) */
+.in-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.in-card{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:2px}
+.in-card b{font-size:24px;color:var(--blue)}
+.in-card span{font-size:13px}
+.in-period{display:flex;gap:6px}
+.in-list{margin:6px 0 0 18px;font-size:14px}
+.retention{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 10px;font-size:14px}
+.retention select{border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+.crit-report{border:1px solid var(--border);border-radius:12px;padding:14px;margin:10px 0 14px;background:var(--bg)}
+.crit-report h3{font-size:16px;margin-bottom:6px}.crit-report h4{font-size:14px;margin:12px 0 4px}
+.cr-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.cr-table th,.cr-table td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left}
+.crit-report ul{margin-left:18px}

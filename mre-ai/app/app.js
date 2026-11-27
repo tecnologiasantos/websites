@@ -179,6 +179,7 @@
     $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)} · ${t('h_cvs')(ev.cv_count)}` +
       (ev.delete_after ? ` · ${t('r_kept')(fmtDate(ev.delete_after))}` : '');
     $('add-cvs').hidden = !canAddTo(ev);
+    $('crit-report').hidden = true; renderCritReport(ev);
     $('q-all').hidden = !canEditQ(ev);
     renderPrintHead(ev);
     const sum = $('res-sum'); sum.textContent = '';
@@ -780,8 +781,75 @@
   // A bought pack without a paid plan: the page stops calling itself a free trial.
   const hasPackOnly = () => !isPaid() && me.pack_expires_at > Date.now() && (me.pack_credits || 0) > 0 && !!t('s_label_pack');
 
+  // ── Features for paid plans (deployed off; the Worker says which are on in me.features) ──
+  const feat = k => !!(me && me.features && me.features[k]);
+  // Leadership dashboard (account holder and administrators)
+  let inDays = 30;
+  async function loadInsights() {
+    const box = $('insights');
+    box.hidden = !(feat('leadership') && isManager());
+    if (box.hidden) return;
+    const per = $('in-period'); per.textContent = '';
+    [30, 90].forEach(d => { const b = el('button', 'chip' + (inDays === d ? ' on' : ''), t('in_days')(d)); b.type = 'button';
+      b.addEventListener('click', () => { inDays = d; loadInsights(); }); per.appendChild(b); });
+    try {
+      const r = await api('GET', '/api/insights?days=' + inDays);
+      const cards = $('in-cards'); cards.textContent = '';
+      const num = n => (n === null || n === undefined ? '—' : Number(n).toLocaleString(LANG === 'en' ? 'en' : LANG === 'pt' ? 'pt-BR' : 'es'));
+      const card = (label, value, sub) => { const c = el('div', 'in-card'); c.appendChild(el('b', '', value)); c.appendChild(el('span', '', label)); if (sub) c.appendChild(el('span', 'muted small', sub)); cards.appendChild(c); };
+      card(t('in_cvs'), num(r.cvs_evaluated), t('in_comparisons')(num(r.comparisons_used)));
+      card(t('in_saved'), num(r.hours_saved) + ' h', t('in_saved_sub')(r.minutes_per_cv));
+      card(t('in_jobs'), num(r.active_jobs), t('in_cands')(num(r.active_candidates)));
+      card(t('in_interviews'), num(r.interviews), r.interview_avg ? t('in_avg')(num(r.interview_avg)) : '');
+      card(t('in_hired'), num(r.hired), Object.entries(r.stages || {}).map(([k, n]) => `${t('st')[k]} ${n}`).join(' · '));
+      card(t('in_links'), `${num(r.links_answered)}/${num(r.links_shared)}`, r.answer_hours !== null ? t('in_hours')(num(r.answer_hours)) : '');
+      const pp = $('in-people'); pp.textContent = '';
+      if (r.per_person.length) {
+        pp.appendChild(el('h3', '', t('in_people')));
+        const ul = el('ul', 'in-list'); r.per_person.forEach(x => ul.appendChild(el('li', '', `${x.name || '—'} · ${t('in_comparisons')(num(x.comparisons))}`))); pp.appendChild(ul);
+      }
+      $('in-note').textContent = t('in_note');
+    } catch (err) { if (err.status === 401) return gate(); box.hidden = true; }
+  }
+  // Retention chosen by the company (paid plans)
+  function renderRetention() {
+    const box = $('retention');
+    box.hidden = !(feat('retention') && isManager());
+    if (box.hidden) return;
+    const sel = $('ret-sel'); sel.textContent = '';
+    (me.retention_choices || [30, 60, 90, 180]).forEach(d => { const o = el('option', '', t('in_days')(d)); o.value = d; o.selected = me.retention_days === d; sel.appendChild(o); });
+  }
+  // Criteria report of the open comparison: what weighed in the score, and what never does.
+  function renderCritReport(ev) {
+    const btn = $('crit-report-btn'), box = $('crit-report');
+    btn.hidden = !(feat('criteria_report') && ev); if (btn.hidden) { box.hidden = true; return; }
+    if (box.hidden) return;
+    box.textContent = '';
+    box.appendChild(el('h3', '', t('cr_rep_title')));
+    const crit = ev.ranking.criteria || [];
+    if (!crit.length) box.appendChild(el('p', 'small', t('cr_rep_none')));
+    else {
+      box.appendChild(el('p', 'small', t('cr_rep_formula')));
+      const tb = el('table', 'cr-table'); const hr = el('tr');
+      [t('r_criteria'), t('cr_rep_type'), t('cr_rep_avg'), t('cr_rep_ko')].forEach(h => hr.appendChild(el('th', '', h))); tb.appendChild(hr);
+      crit.forEach(k => {
+        const rs = ev.ranking.candidates.map(c => (c.criteria || []).find(r => r.id === k.id)).filter(Boolean);
+        const avg = rs.length ? Math.round(rs.reduce((x, r) => x + r.rating, 0) / rs.length * 10) / 10 : null;
+        const ko = ev.ranking.candidates.filter(c => (c.knockout_failed || []).includes(k.id)).length;
+        const row = el('tr');
+        [k.name, k.required ? t('cr_required') : t('cr_w')[k.weight], avg === null ? '—' : `${avg.toLocaleString(LANG === 'en' ? 'en' : 'pt-BR')}/4`, k.required ? String(ko) : '—']
+          .forEach(v => row.appendChild(el('td', '', v)));
+        tb.appendChild(row);
+      });
+      box.appendChild(tb);
+    }
+    const ul = el('ul', 'small'); t('cr_rep_never').forEach(x => ul.appendChild(el('li', '', x))); box.appendChild(el('h4', '', t('cr_rep_never_t'))); box.appendChild(ul);
+    box.appendChild(el('p', 'muted small', t('cr_rep_meta')(ev.model || '—', fmtDate(ev.created_at), ev.cv_count, (ev.author && ev.author.name) || '—')));
+  }
+
   function renderMe() {
     renderBonus();
+    try { renderRetention(); } catch (e) {}
     $('org-name').textContent = me.organization;
     $('role').textContent = roleName(me.role);
     $('team').hidden = !isManager(); $('audit').hidden = !isManager();
@@ -999,7 +1067,7 @@
         saveNames(r.id, names);
         appendTo = r.id; done += batches[k].length;
         ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: r.cv_count || done, ranking: r.ranking, author: r.author,
-          has_job: r.has_job, delete_after: r.delete_after };
+          has_job: r.has_job, delete_after: r.delete_after, model: r.model };
         if (me) me.credits_remaining = r.credits_remaining;
       }
       pending = null; cvs = [];
@@ -1125,6 +1193,7 @@
     showApp();
     loadReferral();
     renderBonus();
+    loadInsights();
     if (billingFlag === 'success') afterCheckout();
   }
 
@@ -1294,6 +1363,13 @@
   $('cr-suggest').addEventListener('click', suggestCriteria);
   $('add-cvs').addEventListener('click', addToJob);
   $('export-csv').addEventListener('click', exportCsv);
+  $('crit-report-btn').addEventListener('click', () => { const b = $('crit-report'); b.hidden = !b.hidden; renderCritReport(current); if (!b.hidden) b.scrollIntoView({ behavior: 'smooth' }); });
+  $('ret-sel').addEventListener('change', async () => {
+    const d = Number($('ret-sel').value); $('ret-msg').textContent = '';
+    try { const r = await api('POST', '/api/settings/retention', { days: d }); me.retention_days = r.retention_days; $('ret-msg').textContent = t('ret_saved');
+      await loadHistory(); renderHistory(); }
+    catch (err) { if (err.status === 401) return gate(); $('ret-msg').textContent = err.message; renderRetention(); }
+  });
   $('q-all-btn').addEventListener('click', addQuestionToAll);
   $('q-all-text').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addQuestionToAll(); } });
   $('round-new').addEventListener('click', newJob);

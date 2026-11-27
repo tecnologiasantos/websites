@@ -9,6 +9,8 @@
   // A comparison interrupted mid-round: the next run adds the remaining CVs to it (same job text).
   let pending = null;   // { id, job, offset }
   let criteria = [];    // [{ name, required, weight }] for the next new comparison
+  // Jobs (Vagas): the company's open positions; currentJob is the one the next new comparison is for.
+  let jobs = [], jobsMailbox = null, canSetMailbox = false, showClosed = false, editingJob = null, currentJob = null;
   const offset = () => (pending ? pending.offset : 0);
   let me = null, cvs = [], current = null, past = [], usage = null, team = [], auditEvents = null;
   const isManager = () => me && (me.role === 'owner' || me.role === 'admin');
@@ -460,6 +462,7 @@
     } finally { btn.disabled = false; }
   }
   function newJob() {
+    setCurrentJob(null);
     pending = null; $('job').value = ''; $('job').dispatchEvent(new Event('input'));
     cvs = []; criteria = []; renderCvs(); renderCriteria(); $('job').focus();
   }
@@ -931,7 +934,7 @@
     renderMe();
   }
 
-  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); } }
+  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); renderJobs(); if (currentJob) setCurrentJob(currentJob); } }
 
   // ── Job description analysis (Raio-X da Vaga inside MRE·AI) ─────────────
   // Only the job text is sent; CVs stay in this page. Free: never spends a comparison.
@@ -1053,7 +1056,7 @@
       for (let k = 0; k < batches.length; k++) {
         $('run-label').textContent = batches.length > 1 ? t('running_batch')(k + 1, batches.length) : t('running');
         const body = { job, lang: LANG, cvs: batches[k].map(c => ({ text: c.sent })) };
-        if (appendTo) body.append_to = appendTo; else if (crit) body.criteria = crit;
+        if (appendTo) body.append_to = appendTo; else { if (crit) body.criteria = crit; if (currentJob) body.job_id = currentJob.id; }
         let r;
         try { r = await api('POST', '/api/evaluate', body); }
         catch (err) {
@@ -1071,6 +1074,12 @@
         if (me) me.credits_remaining = r.credits_remaining;
       }
       pending = null; cvs = [];
+      // The job remembers the criteria of its first comparison.
+      if (currentJob && crit && crit.length && !currentJob.criteria) {
+        currentJob.criteria = crit;
+        api('POST', '/api/jobs/update', { id: currentJob.id, criteria: crit }).catch(() => {});
+      }
+      if (currentJob) loadJobs().catch(() => {});
     } catch (err) {
       if (err.status === 401) return gate();
       if (appendTo) {
@@ -1152,6 +1161,154 @@
     if (textKey) $('gate-text').textContent = textKey;
   }
 
+
+  // ── Jobs (Vagas) ─────────────────────────────────────────────────────────
+  // Each job keeps its description and criteria; "Compare candidates" fills the new comparison with them.
+  // With the company recruiting e-mail set, each job shows its address for the ad: local+slug@domain.
+  const slugify = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
+  // Same as jobs.js slugBase on the server: short words dropped, up to 38 characters at a word boundary.
+  const STOP = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'para', 'em', 'a', 'o', 'the', 'of', 'and', 'for', 'y', 'del', 'la', 'el', 'en']);
+  const slugBase = v => { let out = ''; for (const w of slugify(v).split('-').filter(w => w && !STOP.has(w))) { if ((out ? out.length + 1 : 0) + w.length > 38) break; out = out ? out + '-' + w : w; } return out || 'vaga'; };
+  const addrFor = slug => { if (!jobsMailbox || !slug) return null; const [l, d] = jobsMailbox.split('@'); return `${l}+${slug}@${d}`; };
+
+  async function loadJobs() {
+    const r = await api('GET', '/api/jobs');
+    jobs = r.jobs || []; jobsMailbox = r.mailbox || null; canSetMailbox = !!r.can_set_mailbox;
+    renderJobs();
+  }
+
+  function renderJobs() {
+    const list = $('j-list'); list.textContent = '';
+    const open = jobs.filter(j => j.status === 'open'), closed = jobs.filter(j => j.status !== 'open');
+    if (!jobs.length) list.appendChild(el('p', 'muted small', t('j_none')));
+    for (const j of showClosed ? open.concat(closed) : open) {
+      const box = el('div', 'j-item' + (j.status === 'open' ? '' : ' closed'));
+      const top = el('div', 'j-top');
+      const name = el('b', '', j.title);
+      top.append(name, el('span', 'muted small', t('j_stats')(j.evaluations || 0, j.cvs || 0) + (j.status === 'open' ? '' : ' · ' + t('j_closed'))));
+      box.appendChild(top);
+      if (j.address) box.appendChild(el('div', 'j-addr', j.address));
+      else box.appendChild(el('div', 'muted small', t('j_no_addr')));
+      box.appendChild(el('div', 'muted small', t('j_by')(j.created_by_name || '—', fmtDate(j.created_at))));
+      const acts = el('div', 'j-acts');
+      if (j.status === 'open') {
+        const cmp = el('button', 'btn btn-primary btn-sm', t('j_compare')); cmp.type = 'button';
+        cmp.addEventListener('click', () => useJob(j.id, cmp));
+        acts.appendChild(cmp);
+        if (j.address) {
+          const ad = el('button', 'btn btn-ghost btn-sm', t('j_copy_ad')); ad.type = 'button';
+          ad.addEventListener('click', () => copyText(t('j_ad')(j.title, j.address), ad));
+          acts.appendChild(ad);
+        }
+      }
+      const ed = el('button', 'btn btn-ghost btn-sm', t('j_edit')); ed.type = 'button';
+      ed.addEventListener('click', () => openJobForm(j));
+      const st = el('button', 'btn btn-ghost btn-sm', j.status === 'open' ? t('j_close') : t('j_reopen')); st.type = 'button';
+      st.addEventListener('click', () => j.status === 'open'
+        ? askConfirm({ title: t('j_close_title'), text: t('j_close_text'), ok: t('j_close'), action: () => setJobStatus(j, 'closed') })
+        : setJobStatus(j, 'open'));
+      acts.append(ed, st);
+      box.appendChild(acts);
+      list.appendChild(box);
+    }
+    const cb = $('j-closed');
+    cb.hidden = !closed.length;
+    cb.textContent = showClosed ? t('j_hide_closed') : t('j_show_closed')(closed.length);
+    // Company recruiting e-mail: managers edit it, the others see it.
+    $('j-mb-in').hidden = $('j-mb-save').hidden = !canSetMailbox;
+    if (canSetMailbox && document.activeElement !== $('j-mb-in')) $('j-mb-in').value = jobsMailbox || '';
+    $('j-mb-text').textContent = canSetMailbox ? '' : (jobsMailbox ? t('j_mb_is')(jobsMailbox) : t('j_mb_none'));
+    renderJobAddrPreview();
+  }
+
+  function renderJobAddrPreview() {
+    const slug = slugify($('j-slug').value) || (editingJob && editingJob !== 'new' ? editingJob.slug : (slugify($('j-title').value) ? slugBase($('j-title').value) + '-…' : ''));
+    const a = addrFor(slug);
+    $('j-addr-prev').textContent = a ? t('j_addr_prev')(a) : '';
+  }
+
+  async function openJobForm(j) {
+    editingJob = j || 'new';
+    $('j-msg').hidden = true; $('j-form').hidden = false;
+    if (j) {
+      $('j-title').value = j.title; $('j-slug').value = j.slug; $('j-desc').value = '';
+      try { const r = await api('GET', '/api/jobs/get?id=' + encodeURIComponent(j.id)); $('j-desc').value = r.job.job_text; } catch (err) { showMsg($('j-msg'), 'err', err.message); }
+    } else {
+      $('j-title').value = ''; $('j-slug').value = '';
+      $('j-desc').value = $('job').value.trim();   // the description already typed in the comparison, if any
+    }
+    renderJobAddrPreview();
+    $('j-title').focus();
+  }
+  function closeJobForm() { editingJob = null; $('j-form').hidden = true; }
+
+  async function saveJob() {
+    const title = $('j-title').value.trim(), job_text = $('j-desc').value.trim(), slug = slugify($('j-slug').value);
+    if (title.length < 3 || job_text.length < 50) return showMsg($('j-msg'), 'err', t('j_need'));
+    const btn = $('j-save'); btn.disabled = true;
+    try {
+      if (editingJob === 'new') {
+        const body = { title, job_text };
+        if (slug) body.slug = slug;
+        await api('POST', '/api/jobs', body);
+      } else {
+        const body = { id: editingJob.id, title, job_text };
+        if (slug && slug !== editingJob.slug) body.slug = slug;
+        await api('POST', '/api/jobs/update', body);
+        if (currentJob && currentJob.id === editingJob.id) setCurrentJob({ ...currentJob, title });
+      }
+      closeJobForm();
+      await loadJobs();
+    } catch (err) { if (err.status === 401) return gate(); showMsg($('j-msg'), 'err', err.message); }
+    finally { btn.disabled = false; }
+  }
+
+  async function setJobStatus(j, status) {
+    try {
+      await api('POST', '/api/jobs/status', { id: j.id, status });
+      if (status === 'closed' && currentJob && currentJob.id === j.id) setCurrentJob(null);
+      await loadJobs();
+    } catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
+  }
+
+  // Fill the new comparison with the job's description and criteria.
+  async function useJob(id, btn) {
+    if (btn) btn.disabled = true;
+    try {
+      const r = await api('GET', '/api/jobs/get?id=' + encodeURIComponent(id));
+      pending = null; cvs = []; renderCvs();
+      $('job').value = r.job.job_text; $('job').dispatchEvent(new Event('input'));
+      criteria = (r.job.criteria || []).map(k => ({ name: k.name, required: !!k.required, weight: k.weight || 1 }));
+      renderCriteria();
+      setCurrentJob({ id: r.job.id, title: r.job.title, criteria: r.job.criteria && r.job.criteria.length ? r.job.criteria : null });
+      $('new').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
+    finally { if (btn) btn.disabled = false; }
+  }
+
+  function setCurrentJob(j) {
+    currentJob = j;
+    $('j-for').hidden = !j;
+    $('j-for-text').textContent = j ? t('j_for')(j.title) : '';
+  }
+
+  $('j-new').addEventListener('click', () => openJobForm(null));
+  $('j-cancel').addEventListener('click', closeJobForm);
+  $('j-save').addEventListener('click', saveJob);
+  $('j-title').addEventListener('input', renderJobAddrPreview);
+  $('j-slug').addEventListener('input', renderJobAddrPreview);
+  $('j-closed').addEventListener('click', () => { showClosed = !showClosed; renderJobs(); });
+  $('j-for-x').addEventListener('click', () => setCurrentJob(null));
+  $('j-mb-save').addEventListener('click', async () => {
+    const btn = $('j-mb-save'); btn.disabled = true;
+    try {
+      const r = await api('POST', '/api/settings/intake', { mailbox: $('j-mb-in').value.trim() });
+      jobsMailbox = r.mailbox; showMsg($('j-mb-msg'), 'ok', t('j_mb_saved'));
+      await loadJobs();
+    } catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
+    finally { btn.disabled = false; }
+  });
+
   async function loadHistory() {
     const h = await api('GET', '/api/evaluations');
     past = h.evaluations || []; usage = h.usage || null;
@@ -1191,6 +1348,7 @@
       if (isManager()) await loadTeam();
     } catch (err) { return gate(err.status === 401 ? undefined : err.message); }
     showApp();
+    loadJobs().catch(() => {});
     loadReferral();
     renderBonus();
     loadInsights();
@@ -1207,6 +1365,7 @@
       await loadHistory();
       if (isManager()) await loadTeam();
       showApp();
+      loadJobs().catch(() => {});
       loadReferral();
       renderBonus();
     } catch (err) { showMsg($('c-msg'), 'err', err.message); $('c-btn').disabled = false; }

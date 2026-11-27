@@ -287,3 +287,15 @@ footer a{color:inherit}
 .sc-pill input:focus-visible+span{box-shadow:0 0 0 3px rgba(26,86,219,.25)}
 .sc-form textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px}
 @media print{.sc-list:not([open]) > *:not(summary){display:block}}
+
+/* hiring stage per candidate (2026-11-27) */
+.stage-sel{border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;background:var(--white);color:var(--text);cursor:pointer}
+.stage-sel:disabled{cursor:default;opacity:1}
+.stage-sel.st-interview{background:var(--blue-light);color:var(--blue);border-color:var(--blue-light)}
+.stage-sel.st-offer{background:var(--amber-light);color:var(--amber);border-color:var(--amber-light)}
+.stage-sel.st-hired{background:var(--teal-light);color:var(--teal);border-color:var(--teal-light)}
+.stage-sel.st-rejected,.stage-sel.st-withdrew{background:var(--danger-light);color:var(--danger);border-color:var(--danger-light)}
+.stage-filter{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
+.chip{border:1px solid var(--border);background:var(--white);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;color:var(--text)}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+@media print{.stage-sel{appearance:none;-webkit-appearance:none;border:1px solid var(--border)}}

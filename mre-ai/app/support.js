@@ -1,6 +1,7 @@
 // MRE·AI app · "Ajuda": support chat for signed-in people.
 // Talks only to the MRE·AI Worker (POST /api/support/chat, with the session; "Meus chamados" and
-// cancelling use GET /api/support/tickets and POST /api/support/ticket/cancel), which
+// cancelling use GET /api/support/tickets and POST /api/support/ticket/cancel; "Recibos" uses
+// GET /api/support/payments, POST /api/support/receipt and POST /api/support/payment-history), which
 // adds the account facts (plan, comparisons, validity, payments) and asks SantosBot.
 // No Turnstile and no system prompt here: both live on the server. The conversation
 // stays in this page's memory only; CVs are never sent.
@@ -11,6 +12,14 @@
   const MAX_TURNS = 20, MAX_CHARS = 2000;
   const UI = {
     en: {
+      pays: 'Receipts', payTitle: 'Your company\'s payments', payNone: 'Your company has no payments yet.',
+      payOnlyManagers: 'Receipts and the payment history are available to the account holder and administrators. Ask one of them, or write to support@tecnologiasantos.com.',
+      payTo: e => `Sent by e-mail to ${e} (the address you signed in with).`, payMore: n => `Showing the latest ${n}. The full list goes in the history e-mail.`,
+      sendReceipt: 'E-mail receipt', sendHistory: 'E-mail full history', openPortal: 'Invoices and payment method',
+      paySt: { paid: 'Paid', refunded: 'Refunded', partially_refunded: 'Partially refunded', pending: 'Awaiting payment' },
+      payMethod: { card: 'Card', boleto: 'Boleto', pix: 'Pix', other: 'Other' },
+      receiptSent: (d, e) => `Receipt of the payment of ${d} sent to ${e}.`, historySent: (n, e) => `Payment history (${n} payment${n === 1 ? '' : 's'}) sent to ${e}.`,
+      payErr: { forbidden_role: 'Only the account holder or an administrator can do this.', no_payments: 'Your company has no payments yet.', no_receipt: 'This payment has no receipt yet (it is still being confirmed).', email_failed: 'We could not send the e-mail. Please try again later.', not_found: 'Payment not found.' },
       mine: 'My tickets', mineTitle: 'Your tickets', none: 'You have no tickets.', loading: 'Loading…',
       st: { open: 'Open', in_progress: 'In progress', on_hold: 'On hold', resolved: 'Resolved', canceled: 'Canceled' },
       pick: 'Which ticket do you want to cancel?', noneActive: 'You have no open tickets to cancel. To see all of them, use "My tickets" at the top.',
@@ -34,6 +43,14 @@
       },
     },
     pt: {
+      pays: 'Recibos', payTitle: 'Pagamentos da empresa', payNone: 'Sua empresa ainda não tem pagamentos.',
+      payOnlyManagers: 'Recibos e histórico de pagamentos ficam com o titular e os administradores da conta. Peça a um deles ou escreva para support@tecnologiasantos.com.',
+      payTo: e => `Enviamos por e-mail para ${e} (o endereço com que você entrou).`, payMore: n => `Mostrando os ${n} mais recentes. A lista completa vai no e-mail do histórico.`,
+      sendReceipt: 'Enviar recibo', sendHistory: 'Enviar histórico completo', openPortal: 'Faturas e forma de pagamento',
+      paySt: { paid: 'Pago', refunded: 'Reembolsado', partially_refunded: 'Reembolsado em parte', pending: 'Aguardando pagamento' },
+      payMethod: { card: 'Cartão', boleto: 'Boleto', pix: 'Pix', other: 'Outro' },
+      receiptSent: (d, e) => `Recibo do pagamento de ${d} enviado para ${e}.`, historySent: (n, e) => `Histórico de pagamentos (${n} pagamento${n === 1 ? '' : 's'}) enviado para ${e}.`,
+      payErr: { forbidden_role: 'Só o titular ou um administrador pode fazer isso.', no_payments: 'Sua empresa ainda não tem pagamentos.', no_receipt: 'Este pagamento ainda não tem recibo (está em confirmação).', email_failed: 'Não conseguimos enviar o e-mail. Tente de novo mais tarde.', not_found: 'Pagamento não encontrado.' },
       mine: 'Meus chamados', mineTitle: 'Seus chamados', none: 'Você não tem chamados.', loading: 'Carregando…',
       st: { open: 'Aberto', in_progress: 'Em andamento', on_hold: 'Em espera', resolved: 'Resolvido', canceled: 'Cancelado' },
       pick: 'Qual chamado você quer cancelar?', noneActive: 'Você não tem chamados abertos para cancelar. Para ver todos, use "Meus chamados" no topo.',
@@ -57,6 +74,14 @@
       },
     },
     es: {
+      pays: 'Recibos', payTitle: 'Pagos de la empresa', payNone: 'Tu empresa aún no tiene pagos.',
+      payOnlyManagers: 'Los recibos y el historial de pagos son para el titular y los administradores de la cuenta. Pídeselo a uno de ellos o escribe a support@tecnologiasantos.com.',
+      payTo: e => `Lo enviamos por correo a ${e} (la dirección con la que entraste).`, payMore: n => `Se muestran los ${n} más recientes. La lista completa va en el correo del historial.`,
+      sendReceipt: 'Enviar recibo', sendHistory: 'Enviar historial completo', openPortal: 'Facturas y medio de pago',
+      paySt: { paid: 'Pagado', refunded: 'Reembolsado', partially_refunded: 'Reembolsado en parte', pending: 'Esperando el pago' },
+      payMethod: { card: 'Tarjeta', boleto: 'Boleto', pix: 'Pix', other: 'Otro' },
+      receiptSent: (d, e) => `Recibo del pago del ${d} enviado a ${e}.`, historySent: (n, e) => `Historial de pagos (${n} pago${n === 1 ? '' : 's'}) enviado a ${e}.`,
+      payErr: { forbidden_role: 'Solo el titular o un administrador puede hacerlo.', no_payments: 'Tu empresa aún no tiene pagos.', no_receipt: 'Este pago aún no tiene recibo (se está confirmando).', email_failed: 'No pudimos enviar el correo. Inténtalo más tarde.', not_found: 'Pago no encontrado.' },
       mine: 'Mis tickets', mineTitle: 'Tus tickets', none: 'No tienes tickets.', loading: 'Cargando…',
       st: { open: 'Abierto', in_progress: 'En curso', on_hold: 'En espera', resolved: 'Resuelto', canceled: 'Cancelado' },
       pick: '¿Qué ticket quieres cancelar?', noneActive: 'No tienes tickets abiertos para cancelar. Para ver todos, usa "Mis tickets" arriba.',
@@ -108,7 +133,8 @@
 .hp-send:disabled{opacity:.45;cursor:not-allowed}
 .hp-note{font-size:11px;color:#64748b;padding:0 12px 10px;background:#fff}
 .hp-mine{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:5px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.hp-mine:hover{background:rgba(255,255,255,.22)}
+.hp-mine:hover{background:rgba(255,255,255,.22)}.hp-mine[hidden]{display:none}
+.hp-pay-meta{color:#4a5568;font-size:12px}.hp-card .hp-foot{color:#64748b;font-size:12px;margin:8px 0 6px}
 .hp-card{align-self:stretch;max-width:none;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:13px;color:#1a202c}
 .hp-card h4{margin:0 0 8px;font-size:13px}
 .hp-tk{border-top:1px solid #eef2f7;padding:8px 0;display:flex;flex-direction:column;gap:4px}.hp-tk:first-of-type{border-top:0;padding-top:0}
@@ -155,7 +181,7 @@
     w.innerHTML =
       '<div class="hp-panel" role="dialog" aria-modal="false">' +
         '<div class="hp-head"><div class="hp-info"><div class="hp-name"></div><div class="hp-status"></div></div>' +
-          '<button type="button" class="hp-mine"></button><button type="button" class="hp-close">×</button></div>' +
+          '<button type="button" class="hp-mine hp-pays" hidden></button><button type="button" class="hp-mine hp-tickets"></button><button type="button" class="hp-close">×</button></div>' +
         '<div class="hp-msgs" aria-live="polite"></div>' +
         '<div class="hp-bar"><textarea class="hp-input" rows="1"></textarea><button type="button" class="hp-send"></button></div>' +
         '<div class="hp-note"></div>' +
@@ -165,12 +191,13 @@
     els = {
       root: w, panel: w.querySelector('.hp-panel'), msgs: w.querySelector('.hp-msgs'), input: w.querySelector('.hp-input'),
       send: w.querySelector('.hp-send'), fab: w.querySelector('.hp-fab'), fabT: w.querySelector('.hp-fab-t'),
-      close: w.querySelector('.hp-close'), mine: w.querySelector('.hp-mine'), name: w.querySelector('.hp-name'), status: w.querySelector('.hp-status'), note: w.querySelector('.hp-note'),
+      close: w.querySelector('.hp-close'), mine: w.querySelector('.hp-tickets'), pays: w.querySelector('.hp-pays'), name: w.querySelector('.hp-name'), status: w.querySelector('.hp-status'), note: w.querySelector('.hp-note'),
     };
     els.input.maxLength = MAX_CHARS;
     els.fab.addEventListener('click', toggle);
     els.close.addEventListener('click', toggle);
     els.mine.addEventListener('click', () => showTickets(false));
+    els.pays.addEventListener('click', showPayments);
     els.send.addEventListener('click', send);
     els.input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
     els.input.addEventListener('input', () => { els.input.style.height = 'auto'; els.input.style.height = els.input.scrollHeight + 'px'; });
@@ -185,7 +212,7 @@
     els.name.textContent = u.title; els.status.textContent = u.status;
     els.input.placeholder = u.placeholder; els.send.textContent = u.send;
     els.close.setAttribute('aria-label', u.close); els.panel.setAttribute('aria-label', u.title);
-    els.note.textContent = u.note; els.mine.textContent = u.mine;
+    els.note.textContent = u.note; els.mine.textContent = u.mine; els.pays.textContent = u.pays;
   }
   function toggle() {
     open = !open;
@@ -263,6 +290,61 @@
     setTimeout(() => ta.focus(), 30);
   }
 
+  // ── Receipts and payment history (owner and administrators; works without SantosBot) ──
+  // The server sends the e-mails, always to the signed-in person's own address; Stripe links never reach the page.
+  // "send me the receipt", "histórico de pagamentos", "comprovante"… typed in the chat (pt / en / es) shows the list.
+  const RECEIPT_RE = /\b(recibos?|comprovantes?|receipts?|invoices?|faturas?|facturas?|2[ªa]\s*via|segunda via)\b|\bhist[óo]ric[oa]\b[\s\S]{0,30}\bpagamentos?\b|\bpayment history\b|\bbilling history\b|\bhistorial\b[\s\S]{0,30}\bpagos?\b/i;
+  const isManagerMe = () => !!(me && me.can_manage_billing);
+  const LOC = { pt: 'pt-BR', en: 'en-US', es: 'es' };
+  const loc = () => LOC[typeof LANG !== 'undefined' ? LANG : 'en'] || 'en-US';
+  const money = (minor, cur) => { try { return new Intl.NumberFormat(loc(), { style: 'currency', currency: String(cur || 'usd').toUpperCase() }).format((minor || 0) / 100); } catch (e) { return ((minor || 0) / 100).toFixed(2); } };
+  const day = ms => new Intl.DateTimeFormat(loc(), { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(ms));
+  function payErr(err) { const u = ui(); return (err && u.payErr[err.code]) || errText(err); }
+
+  async function showPayments() {
+    const u = ui();
+    if (!isManagerMe()) { addMsg('info', u.payOnlyManagers); return; }
+    const c = card();
+    c.appendChild(mk('h4', '', u.payTitle));
+    const wait = c.appendChild(mk('div', 'hp-tk-d', u.loading));
+    let r;
+    try { r = await api('GET', '/api/support/payments'); }
+    catch (err) { wait.textContent = payErr(err); return; }
+    wait.remove();
+    const list = r.payments || [];
+    if (!list.length) { c.firstChild.textContent = u.payNone; return; }
+    list.forEach(p => {
+      const row = c.appendChild(mk('div', 'hp-tk')), top = row.appendChild(mk('div', 'hp-tk-top'));
+      top.appendChild(mk('span', 'hp-tk-code', day(p.created_at)));
+      top.appendChild(mk('strong', '', money(p.amount, p.currency)));
+      top.appendChild(mk('span', 'hp-tk-st' + (p.status === 'paid' ? '' : ' closed'), u.paySt[p.status] || p.status));
+      row.appendChild(mk('div', 'hp-pay-meta', (u.payMethod[p.method] || u.payMethod.other) + (p.card_last4 ? ' •••• ' + p.card_last4 : '')));
+      if (p.has_receipt) {
+        const b = row.appendChild(btn(u.sendReceipt, '', async () => {
+          b.disabled = true;
+          try { const x = await api('POST', '/api/support/receipt', { id: p.id }); addMsg('info', u.receiptSent(day(p.created_at), x.sent_to)); }
+          catch (err) { addMsg('err', payErr(err)); b.disabled = false; }
+        }));
+      }
+    });
+    if ((r.total || 0) > list.length) c.appendChild(mk('p', 'hp-foot', u.payMore(list.length)));
+    c.appendChild(mk('p', 'hp-foot', u.payTo(r.email || (me && me.email) || '')));
+    const row = c.appendChild(mk('div', 'hp-row'));
+    const h = row.appendChild(btn(u.sendHistory, '', async () => {
+      h.disabled = true;
+      try { const x = await api('POST', '/api/support/payment-history'); addMsg('info', u.historySent(x.payments || 0, x.sent_to)); }
+      catch (err) { addMsg('err', payErr(err)); h.disabled = false; }
+    }));
+    if (me && me.billing && me.billing.has_customer) {
+      const pb = row.appendChild(btn(u.openPortal, '', async () => {
+        pb.disabled = true;
+        try { location.assign((await api('POST', '/api/billing/portal')).url); }
+        catch (err) { addMsg('err', payErr(err)); pb.disabled = false; }
+      }));
+    }
+    els.msgs.scrollTop = els.msgs.scrollHeight;
+  }
+
   async function send() {
     const text = els.input.value.trim();
     if (!text || busy) return;
@@ -274,6 +356,7 @@
       const m = text.match(/MRE-?\s?(\d{1,5})/i);
       await showTickets(true, m ? 'MRE-' + m[1].padStart(5, '0') : null); return;
     }
+    if (RECEIPT_RE.test(text)) { await showPayments(); return; }
     history.push({ role: 'user', content: text });
     busy = true; els.send.disabled = true;
     const typing = addMsg('typing bot', ''); typing.textContent = '•••';
@@ -309,6 +392,7 @@
     if (!els) build();
     const show = !!(me && me.support && !me.needs_consent);
     els.root.hidden = !show;
+    els.pays.hidden = !isManagerMe();
     if (!show && open) toggle();
     if (!me) { history = []; greeted = false; els.msgs.textContent = ''; }   // signed out: forget the conversation
   }

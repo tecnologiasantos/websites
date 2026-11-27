@@ -612,8 +612,33 @@ function setupLangButtons(onChange) {
 }
 
 // ── API ─────────────────────────────────────────────────────────────────────
-function getSession() { try { return sessionStorage.getItem(TRIAL.SESSION_KEY); } catch (e) { return null; } }
-function setSession(v) { try { v ? sessionStorage.setItem(TRIAL.SESSION_KEY, v) : sessionStorage.removeItem(TRIAL.SESSION_KEY); } catch (e) {} }
+// The session is kept in localStorage with its end time (the server's expires_in, 24 h), so it
+// survives closing the tab, opening the app in a new tab and the sign-in link opening in its own tab.
+// Before 27 Nov 2026 it lived in sessionStorage (one tab only): a session still there is moved over.
+// Sign-out, an expired or refused session (gate) and "other account" remove it from every tab.
+const SESSION_FALLBACK_SECONDS = 24 * 3600;
+function getSession() {
+  try {
+    const raw = localStorage.getItem(TRIAL.SESSION_KEY);
+    if (raw) {
+      const o = JSON.parse(raw);
+      if (o && typeof o.t === 'string' && o.exp > Date.now()) return o.t;
+      localStorage.removeItem(TRIAL.SESSION_KEY);
+      return null;
+    }
+    const old = sessionStorage.getItem(TRIAL.SESSION_KEY);
+    if (old) { sessionStorage.removeItem(TRIAL.SESSION_KEY); setSession(old); return old; }
+  } catch (e) {}
+  return null;
+}
+function setSession(v, expiresIn) {
+  try {
+    sessionStorage.removeItem(TRIAL.SESSION_KEY);
+    if (!v) { localStorage.removeItem(TRIAL.SESSION_KEY); return; }
+    const secs = Number(expiresIn) > 0 ? Number(expiresIn) : SESSION_FALLBACK_SECONDS;
+    localStorage.setItem(TRIAL.SESSION_KEY, JSON.stringify({ t: v, exp: Date.now() + secs * 1000 - 60e3 }));
+  } catch (e) {}
+}
 
 async function api(method, path, body) {
   const headers = {};

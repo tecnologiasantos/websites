@@ -596,7 +596,8 @@ const T = {
     need_credits: (need, have) => `These CVs need ${need} comparisons (1 per 5 CVs) and your company has ${have}. Remove some CVs or get more comparisons.`,
     cv_limit: n => `At most ${n} CVs per comparison. The extra files were not added.`,
     round_partial: (done, total) => `${done} of ${total} CVs are already in the ranking below. The others did not use any comparison: click “Continue comparison” to send them.`,
-    round_continue: (id, n) => `Adding to the comparison already started (${n} CVs). Use the same job description.`,
+    round_continue: (title, n) => `Adding CVs to “${title}” (${n} already in the ranking). Changing the job description starts a new comparison.`,
+    h_title: 'Jobs and comparisons (kept 30 days after the last use)', b_add_cvs: 'Add CVs to this job', b_new_job: 'Start a new job instead', r_kept: d => `kept until ${d}`,
     cr_title: 'Criteria for this job (optional)',
     cr_lead: 'With criteria, every CV is scored the same way. “Required” rules a candidate out: they get at most 49 (weak fit) and a warning.',
     cr_suggest: 'Suggest criteria from the job', cr_running: 'Reading the job…', cr_free: 'Free: does not use a comparison',
@@ -611,7 +612,7 @@ const T = {
     invalid_criteria: 'Check the criteria: at most 10, each up to 80 characters.',
     job_changed: 'To add CVs to this comparison, keep exactly the same job description.',
     round_full: 'One comparison holds at most 50 CVs.', round_busy: 'Another batch was being added. Please try again.',
-  }, ['You can send up to 50 CVs at once: every 5 CVs use 1 comparison, and all of them end up in the same ranking.']);
+  }, ['You can send up to 50 CVs at once: every 5 CVs use 1 comparison, and all of them end up in the same ranking.', 'Each comparison keeps its job description, so you can add more CVs to it on later days (up to 50 in all). It is kept for 30 days after the last CVs added.']);
   add('pt', {
     drop: '<b>Escolha os arquivos</b> ou arraste aqui · PDF, DOCX ou TXT · até 50 (cada 5 currículos usam 1 comparação)',
     run_cost: (cvs, n) => `${cvs} currículos · usa ${n} comparações (1 a cada 5 currículos), todos num só ranking.`,
@@ -619,7 +620,8 @@ const T = {
     need_credits: (need, have) => `Estes currículos precisam de ${need} comparações (1 a cada 5) e sua empresa tem ${have}. Remova alguns currículos ou adquira mais comparações.`,
     cv_limit: n => `No máximo ${n} currículos por comparação. Os arquivos a mais não foram adicionados.`,
     round_partial: (done, total) => `${done} de ${total} currículos já estão no ranking abaixo. Os outros não gastaram comparação: clique em “Continuar comparação” para enviá-los.`,
-    round_continue: (id, n) => `Adicionando à comparação já iniciada (${n} currículos). Use a mesma descrição da vaga.`,
+    round_continue: (title, n) => `Adicionando currículos a “${title}” (${n} já no ranking). Mudar a descrição da vaga começa uma nova comparação.`,
+    h_title: 'Vagas e comparações (guardadas 30 dias após o último uso)', b_add_cvs: 'Adicionar currículos a esta vaga', b_new_job: 'Começar outra vaga', r_kept: d => `guardada até ${d}`,
     cr_title: 'Critérios da vaga (opcional)',
     cr_lead: 'Com critérios, todos os currículos são pontuados do mesmo jeito. “Obrigatório” é eliminatório: quem não atende fica com no máximo 49 (pouco aderente) e um aviso.',
     cr_suggest: 'Sugerir critérios a partir da vaga', cr_running: 'Lendo a vaga…', cr_free: 'Grátis: não usa comparação',
@@ -634,7 +636,7 @@ const T = {
     invalid_criteria: 'Confira os critérios: no máximo 10, cada um com até 80 caracteres.',
     job_changed: 'Para adicionar currículos a esta comparação, mantenha exatamente a mesma descrição da vaga.',
     round_full: 'Uma comparação aceita no máximo 50 currículos.', round_busy: 'Outro lote estava sendo adicionado. Tente de novo.',
-  }, ['Você pode enviar até 50 currículos de uma vez: cada 5 currículos usam 1 comparação, e todos entram no mesmo ranking.']);
+  }, ['Você pode enviar até 50 currículos de uma vez: cada 5 currículos usam 1 comparação, e todos entram no mesmo ranking.', 'Cada comparação guarda a descrição da vaga, para você adicionar mais currículos nos dias seguintes (até 50 no total). Ela fica guardada por 30 dias depois dos últimos currículos adicionados.']);
   add('es', {
     drop: '<b>Elige los archivos</b> o arrástralos aquí · PDF, DOCX o TXT · hasta 50 (cada 5 CVs usan 1 comparación)',
     run_cost: (cvs, n) => `${cvs} CVs · usa ${n} comparaciones (1 cada 5 CVs), todos en un solo ranking.`,
@@ -642,7 +644,8 @@ const T = {
     need_credits: (need, have) => `Estos CVs necesitan ${need} comparaciones (1 cada 5) y tu empresa tiene ${have}. Quita algunos CVs o consigue más comparaciones.`,
     cv_limit: n => `Como máximo ${n} CVs por comparación. Los archivos de más no se agregaron.`,
     round_partial: (done, total) => `${done} de ${total} CVs ya están en el ranking de abajo. Los demás no gastaron comparación: haz clic en “Continuar comparación” para enviarlos.`,
-    round_continue: (id, n) => `Agregando a la comparación ya iniciada (${n} CVs). Usa la misma descripción de la vacante.`,
+    round_continue: (title, n) => `Agregando CVs a “${title}” (${n} ya en el ranking). Cambiar la descripción de la vacante empieza una nueva comparación.`,
+    h_title: 'Vacantes y comparaciones (se guardan 30 días tras el último uso)', b_add_cvs: 'Agregar CVs a esta vacante', b_new_job: 'Empezar otra vacante', r_kept: d => `guardada hasta el ${d}`,
     cr_title: 'Criterios de la vacante (opcional)',
     cr_lead: 'Con criterios, todos los CVs se puntúan igual. “Obligatorio” es eliminatorio: quien no lo cumple queda con 49 como máximo (poca afinidad) y un aviso.',
     cr_suggest: 'Sugerir criterios a partir de la vacante', cr_running: 'Leyendo la vacante…', cr_free: 'Gratis: no usa comparación',
@@ -657,7 +660,7 @@ const T = {
     invalid_criteria: 'Revisa los criterios: como máximo 10, cada uno de hasta 80 caracteres.',
     job_changed: 'Para agregar CVs a esta comparación, mantén exactamente la misma descripción de la vacante.',
     round_full: 'Una comparación admite como máximo 50 CVs.', round_busy: 'Se estaba agregando otro lote. Inténtalo de nuevo.',
-  }, ['Puedes enviar hasta 50 CVs a la vez: cada 5 CVs usan 1 comparación, y todos quedan en el mismo ranking.']);
+  }, ['Puedes enviar hasta 50 CVs a la vez: cada 5 CVs usan 1 comparación, y todos quedan en el mismo ranking.', 'Cada comparación guarda la descripción de la vacante, para que agregues más CVs en los días siguientes (hasta 50 en total). Se guarda 30 días después de los últimos CVs agregados.']);
 })();
 
 // ── Language ────────────────────────────────────────────────────────────────

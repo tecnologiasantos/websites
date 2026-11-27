@@ -179,6 +179,7 @@
     $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)} · ${t('h_cvs')(ev.cv_count)}` +
       (ev.delete_after ? ` · ${t('r_kept')(fmtDate(ev.delete_after))}` : '');
     $('add-cvs').hidden = !canAddTo(ev);
+    $('q-all').hidden = !canEditQ(ev);
     renderPrintHead(ev);
     const sum = $('res-sum'); sum.textContent = '';
     // The model may write the label in the result language: "Candidate A", "Candidato A", "Candidata A".
@@ -207,7 +208,7 @@
       });
       card.appendChild(cols);
       if (c.evidence && c.evidence.length) card.appendChild(el('div', 'ev', t('r_evidence') + ': “' + c.evidence.map(restore).join('” · “') + '”'));
-      if (c.interview_questions && c.interview_questions.length) card.appendChild(questionsBlock(c.interview_questions, restore, nm));
+      if ((c.interview_questions && c.interview_questions.length) || canEditQ(ev)) card.appendChild(questionsBlock(c, restore, nm, names[c.id]));
       list.appendChild(card);
     });
     loadShares(ev);
@@ -305,9 +306,15 @@
   }
 
   // Interview questions per candidate (comparisons made before 2026-11-24 have none).
-  function questionsBlock(qs, restore, name) {
+  // The author of the comparison or a manager can edit them (saved for the whole team and the hiring manager).
+  const canEditQ = ev => !!(ev && ((ev.author && ev.author.mine) || isManager()));
+  let openQ = null;   // candidate whose questions stay open after saving
+  function questionsBlock(c, restore, name, typedName) {
+    const qs = c.interview_questions || [];
     const d = el('details', 'iq');
+    if (openQ === c.id) d.open = true;
     d.appendChild(el('summary', '', `${t('r_questions')} (${qs.length})`));
+    const view = el('div');
     const ol = el('ol');
     qs.forEach(q => {
       const li = el('li');
@@ -316,12 +323,93 @@
       if (q.good_answer) li.appendChild(el('span', 'qa', `${t('r_good')}: ${restore(q.good_answer)}`));
       ol.appendChild(li);
     });
-    d.appendChild(ol);
-    const b = el('button', 'btn btn-ghost btn-sm copy', t('b_copy_q')); b.type = 'button';
-    b.addEventListener('click', () => copyText(
-      `${name}\n` + qs.map((q, i) => `${i + 1}. ${restore(q.q)}` + (q.good_answer ? `\n   ${t('r_good')}: ${restore(q.good_answer)}` : '')).join('\n'), b));
-    d.appendChild(b);
+    view.appendChild(ol);
+    const acts = el('div', 'iq-acts');
+    if (qs.length) {
+      const b = el('button', 'btn btn-ghost btn-sm copy', t('b_copy_q')); b.type = 'button';
+      b.addEventListener('click', () => copyText(
+        `${name}\n` + qs.map((q, i) => `${i + 1}. ${restore(q.q)}` + (q.good_answer ? `\n   ${t('r_good')}: ${restore(q.good_answer)}` : '')).join('\n'), b));
+      acts.appendChild(b);
+    }
+    if (canEditQ(current)) {
+      const e = el('button', 'btn btn-ghost btn-sm copy', qs.length ? t('b_edit_q') : t('b_add_qs')); e.type = 'button';
+      e.addEventListener('click', () => { view.hidden = true; d.appendChild(questionsEditor(c, restore, typedName, () => { view.hidden = false; })); });
+      acts.appendChild(e);
+    }
+    view.appendChild(acts);
+    d.appendChild(view);
     return d;
+  }
+  // Names typed by the recruiter stay in this browser: shown in the editor, turned back into "Candidate X" before saving.
+  function questionsEditor(c, restore, typedName, onClose) {
+    const box = el('div', 'iq-edit');
+    const unname = x => (typedName ? x.split(typedName).join('Candidate ' + c.id) : x);
+    const rows = (c.interview_questions || []).map(q => ({ ...q, q: restore(q.q), good_answer: restore(q.good_answer || '') }));
+    const list = el('div'), msg = el('div', 'msg'); msg.hidden = true;
+    const draw = () => {
+      list.textContent = '';
+      rows.forEach((r, i) => {
+        const row = el('div', 'iq-row');
+        const sel = el('select'); sel.setAttribute('aria-label', t('r_questions'));
+        ['verify', 'gap', 'behavioral', 'custom'].forEach(v => { const o = el('option', '', t('q_type')[v]); o.value = v; o.selected = r.type === v; sel.appendChild(o); });
+        sel.addEventListener('change', () => { r.type = sel.value; });
+        const q = el('textarea'); q.rows = 2; q.maxLength = 300; q.value = r.q; q.placeholder = t('q_ph');
+        q.addEventListener('input', () => { r.q = q.value; });
+        const g = el('input'); g.maxLength = 200; g.value = r.good_answer || ''; g.placeholder = t('qa_ph');
+        g.addEventListener('input', () => { r.good_answer = g.value; });
+        const x = el('button', 'x', '×'); x.type = 'button'; x.title = t('cr_remove');
+        x.addEventListener('click', () => { rows.splice(i, 1); draw(); });
+        const main = el('div', 'iq-main'); main.appendChild(q); main.appendChild(g);
+        row.appendChild(sel); row.appendChild(main); row.appendChild(x);
+        list.appendChild(row);
+      });
+      add.disabled = rows.length >= 8;
+    };
+    const bar = el('div', 'iq-acts');
+    const add = el('button', 'btn btn-ghost btn-sm', t('b_add_q')); add.type = 'button';
+    add.addEventListener('click', () => { rows.push({ q: '', type: 'custom', good_answer: '' }); draw(); const ts = list.querySelectorAll('textarea'); ts[ts.length - 1].focus(); });
+    const sug = el('button', 'btn btn-ghost btn-sm', t('b_suggest_q')); sug.type = 'button';
+    sug.addEventListener('click', async () => {
+      sug.disabled = true; msg.hidden = true;
+      try {
+        const r = await api('POST', '/api/evaluations/questions/suggest', { evaluation_id: current.id, candidate_id: c.id, lang: LANG });
+        r.questions.forEach(q => { if (rows.length < 8) rows.push({ ...q, q: restore(q.q), good_answer: restore(q.good_answer || '') }); });
+        draw(); showMsg(msg, 'info', t('q_suggested'));
+      } catch (err) { if (err.status === 401) return gate(); showMsg(msg, 'err', err.message); }
+      finally { sug.disabled = false; }
+    });
+    const save = el('button', 'btn btn-primary btn-sm', t('q_save')); save.type = 'button';
+    save.addEventListener('click', async () => {
+      save.disabled = true; msg.hidden = true;
+      try {
+        const qs = rows.filter(r => r.q.trim()).map(r => ({ q: unname(r.q.trim()), type: r.type, good_answer: unname((r.good_answer || '').trim()) }));
+        const r = await api('POST', '/api/evaluations/questions', { evaluation_id: current.id, candidate_id: c.id, questions: qs });
+        applyRanking(r.ranking); openQ = c.id; renderResults(current);
+      } catch (err) { if (err.status === 401) return gate(); showMsg(msg, 'err', err.message); save.disabled = false; }
+    });
+    const cancel = el('button', 'btn btn-ghost btn-sm', t('q_cancel')); cancel.type = 'button';
+    cancel.addEventListener('click', () => { box.remove(); onClose(); });
+    bar.appendChild(add); bar.appendChild(sug); bar.appendChild(save); bar.appendChild(cancel);
+    box.appendChild(list); box.appendChild(bar); box.appendChild(msg);
+    draw();
+    return box;
+  }
+  // A ranking changed on the server (questions edited): update the open comparison and the history.
+  function applyRanking(ranking) {
+    current.ranking = ranking;
+    const p = past.find(x => x.id === current.id); if (p) p.ranking = ranking;
+  }
+  // One question for every candidate of the comparison (e.g. a standard question of the company).
+  async function addQuestionToAll() {
+    const inp = $('q-all-text'), msg = $('q-all-msg'); msg.hidden = true;
+    const text = inp.value.trim(); if (!text || !current) return;
+    const btn = $('q-all-btn'); btn.disabled = true;
+    try {
+      const r = await api('POST', '/api/evaluations/questions', { evaluation_id: current.id, add_to_all: { q: text, type: 'custom' } });
+      applyRanking(r.ranking); renderResults(current); inp.value = '';
+      showMsg($('q-all-msg'), 'ok', t('q_all_done')(r.changed));
+    } catch (err) { if (err.status === 401) return gate(); showMsg(msg, 'err', err.message); }
+    finally { btn.disabled = false; }
   }
   async function copyText(text, btn) {
     try { await navigator.clipboard.writeText(text); }
@@ -1021,6 +1109,8 @@
   $('cr-suggest').addEventListener('click', suggestCriteria);
   $('add-cvs').addEventListener('click', addToJob);
   $('export-csv').addEventListener('click', exportCsv);
+  $('q-all-btn').addEventListener('click', addQuestionToAll);
+  $('q-all-text').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addQuestionToAll(); } });
   $('round-new').addEventListener('click', newJob);
   $('cr-add').addEventListener('click', () => {
     if (criteria.length >= MAX_CRITERIA) return;

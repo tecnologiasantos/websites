@@ -638,7 +638,7 @@
     const m = location.hash.match(/token=([A-Za-z0-9_-]{20,100})/);
     if (m) {
       window.history.replaceState(null, '', location.pathname + location.search);
-      try { const r = await api('POST', '/api/verify', { token: m[1] }); setSession(r.session); }
+      try { const r = await api('POST', '/api/verify', { token: m[1] }); setSession(r.session, r.expires_in); }
       catch (err) { return gate(err.message); }
     }
     if (!getSession()) return gate();

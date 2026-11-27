@@ -209,9 +209,128 @@
       card.appendChild(cols);
       if (c.evidence && c.evidence.length) card.appendChild(el('div', 'ev', t('r_evidence') + ': “' + c.evidence.map(restore).join('” · “') + '”'));
       if ((c.interview_questions && c.interview_questions.length) || canEditQ(ev)) card.appendChild(questionsBlock(c, restore, nm, names[c.id]));
+      const sc = el('div', 'sc'); sc.dataset.cand = c.id; card.appendChild(sc);
       list.appendChild(card);
     });
     loadShares(ev);
+    loadScorecards(ev);
+  }
+
+  // ── Interview scorecards ────────────────────────────────────────────────
+  // Each person who sees the comparison fills one scorecard per candidate; everyone sees all of them.
+  let cards = null, cardsFor = null, openCard = null;
+  async function loadScorecards(ev) {
+    if (cardsFor !== ev.id) { cards = null; cardsFor = ev.id; }
+    renderScorecards();
+    try { const r = await api('GET', '/api/scorecards?evaluation_id=' + encodeURIComponent(ev.id)); if (cardsFor === ev.id) { cards = r; renderScorecards(); } }
+    catch (err) { if (err.status === 401) return gate(); }
+  }
+  const labelRe2 = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
+  function renderScorecards() {
+    if (!current) return;
+    const names = loadNames(current.id);
+    document.querySelectorAll('#res-list .sc').forEach(box => {
+      const id = box.dataset.cand, c = current.ranking.candidates.find(x => x.id === id);
+      if (!c) return;
+      const restore = x => (names[id] ? String(x || '').replace(labelRe2(id), () => names[id]) : String(x || ''));
+      box.textContent = '';
+      const list = cards ? cards.scorecards.filter(x => x.candidate_id === id) : [];
+      const sum = cards && cards.summary[id];
+      const head = el('div', 'sc-head');
+      head.appendChild(el('b', '', t('sc_title')));
+      head.appendChild(el('span', 'muted small', sum ? t('sc_sum')(sum.count, sum.average.toLocaleString(LANG === 'en' ? 'en' : LANG === 'pt' ? 'pt-BR' : 'es'), sum.advance, sum.maybe, sum.reject) : t('sc_none')));
+      const mine = list.find(x => x.mine);
+      const fill = el('button', 'btn btn-ghost btn-sm no-print', mine ? t('sc_edit') : t('sc_fill')); fill.type = 'button';
+      fill.addEventListener('click', () => { openCard = id; box.querySelector('.sc-form') || box.appendChild(scorecardForm(c, mine, restore, names[id])); fill.hidden = true; });
+      head.appendChild(fill);
+      box.appendChild(head);
+      if (list.length) {
+        const d = el('details', 'sc-list'); d.appendChild(el('summary', '', t('sc_see')(list.length)));
+        list.forEach(x => {
+          const it = el('div', 'sc-item');
+          const top = el('div', 'sc-top');
+          top.appendChild(el('b', '', x.interviewer_name || '—'));
+          top.appendChild(el('span', 'sc-stars', '★'.repeat(x.overall) + '☆'.repeat(5 - x.overall)));
+          top.appendChild(el('span', 'dec ' + x.recommendation, t('dec')[x.recommendation]));
+          top.appendChild(el('span', 'muted small', fmtDate(x.updated_at)));
+          if (x.can_delete) {
+            const del = el('button', 'btn btn-ghost btn-sm no-print', t('sc_delete')); del.type = 'button';
+            del.addEventListener('click', () => askConfirm({ title: t('sc_delete'), text: t('sc_del_text'), ok: t('sc_delete'), danger: true,
+              action: async () => { await api('POST', '/api/scorecards/delete', { id: x.id }); await loadScorecards(current); } }));
+            top.appendChild(del);
+          }
+          it.appendChild(top);
+          if (x.notes) it.appendChild(el('p', 'small', restore(x.notes)));
+          const ans = (x.answers || []).filter(a => a.rating || a.note);
+          if (ans.length) {
+            const ul = el('ul', 'small');
+            ans.forEach(a => ul.appendChild(el('li', '', `${restore(a.q)}${a.rating ? ` — ${a.rating}/5` : ''}${a.note ? ` · ${restore(a.note)}` : ''}`)));
+            it.appendChild(ul);
+          }
+          d.appendChild(it);
+        });
+        box.appendChild(d);
+      }
+      if (openCard === id && !box.querySelector('.sc-form')) { box.appendChild(scorecardForm(c, mine, restore, names[id])); fill.hidden = true; }
+    });
+  }
+  // Pills 1–5 as radio buttons (keyboard friendly).
+  function ratingPills(name, value, onPick) {
+    const g = el('div', 'sc-pills'); g.setAttribute('role', 'radiogroup');
+    for (let v = 1; v <= 5; v++) {
+      const lab = el('label', 'sc-pill'); lab.title = t('sc_scale')[v];
+      const r = el('input'); r.type = 'radio'; r.name = name; r.value = v; r.checked = value === v;
+      r.addEventListener('change', () => onPick(v));
+      lab.appendChild(r); lab.appendChild(el('span', '', String(v)));
+      g.appendChild(lab);
+    }
+    return g;
+  }
+  let formSeq = 0;
+  function scorecardForm(c, mine, restore, typedName) {
+    const f = el('div', 'sc-form'), seq = ++formSeq;
+    const unname = x => (typedName ? x.split(typedName).join('Candidate ' + c.id) : x);
+    const prevAns = Object.fromEntries(((mine && mine.answers) || []).map(a => [a.q, a]));
+    const state = { overall: mine ? mine.overall : null, recommendation: mine ? mine.recommendation : null,
+      answers: (c.interview_questions || []).map(q => ({ q: q.q, rating: prevAns[q.q] ? prevAns[q.q].rating : null, note: prevAns[q.q] && prevAns[q.q].note ? restore(prevAns[q.q].note) : '' })) };
+    state.answers.forEach((a, i) => {
+      const row = el('div', 'sc-q');
+      row.appendChild(el('div', 'sc-qt', `${i + 1}. ${restore(a.q)}`));
+      const line = el('div', 'sc-line');
+      line.appendChild(ratingPills(`sc${seq}q${i}`, a.rating, v => { a.rating = v; }));
+      const n = el('input'); n.maxLength = 500; n.placeholder = t('sc_note_ph'); n.value = a.note;
+      n.addEventListener('input', () => { a.note = n.value; });
+      line.appendChild(n); row.appendChild(line); f.appendChild(row);
+    });
+    const ov = el('div', 'sc-q'); ov.appendChild(el('div', 'sc-qt', t('sc_overall')));
+    ov.appendChild(ratingPills(`sc${seq}ov`, state.overall, v => { state.overall = v; })); f.appendChild(ov);
+    const rec = el('div', 'sc-q'); rec.appendChild(el('div', 'sc-qt', t('sc_rec')));
+    const rg = el('div', 'sc-pills');
+    ['advance', 'maybe', 'reject'].forEach(v => {
+      const lab = el('label', 'sc-pill wide'); const r = el('input'); r.type = 'radio'; r.name = `sc${seq}rec`; r.value = v; r.checked = state.recommendation === v;
+      r.addEventListener('change', () => { state.recommendation = v; });
+      lab.appendChild(r); lab.appendChild(el('span', '', t('dec')[v])); rg.appendChild(lab);
+    });
+    rec.appendChild(rg); f.appendChild(rec);
+    const notes = el('textarea'); notes.maxLength = 2000; notes.rows = 3; notes.placeholder = t('sc_notes'); notes.value = mine && mine.notes ? restore(mine.notes) : '';
+    f.appendChild(notes);
+    f.appendChild(el('p', 'muted small', t('sc_privacy')));
+    const msg = el('div', 'msg'); msg.hidden = true;
+    const bar = el('div', 'iq-acts');
+    const save = el('button', 'btn btn-primary btn-sm', t('q_save')); save.type = 'button';
+    save.addEventListener('click', async () => {
+      if (!state.overall || !state.recommendation) return showMsg(msg, 'err', t('sc_need'));
+      save.disabled = true;
+      try {
+        await api('POST', '/api/scorecards', { evaluation_id: current.id, candidate_id: c.id, overall: state.overall, recommendation: state.recommendation,
+          notes: unname(notes.value.trim()), answers: state.answers.map(a => ({ q: a.q, rating: a.rating, note: unname((a.note || '').trim()) })) });
+        openCard = null; await loadScorecards(current);
+      } catch (err) { if (err.status === 401) return gate(); showMsg(msg, 'err', err.message); save.disabled = false; }
+    });
+    const cancel = el('button', 'btn btn-ghost btn-sm', t('q_cancel')); cancel.type = 'button';
+    cancel.addEventListener('click', () => { openCard = null; renderScorecards(); });
+    bar.appendChild(save); bar.appendChild(cancel); f.appendChild(bar); f.appendChild(msg);
+    return f;
   }
 
   // ── Export: CSV for Excel / Google Sheets, and the print header for the PDF ─
@@ -235,7 +354,7 @@
     const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
     const H = t('csv_h');
     const head = [H.rank, H.candidate, H.score, H.fit, ...crit.map(k => `${k.name} (${k.required ? t('cr_required') : t('cr_w')[k.weight]})`),
-      H.ko, H.strengths, H.gaps, H.evidence, H.questions, H.decision, H.comment];
+      H.ko, H.strengths, H.gaps, H.evidence, H.questions, H.decision, H.comment, H.interviews, H.average, H.recs];
     const rows = ev.ranking.candidates.map((c, i) => {
       const nm = names[c.id] || (LANG === 'en' ? 'Candidate ' : 'Candidato ') + c.id;
       const restore = x => (names[c.id] ? String(x).replace(labelRe(c.id), () => names[c.id]) : String(x));
@@ -245,7 +364,9 @@
         (c.knockout_failed || []).map(id => (crit.find(k => k.id === id) || {}).name || id).join('; '),
         (c.strengths || []).map(restore).join('; '), (c.gaps || []).map(restore).join('; '), (c.evidence || []).map(restore).join('; '),
         (c.interview_questions || []).map(q => restore(q.q)).join(' | '),
-        a ? `${t('dec')[a.decision]} (${a.reviewer_name || '—'})` : '', a && a.comment ? a.comment : ''];
+        a ? `${t('dec')[a.decision]} (${a.reviewer_name || '—'})` : '', a && a.comment ? a.comment : '',
+        ...(() => { const sm = cards && cardsFor === ev.id && cards.summary[c.id];
+          return sm ? [sm.count, sm.average, `${t('dec').advance}: ${sm.advance}; ${t('dec').maybe}: ${sm.maybe}; ${t('dec').reject}: ${sm.reject}`] : ['', '', '']; })()];
     });
     const sep = LANG === 'en' ? ',' : ';';
     const text = '\ufeff' + [head, ...rows].map(r => r.map(csvCell).join(sep)).join('\r\n');

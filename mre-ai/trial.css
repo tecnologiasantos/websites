@@ -264,3 +264,26 @@ footer a{color:inherit}
 .q-all{display:flex;gap:8px;margin:12px 0}
 .q-all input{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px}
 @media print{.iq-acts{display:none}}
+
+/* interview scorecards (2026-11-27) */
+.sc{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+.sc-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.sc-head b{color:var(--blue)}
+.sc-list{margin-top:8px}
+.sc-list summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.sc-item{border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-top:8px;background:var(--bg)}
+.sc-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+.sc-stars{color:#f59e0b;letter-spacing:1px}
+.sc-item ul{margin:6px 0 0 18px}
+.sc-form{margin-top:10px;display:grid;gap:10px}
+.sc-qt{font-size:14px;font-weight:600;margin-bottom:4px}
+.sc-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sc-line input{flex:1;min-width:180px;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px}
+.sc-pills{display:flex;gap:6px;flex-wrap:wrap}
+.sc-pill{position:relative}
+.sc-pill input{position:absolute;opacity:0;width:1px;height:1px}
+.sc-pill span{display:inline-block;min-width:34px;text-align:center;border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;cursor:pointer;background:var(--white)}
+.sc-pill input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff}
+.sc-pill input:focus-visible+span{box-shadow:0 0 0 3px rgba(26,86,219,.25)}
+.sc-form textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px}
+@media print{.sc-list:not([open]) > *:not(summary){display:block}}

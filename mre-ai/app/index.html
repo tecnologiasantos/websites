@@ -7,8 +7,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <title>MRE·AI free trial · Tecnologia Santos</title>
-<link rel="stylesheet" href="../trial.css?v=20261127i">
-<script src="../trial.js?v=20261127i"></script>
+<link rel="stylesheet" href="../trial.css?v=20261127j">
+<script src="../trial.js?v=20261127j"></script>
 </head>
 <body>
 <nav class="nav">
@@ -123,9 +123,11 @@
           <button type="button" class="btn btn-primary btn-sm" id="share" data-t="b_share">Share with hiring manager</button>
           <button type="button" class="btn btn-ghost btn-sm" id="print" data-t="b_print">Print or save as PDF</button>
           <button type="button" class="btn btn-ghost btn-sm" id="export-csv" data-t="b_csv">Download for Excel (CSV)</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="crit-report-btn" data-t="b_crit_report" hidden>Criteria report</button>
         </div>
       </div>
       <div class="print-only print-head" id="print-head"></div>
+      <div class="crit-report" id="crit-report" hidden></div>
       <div class="res-sum" id="res-sum"></div>
       <div class="q-all no-print" id="q-all" hidden>
         <input id="q-all-text" maxlength="300" data-tp="q_all_ph">
@@ -143,8 +145,23 @@
 
     <section class="card no-print" id="history">
       <h2 data-t="h_title">Previous comparisons</h2>
+      <div class="retention" id="retention" hidden>
+        <label for="ret-sel" data-t="ret_label">Keep comparisons for</label>
+        <select id="ret-sel"></select>
+        <span class="muted small" id="ret-msg"></span>
+      </div>
       <div class="usage" id="usage" hidden></div>
       <div class="hist" id="hist"></div>
+    </section>
+
+    <section class="card no-print" id="insights" hidden>
+      <div class="bar" style="margin-bottom:10px">
+        <h2 style="margin:0" data-t="in_title">Leadership dashboard</h2>
+        <div class="in-period" id="in-period"></div>
+      </div>
+      <div class="in-cards" id="in-cards"></div>
+      <div id="in-people"></div>
+      <p class="muted small" id="in-note"></p>
     </section>
 
     <section class="card no-print ref-card" id="referral" hidden>
@@ -258,7 +275,7 @@
 
 <footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · <a href="../../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
 <script src="support.js?v=20261127a"></script>
-<script src="app.js?v=20261127i"></script>
+<script src="app.js?v=20261127j"></script>
 <script src="../plans.js?v=20261127c"></script>
 </body>
 </html>

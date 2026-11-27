@@ -13,7 +13,7 @@ const T = {
     nav_back: 'Back to site',
     s_label: 'MRE·AI · Free trial',
     s_title: 'Rank your candidates with AI, on your own vacancy',
-    s_lead: 'Paste or upload a job description, add up to 5 CVs and get a ranking with scores, strengths, gaps and evidence in under a minute.',
+    s_lead: 'Paste or upload a job description, add up to 50 CVs (every 5 use 1 comparison) and get a ranking with scores, strengths, gaps and evidence in under a minute.',
     f1_t: '3 free comparisons for 14 days', f1_d: 'Each comparison: one job description against up to 5 CVs.',
     f2_t: 'Privacy first', f2_d: 'CVs are read in your browser; names, e-mails, phones, CPF and links are removed before anything is sent. Full CVs are never stored; only the ranking, with short excerpts, is kept for 30 days.',
     f3_t: 'Objective and explainable', f3_d: 'Every score comes with strengths, gaps and quotes from the CV. It supports your decision; it does not replace it.',
@@ -128,7 +128,7 @@ const T = {
     nav_back: 'Voltar ao site',
     s_label: 'MRE·AI · Teste grátis',
     s_title: 'Classifique seus candidatos com IA, na sua própria vaga',
-    s_lead: 'Cole ou envie a descrição da vaga, adicione até 5 currículos e receba um ranking com notas, pontos fortes, lacunas e evidências em menos de um minuto.',
+    s_lead: 'Cole ou envie a descrição da vaga, adicione até 50 currículos (cada 5 usam 1 comparação) e receba um ranking com notas, pontos fortes, lacunas e evidências em menos de um minuto.',
     f1_t: '3 comparações grátis por 14 dias', f1_d: 'Cada comparação: uma descrição de vaga com até 5 currículos.',
     f2_t: 'Privacidade em primeiro lugar', f2_d: 'Os currículos são lidos no seu navegador; nomes, e-mails, telefones, CPF e links são removidos antes do envio. O currículo completo nunca é armazenado; só o ranking, com trechos curtos, fica guardado por 30 dias.',
     f3_t: 'Objetivo e explicável', f3_d: 'Cada nota vem com pontos fortes, lacunas e trechos do currículo. Ela apoia sua decisão; não a substitui.',
@@ -243,7 +243,7 @@ const T = {
     nav_back: 'Volver al sitio',
     s_label: 'MRE·AI · Prueba gratuita',
     s_title: 'Clasifica a tus candidatos con IA, en tu propia vacante',
-    s_lead: 'Pega o sube una descripción de vacante, agrega hasta 5 CVs y recibe un ranking con puntajes, fortalezas, brechas y evidencias en menos de un minuto.',
+    s_lead: 'Pega o sube una descripción de vacante, agrega hasta 50 CVs (cada 5 usan 1 comparación) y recibe un ranking con puntajes, fortalezas, brechas y evidencias en menos de un minuto.',
     f1_t: '3 comparaciones gratis por 14 días', f1_d: 'Cada comparación: una descripción de vacante con hasta 5 CVs.',
     f2_t: 'Privacidad primero', f2_d: 'Los CVs se leen en tu navegador; nombres, correos, teléfonos, documentos y enlaces se eliminan antes del envío. El CV completo nunca se almacena; solo el ranking, con fragmentos breves, se guarda 30 días.',
     f3_t: 'Objetivo y explicable', f3_d: 'Cada puntaje viene con fortalezas, brechas y citas del CV. Apoya tu decisión; no la reemplaza.',
@@ -581,6 +581,83 @@ const T = {
     job_analysis_failed: 'No se pudo completar el análisis. Inténtalo de nuevo.',
     job_analysis_unavailable: 'El análisis de la descripción de la vacante no está disponible ahora.',
   });
+})();
+
+// ── Job criteria and rounds of up to 50 CVs (2026-11-27) ─────────────────────
+(function () {
+  const add = (lang, texts, act, err, terms) => {
+    Object.assign(T[lang], texts); Object.assign(T[lang].act, act); Object.assign(T[lang].err, err);
+    if (Array.isArray(T[lang].terms)) T[lang].terms.push(...terms);
+  };
+  add('en', {
+    drop: '<b>Choose files</b> or drop them here · PDF, DOCX or TXT · up to 50 (every 5 CVs use 1 comparison)',
+    run_cost: (cvs, n) => `${cvs} CVs · uses ${n} comparisons (1 per 5 CVs), all in one ranking.`,
+    running_batch: (k, n) => `Batch ${k} of ${n}…`, b_continue: 'Continue comparison',
+    need_credits: (need, have) => `These CVs need ${need} comparisons (1 per 5 CVs) and your company has ${have}. Remove some CVs or get more comparisons.`,
+    cv_limit: n => `At most ${n} CVs per comparison. The extra files were not added.`,
+    round_partial: (done, total) => `${done} of ${total} CVs are already in the ranking below. The others did not use any comparison: click “Continue comparison” to send them.`,
+    round_continue: (id, n) => `Adding to the comparison already started (${n} CVs). Use the same job description.`,
+    cr_title: 'Criteria for this job (optional)',
+    cr_lead: 'With criteria, every CV is scored the same way. “Required” rules a candidate out: they get at most 49 (weak fit) and a warning.',
+    cr_suggest: 'Suggest criteria from the job', cr_running: 'Reading the job…', cr_free: 'Free: does not use a comparison',
+    cr_add: '+ Add criterion', cr_ph: 'e.g. Fluent English', cr_required: 'Required', cr_w: { 1: 'Normal', 2: 'Important', 3: 'Essential' },
+    cr_remove: 'Remove', cr_need_job: 'Paste the job description first.', cr_max: n => `At most ${n} criteria.`,
+    cr_locked: 'This comparison keeps the criteria it started with.', cr_done: 'Review the criteria: rename, mark what is required, adjust the weights.',
+    r_ko: names => `Does not meet a required criterion: ${names}`, r_criteria: 'Criteria',
+    cr_r: ['Not met', 'Weak evidence', 'Partly meets', 'Meets', 'Exceeds'],
+    sh_max: n => `Choose at most ${n} candidates.`,
+  }, { 'evaluation.append': 'Added CVs to a comparison', 'job.criteria': 'Got criteria suggested for a job' }, {
+    criteria_failed: 'The criteria could not be suggested. Please try again or type them yourself.',
+    invalid_criteria: 'Check the criteria: at most 10, each up to 80 characters.',
+    job_changed: 'To add CVs to this comparison, keep exactly the same job description.',
+    round_full: 'One comparison holds at most 50 CVs.', round_busy: 'Another batch was being added. Please try again.',
+  }, ['You can send up to 50 CVs at once: every 5 CVs use 1 comparison, and all of them end up in the same ranking.']);
+  add('pt', {
+    drop: '<b>Escolha os arquivos</b> ou arraste aqui · PDF, DOCX ou TXT · até 50 (cada 5 currículos usam 1 comparação)',
+    run_cost: (cvs, n) => `${cvs} currículos · usa ${n} comparações (1 a cada 5 currículos), todos num só ranking.`,
+    running_batch: (k, n) => `Lote ${k} de ${n}…`, b_continue: 'Continuar comparação',
+    need_credits: (need, have) => `Estes currículos precisam de ${need} comparações (1 a cada 5) e sua empresa tem ${have}. Remova alguns currículos ou adquira mais comparações.`,
+    cv_limit: n => `No máximo ${n} currículos por comparação. Os arquivos a mais não foram adicionados.`,
+    round_partial: (done, total) => `${done} de ${total} currículos já estão no ranking abaixo. Os outros não gastaram comparação: clique em “Continuar comparação” para enviá-los.`,
+    round_continue: (id, n) => `Adicionando à comparação já iniciada (${n} currículos). Use a mesma descrição da vaga.`,
+    cr_title: 'Critérios da vaga (opcional)',
+    cr_lead: 'Com critérios, todos os currículos são pontuados do mesmo jeito. “Obrigatório” é eliminatório: quem não atende fica com no máximo 49 (pouco aderente) e um aviso.',
+    cr_suggest: 'Sugerir critérios a partir da vaga', cr_running: 'Lendo a vaga…', cr_free: 'Grátis: não usa comparação',
+    cr_add: '+ Adicionar critério', cr_ph: 'ex.: Inglês fluente', cr_required: 'Obrigatório', cr_w: { 1: 'Normal', 2: 'Importante', 3: 'Essencial' },
+    cr_remove: 'Remover', cr_need_job: 'Cole a descrição da vaga primeiro.', cr_max: n => `No máximo ${n} critérios.`,
+    cr_locked: 'Esta comparação mantém os critérios com que começou.', cr_done: 'Revise os critérios: renomeie, marque o que é obrigatório e ajuste os pesos.',
+    r_ko: names => `Não atende critério obrigatório: ${names}`, r_criteria: 'Critérios',
+    cr_r: ['Não atende', 'Evidência fraca', 'Atende em parte', 'Atende', 'Supera'],
+    sh_max: n => `Escolha no máximo ${n} candidatos.`,
+  }, { 'evaluation.append': 'Adicionou currículos a uma comparação', 'job.criteria': 'Pediu sugestão de critérios da vaga' }, {
+    criteria_failed: 'Não foi possível sugerir os critérios. Tente de novo ou digite-os você mesmo.',
+    invalid_criteria: 'Confira os critérios: no máximo 10, cada um com até 80 caracteres.',
+    job_changed: 'Para adicionar currículos a esta comparação, mantenha exatamente a mesma descrição da vaga.',
+    round_full: 'Uma comparação aceita no máximo 50 currículos.', round_busy: 'Outro lote estava sendo adicionado. Tente de novo.',
+  }, ['Você pode enviar até 50 currículos de uma vez: cada 5 currículos usam 1 comparação, e todos entram no mesmo ranking.']);
+  add('es', {
+    drop: '<b>Elige los archivos</b> o arrástralos aquí · PDF, DOCX o TXT · hasta 50 (cada 5 CVs usan 1 comparación)',
+    run_cost: (cvs, n) => `${cvs} CVs · usa ${n} comparaciones (1 cada 5 CVs), todos en un solo ranking.`,
+    running_batch: (k, n) => `Lote ${k} de ${n}…`, b_continue: 'Continuar comparación',
+    need_credits: (need, have) => `Estos CVs necesitan ${need} comparaciones (1 cada 5) y tu empresa tiene ${have}. Quita algunos CVs o consigue más comparaciones.`,
+    cv_limit: n => `Como máximo ${n} CVs por comparación. Los archivos de más no se agregaron.`,
+    round_partial: (done, total) => `${done} de ${total} CVs ya están en el ranking de abajo. Los demás no gastaron comparación: haz clic en “Continuar comparación” para enviarlos.`,
+    round_continue: (id, n) => `Agregando a la comparación ya iniciada (${n} CVs). Usa la misma descripción de la vacante.`,
+    cr_title: 'Criterios de la vacante (opcional)',
+    cr_lead: 'Con criterios, todos los CVs se puntúan igual. “Obligatorio” es eliminatorio: quien no lo cumple queda con 49 como máximo (poca afinidad) y un aviso.',
+    cr_suggest: 'Sugerir criterios a partir de la vacante', cr_running: 'Leyendo la vacante…', cr_free: 'Gratis: no usa comparación',
+    cr_add: '+ Agregar criterio', cr_ph: 'ej.: Inglés fluido', cr_required: 'Obligatorio', cr_w: { 1: 'Normal', 2: 'Importante', 3: 'Esencial' },
+    cr_remove: 'Quitar', cr_need_job: 'Pega primero la descripción de la vacante.', cr_max: n => `Como máximo ${n} criterios.`,
+    cr_locked: 'Esta comparación mantiene los criterios con que empezó.', cr_done: 'Revisa los criterios: renómbralos, marca lo obligatorio y ajusta los pesos.',
+    r_ko: names => `No cumple un criterio obligatorio: ${names}`, r_criteria: 'Criterios',
+    cr_r: ['No cumple', 'Evidencia débil', 'Cumple en parte', 'Cumple', 'Supera'],
+    sh_max: n => `Elige como máximo ${n} candidatos.`,
+  }, { 'evaluation.append': 'Agregó CVs a una comparación', 'job.criteria': 'Pidió sugerencia de criterios de la vacante' }, {
+    criteria_failed: 'No se pudieron sugerir los criterios. Inténtalo de nuevo o escríbelos tú.',
+    invalid_criteria: 'Revisa los criterios: como máximo 10, cada uno de hasta 80 caracteres.',
+    job_changed: 'Para agregar CVs a esta comparación, mantén exactamente la misma descripción de la vacante.',
+    round_full: 'Una comparación admite como máximo 50 CVs.', round_busy: 'Se estaba agregando otro lote. Inténtalo de nuevo.',
+  }, ['Puedes enviar hasta 50 CVs a la vez: cada 5 CVs usan 1 comparación, y todos quedan en el mismo ranking.']);
 })();
 
 // ── Language ────────────────────────────────────────────────────────────────

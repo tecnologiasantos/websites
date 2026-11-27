@@ -38,6 +38,22 @@
       top.appendChild(el('div', 'score', String(c.score)));
       card.appendChild(top);
       const tr = el('div', 'track'); const bar = el('i'); bar.style.width = Math.max(2, c.score) + '%'; tr.appendChild(bar); card.appendChild(tr);
+      // Criteria ratings and knock-outs (comparisons with criteria only)
+      const crit = data.criteria || [];
+      if (crit.length && c.criteria && c.criteria.length) {
+        const nm = id => (crit.find(k => k.id === id) || {}).name || id;
+        if (c.knockout_failed && c.knockout_failed.length) card.appendChild(el('div', 'ko', '⚠ ' + t('r_ko')(c.knockout_failed.map(nm).join(', '))));
+        const box = el('div', 'crit-list');
+        c.criteria.forEach(r => {
+          const k = crit.find(x => x.id === r.id); if (!k) return;
+          const chip = el('span', 'crit r' + r.rating + (k.required ? ' req' : ''));
+          chip.title = `${k.name}: ${(t('cr_r') || [])[r.rating] || r.rating}`;
+          chip.appendChild(el('span', 'dots', '●'.repeat(r.rating) + '○'.repeat(4 - r.rating)));
+          chip.appendChild(document.createTextNode(' ' + k.name));
+          box.appendChild(chip);
+        });
+        card.appendChild(box);
+      }
       const cols = el('div', 'cols');
       [['s', 'r_strengths', c.strengths], ['g', 'r_gaps', c.gaps]].forEach(([k, key, items]) => {
         const col = el('div'); col.appendChild(el('h4', k, t(key)));

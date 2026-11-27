@@ -237,4 +237,4 @@ footer a{color:inherit}
 .crit .dots{letter-spacing:1px;color:var(--blue)}
 .crit.r0 .dots,.crit.r1 .dots{color:var(--danger)}
 .crit.req{border-color:var(--blue)}
-#round-note{margin-top:8px}
+#round-note{margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text);background:var(--blue-light);border-radius:8px;padding:8px 12px}

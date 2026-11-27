@@ -150,9 +150,8 @@
     $('run-note').textContent = n > 1 ? t('run_cost')(cvs.length, n)
       : (isPaid() && t('run_note_paid')) || (hasPackOnly() && t('run_note_pack')) || t('run_note');
     $('run-label').textContent = pending ? t('b_continue') : t('b_run');
-    const cont = $('round-note');
-    cont.hidden = !pending;
-    if (pending) cont.textContent = t('round_continue')(pending.id, pending.offset);
+    $('round-note').hidden = !pending;
+    if (pending) $('round-text').textContent = t('round_continue')(pending.title || '', pending.offset);
   }
 
   async function addFiles(list) {
@@ -177,7 +176,9 @@
     current = ev;
     const names = loadNames(ev.id);
     $('results').hidden = false;
-    $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)}`;
+    $('res-job').textContent = `${ev.job_title || ''} · ${fmtDate(ev.created_at)} · ${t('h_cvs')(ev.cv_count)}` +
+      (ev.delete_after ? ` · ${t('r_kept')(fmtDate(ev.delete_after))}` : '');
+    $('add-cvs').hidden = !canAddTo(ev);
     const sum = $('res-sum'); sum.textContent = '';
     // The model may write the label in the result language: "Candidate A", "Candidato A", "Candidata A".
     const labelRe = id => new RegExp('\\b(?:Candidate|Candidat[oa])\\s+' + id + '\\b', 'g');
@@ -209,6 +210,30 @@
       list.appendChild(card);
     });
     loadShares(ev);
+  }
+
+  // Saved jobs: more CVs can be added to a comparison whose job text was saved (from 27 Nov 2026),
+  // by its author or a manager, until it holds MAX_ROUND CVs.
+  const canAddTo = ev => !!(ev && ev.has_job && ev.cv_count < MAX_ROUND && ((ev.author && ev.author.mine) || isManager()));
+  async function addToJob() {
+    const ev = current; if (!canAddTo(ev)) return;
+    const btn = $('add-cvs'); btn.disabled = true;
+    try {
+      const r = await api('GET', '/api/evaluations/job?id=' + encodeURIComponent(ev.id));
+      $('job').value = r.job; $('job').dispatchEvent(new Event('input'));
+      jx = null; renderJx();
+      pending = { id: ev.id, job: r.job.trim(), offset: ev.cv_count, title: ev.job_title };
+      cvs = []; renderCvs(); renderCriteria();
+      $('run-msg').hidden = true;
+      $('new').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      if (err.status === 401) return gate();
+      showMsg($('run-msg'), 'err', err.message);
+    } finally { btn.disabled = false; }
+  }
+  function newJob() {
+    pending = null; $('job').value = ''; $('job').dispatchEvent(new Event('input'));
+    cvs = []; criteria = []; renderCvs(); renderCriteria(); $('job').focus();
   }
 
   // Criteria ratings and knock-outs of a candidate (comparisons with criteria only).
@@ -649,7 +674,8 @@
         batches[k].forEach((c, i) => { if (c.name) names[IDS[start + done + i]] = c.name; });
         saveNames(r.id, names);
         appendTo = r.id; done += batches[k].length;
-        ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: r.cv_count || done, ranking: r.ranking, author: r.author };
+        ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: r.cv_count || done, ranking: r.ranking, author: r.author,
+          has_job: r.has_job, delete_after: r.delete_after };
         if (me) me.credits_remaining = r.credits_remaining;
       }
       pending = null; cvs = [];
@@ -657,7 +683,7 @@
       if (err.status === 401) return gate();
       if (appendTo) {
         // Part of the round is done: keep it, and let the person send the rest later.
-        pending = { id: appendTo, job, offset: start + done };
+        pending = { id: appendTo, job, offset: start + done, title: ev ? ev.job_title : (pending && pending.title) };
         cvs = cvs.slice(done);
         showMsg(msg, 'err', err.message + ' ' + t('round_partial')(start + done, total));
       } else showMsg(msg, 'err', err.message);
@@ -942,6 +968,8 @@
     if (pending && $('job').value.trim() !== pending.job) { pending = null; renderCvs(); renderCriteria(); }
   });
   $('cr-suggest').addEventListener('click', suggestCriteria);
+  $('add-cvs').addEventListener('click', addToJob);
+  $('round-new').addEventListener('click', newJob);
   $('cr-add').addEventListener('click', () => {
     if (criteria.length >= MAX_CRITERIA) return;
     criteria.push({ name: '', required: false, weight: 2 }); renderCriteria();

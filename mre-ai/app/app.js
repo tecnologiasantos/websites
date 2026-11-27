@@ -3,7 +3,13 @@
 'use strict';
 (function () {
   const $ = id => document.getElementById(id);
-  const MAX_CVS = 5, MAX_CV_CHARS = 12000, MAX_JOB = 6000, IDS = ['A', 'B', 'C', 'D', 'E'];
+  // Up to MAX_ROUND CVs per comparison, sent in batches of BATCH (1 comparison each). Ids A … Z, AA … AX.
+  const BATCH = 5, MAX_ROUND = 50, MAX_CV_CHARS = 12000, MAX_JOB = 6000, MAX_CRITERIA = 10, MAX_SHARE = 10;
+  const IDS = Array.from({ length: MAX_ROUND }, (_, i) => (i < 26 ? '' : 'A') + String.fromCharCode(65 + (i % 26)));
+  // A comparison interrupted mid-round: the next run adds the remaining CVs to it (same job text).
+  let pending = null;   // { id, job, offset }
+  let criteria = [];    // [{ name, required, weight }] for the next new comparison
+  const offset = () => (pending ? pending.offset : 0);
   let me = null, cvs = [], current = null, past = [], usage = null, team = [], auditEvents = null;
   const isManager = () => me && (me.role === 'owner' || me.role === 'admin');
   const roleName = r => t('role_' + (r === 'owner' ? 'owner' : r === 'admin' ? 'admin' : 'member'));
@@ -97,7 +103,7 @@
     return s;
   }
   function prepare(cv, i) {
-    const label = 'Candidate ' + IDS[i];
+    const label = 'Candidate ' + IDS[offset() + i];
     const text = anonymize(cv.raw, cv.name, label);
     cv.truncated = text.length > MAX_CV_CHARS;
     cv.sent = text.slice(0, MAX_CV_CHARS);
@@ -110,7 +116,7 @@
       if (cv.status === 'ok') prepare(cv, i);
       const card = el('div', 'cv');
       const head = el('div', 'cv-head');
-      head.appendChild(el('div', 'cv-id', IDS[i]));
+      head.appendChild(el('div', 'cv-id', IDS[offset() + i]));
       const inp = el('input'); inp.value = cv.name; inp.placeholder = t('cv_name'); inp.title = t('cv_name'); inp.maxLength = 80;
       inp.addEventListener('change', () => { cv.name = inp.value.trim(); renderCvs(); });
       head.appendChild(inp);
@@ -134,11 +140,25 @@
       }
       box.appendChild(card);
     });
-    $('drop').hidden = cvs.length >= MAX_CVS;
+    $('drop').hidden = offset() + cvs.length >= MAX_ROUND;
+    runNote();
+  }
+  // How many comparisons the CVs on the list will use, next to the button.
+  function runNote() {
+    if (!me) return;
+    const n = Math.ceil(cvs.length / BATCH);
+    $('run-note').textContent = n > 1 ? t('run_cost')(cvs.length, n)
+      : (isPaid() && t('run_note_paid')) || (hasPackOnly() && t('run_note_pack')) || t('run_note');
+    $('run-label').textContent = pending ? t('b_continue') : t('b_run');
+    const cont = $('round-note');
+    cont.hidden = !pending;
+    if (pending) cont.textContent = t('round_continue')(pending.id, pending.offset);
   }
 
   async function addFiles(list) {
-    const files = [...list].slice(0, MAX_CVS - cvs.length);
+    const room = MAX_ROUND - offset() - cvs.length;
+    const files = [...list].slice(0, Math.max(0, room));
+    if (list.length > files.length) showMsg($('run-msg'), 'info', t('cv_limit')(MAX_ROUND));
     for (const f of files) {
       const cv = { file: f.name, name: '', raw: '', sent: '', status: 'reading' };
       cvs.push(cv); renderCvs();
@@ -176,6 +196,7 @@
       top.appendChild(el('div', 'score', String(c.score)));
       card.appendChild(top);
       const tr = el('div', 'track'); const bar = el('i'); bar.style.width = Math.max(2, c.score) + '%'; tr.appendChild(bar); card.appendChild(tr);
+      criteriaBlock(card, ev.ranking.criteria, c);
       const cols = el('div', 'cols');
       [['s', 'r_strengths', c.strengths], ['g', 'r_gaps', c.gaps]].forEach(([k, key, items]) => {
         const col = el('div'); col.appendChild(el('h4', k, t(key)));
@@ -188,6 +209,23 @@
       list.appendChild(card);
     });
     loadShares(ev);
+  }
+
+  // Criteria ratings and knock-outs of a candidate (comparisons with criteria only).
+  function criteriaBlock(card, list, c) {
+    if (!list || !list.length || !c.criteria) return;
+    const name = id => (list.find(k => k.id === id) || {}).name || id;
+    if (c.knockout_failed && c.knockout_failed.length) card.appendChild(el('div', 'ko', '⚠ ' + t('r_ko')(c.knockout_failed.map(name).join(', '))));
+    const box = el('div', 'crit-list'); box.setAttribute('aria-label', t('r_criteria'));
+    c.criteria.forEach(r => {
+      const k = list.find(x => x.id === r.id); if (!k) return;
+      const chip = el('span', 'crit r' + r.rating + (k.required ? ' req' : ''));
+      chip.title = `${k.name}: ${t('cr_r')[r.rating]}`;
+      chip.appendChild(el('span', 'dots', '●'.repeat(r.rating) + '○'.repeat(4 - r.rating)));
+      chip.appendChild(document.createTextNode(' ' + k.name));
+      box.appendChild(chip);
+    });
+    card.appendChild(box);
   }
 
   // Interview questions per candidate (comparisons made before 2026-11-24 have none).
@@ -278,6 +316,7 @@
   $('sh-ok').addEventListener('click', async () => {
     const ids = [...$('sh-pick').querySelectorAll('input:checked')].map(x => x.value);
     if (!ids.length) return showMsg($('sh-msg'), 'err', t('sh_need'));
+    if (ids.length > MAX_SHARE) return showMsg($('sh-msg'), 'err', t('sh_max')(MAX_SHARE));
     const names = loadNames(current.id), withNames = $('sh-names').checked;
     $('sh-ok').disabled = true; $('sh-msg').hidden = true;
     try {
@@ -408,7 +447,7 @@
     const planLabel = t('b_plan') && t('b_plan')[me.plan];
     $('s-label').textContent = isPaid() && t('s_label_paid') && planLabel ? t('s_label_paid')(planLabel)
       : hasPackOnly() ? t('s_label_pack') : t('s_label');
-    $('run-note').textContent = (isPaid() && t('run_note_paid')) || (hasPackOnly() && t('run_note_pack')) || t('run_note');
+    runNote(); renderCriteria();
     // Billing never breaks the rest of the page (e.g. an old cached trial.js without its texts).
     try { renderBilling(); } catch (e) { $('billing').hidden = true; $('plans').hidden = true; }
     try { renderJx(); } catch (e) { $('jx').hidden = true; }
@@ -581,29 +620,110 @@
     const ready = cvs.filter(c => c.status === 'ok' && c.sent.length >= 100);
     if (job.length < 50) return showMsg(msg, 'err', t('need_job'));
     if (!ready.length) return showMsg(msg, 'err', t('need_cv'));
-    // Keep only readable CVs, re-lettered A, B, C… in order.
+    if (pending && pending.job !== job) pending = null;
+    // Keep only readable CVs, re-lettered in order (A, B, C… or after the ones already sent).
     cvs = ready; renderCvs();
+    const start = offset(), total = start + cvs.length;
+    const batches = [];
+    for (let i = 0; i < cvs.length; i += BATCH) batches.push(cvs.slice(i, i + BATCH));
+    if (batches.length > creditsLeft()) return showMsg(msg, 'err', t('need_credits')(batches.length, creditsLeft()));
+    const crit = !pending ? criteriaForApi() : null;
+    if (crit === false) return;
     const btn = $('run'); btn.disabled = true;
-    $('run-label').textContent = t('running');
+    const sp = el('span', 'spinner'); btn.prepend(sp);
+    let ev = null, done = 0, appendTo = pending ? pending.id : null;
+    try {
+      for (let k = 0; k < batches.length; k++) {
+        $('run-label').textContent = batches.length > 1 ? t('running_batch')(k + 1, batches.length) : t('running');
+        const body = { job, lang: LANG, cvs: batches[k].map(c => ({ text: c.sent })) };
+        if (appendTo) body.append_to = appendTo; else if (crit) body.criteria = crit;
+        let r;
+        try { r = await api('POST', '/api/evaluate', body); }
+        catch (err) {
+          // Another batch was being added at the same moment: it was refunded, send it once more.
+          if (err.code !== 'round_busy') throw err;
+          await new Promise(res => setTimeout(res, 1500));
+          r = await api('POST', '/api/evaluate', body);
+        }
+        const names = loadNames(r.id);
+        batches[k].forEach((c, i) => { if (c.name) names[IDS[start + done + i]] = c.name; });
+        saveNames(r.id, names);
+        appendTo = r.id; done += batches[k].length;
+        ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: r.cv_count || done, ranking: r.ranking, author: r.author };
+        if (me) me.credits_remaining = r.credits_remaining;
+      }
+      pending = null; cvs = [];
+    } catch (err) {
+      if (err.status === 401) return gate();
+      if (appendTo) {
+        // Part of the round is done: keep it, and let the person send the rest later.
+        pending = { id: appendTo, job, offset: start + done };
+        cvs = cvs.slice(done);
+        showMsg(msg, 'err', err.message + ' ' + t('round_partial')(start + done, total));
+      } else showMsg(msg, 'err', err.message);
+      if (err.code === 'no_credits' || err.code === 'trial_expired') { me.credits_remaining = 0; me.pack_credits = 0; }
+    } finally {
+      btn.disabled = false; sp.remove();
+      if (ev) {
+        past = past.filter(x => x.id !== ev.id); past.unshift(ev);
+        try { me = await api('GET', '/api/me'); } catch (e) {}
+        if (isManager()) { try { await loadHistory(); } catch (e) {} }
+        renderMe(); renderHistory(); renderResults(ev);
+        if (!pending) $('results').scrollIntoView({ behavior: 'smooth' });
+      } else if (me) renderMe();
+      renderCvs();
+    }
+  }
+
+  // ── Job criteria (optional) ──────────────────────────────────────────────
+  // Suggested from the job text for free, then edited here. Sent only with the first batch of a comparison.
+  function criteriaForApi() {
+    const list = criteria.map(k => ({ name: k.name.trim(), required: !!k.required, weight: k.weight })).filter(k => k.name);
+    if (list.length > MAX_CRITERIA) { showMsg($('cr-msg'), 'err', t('cr_max')(MAX_CRITERIA)); return false; }
+    return list.length ? list : null;
+  }
+  function renderCriteria() {
+    const box = $('cr-list'); if (!box) return;
+    box.textContent = '';
+    const locked = !!pending;
+    $('cr-bar').hidden = locked; $('cr-locked').hidden = !locked;
+    criteria.forEach((k, i) => {
+      const row = el('div', 'cr-row');
+      const name = el('input'); name.value = k.name; name.placeholder = t('cr_ph'); name.maxLength = 80; name.disabled = locked;
+      name.setAttribute('aria-label', t('cr_title'));
+      name.addEventListener('input', () => { k.name = name.value; });
+      row.appendChild(name);
+      const req = el('label', 'check cr-req'); const box2 = el('input'); box2.type = 'checkbox'; box2.checked = !!k.required; box2.disabled = locked;
+      box2.addEventListener('change', () => { k.required = box2.checked; });
+      req.appendChild(box2); req.appendChild(el('span', '', t('cr_required'))); row.appendChild(req);
+      const w = el('select'); w.disabled = locked; w.setAttribute('aria-label', t('cr_title'));
+      [1, 2, 3].forEach(v => { const o = el('option', '', t('cr_w')[v]); o.value = v; o.selected = k.weight === v; w.appendChild(o); });
+      w.addEventListener('change', () => { k.weight = Number(w.value); });
+      row.appendChild(w);
+      if (!locked) {
+        const x = el('button', 'x', '×'); x.type = 'button'; x.title = t('cr_remove');
+        x.addEventListener('click', () => { criteria.splice(i, 1); renderCriteria(); });
+        row.appendChild(x);
+      }
+      box.appendChild(row);
+    });
+    $('cr-add').disabled = criteria.length >= MAX_CRITERIA;
+  }
+  async function suggestCriteria() {
+    const msg = $('cr-msg'); msg.hidden = true;
+    const job = $('job').value.trim();
+    if (job.length < 50) return showMsg(msg, 'err', t('cr_need_job'));
+    const btn = $('cr-suggest'); btn.disabled = true;
+    $('cr-label').textContent = t('cr_running');
     const sp = el('span', 'spinner'); btn.prepend(sp);
     try {
-      const r = await api('POST', '/api/evaluate', { job, lang: LANG, cvs: cvs.map(c => ({ text: c.sent })) });
-      const names = {}; cvs.forEach((c, i) => { if (c.name) names[IDS[i]] = c.name; });
-      saveNames(r.id, names);
-      const ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: cvs.length, ranking: r.ranking, author: r.author };
-      past.unshift(ev);
-      try { me = await api('GET', '/api/me'); } catch (e) { me.credits_remaining = r.credits_remaining; me.pack_credits = 0; }
-      if (isManager()) await loadHistory();
-      renderMe(); renderHistory(); renderResults(ev);
-      cvs = []; renderCvs();
-      $('results').scrollIntoView({ behavior: 'smooth' });
+      const r = await api('POST', '/api/criteria', { job, lang: LANG });
+      criteria = r.criteria.map(k => ({ name: k.name, required: !!k.required, weight: k.weight || 1 }));
+      renderCriteria(); showMsg(msg, 'info', t('cr_done'));
     } catch (err) {
       if (err.status === 401) return gate();
       showMsg(msg, 'err', err.message);
-      if (err.code === 'no_credits' || err.code === 'trial_expired') { me.credits_remaining = 0; me.pack_credits = 0; renderMe(); }
-    } finally {
-      btn.disabled = false; sp.remove(); $('run-label').textContent = t('b_run');
-    }
+    } finally { btn.disabled = false; sp.remove(); $('cr-label').textContent = t('cr_suggest'); }
   }
 
   // ── Session ──────────────────────────────────────────────────────────────
@@ -816,7 +936,17 @@
   ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
   drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
-  $('job').addEventListener('input', () => { $('job-count').textContent = `${$('job').value.length} / ${MAX_JOB}`; });
+  $('job').addEventListener('input', () => {
+    $('job-count').textContent = `${$('job').value.length} / ${MAX_JOB}`;
+    // A different job text starts a new comparison (the interrupted one keeps what it has).
+    if (pending && $('job').value.trim() !== pending.job) { pending = null; renderCvs(); renderCriteria(); }
+  });
+  $('cr-suggest').addEventListener('click', suggestCriteria);
+  $('cr-add').addEventListener('click', () => {
+    if (criteria.length >= MAX_CRITERIA) return;
+    criteria.push({ name: '', required: false, weight: 2 }); renderCriteria();
+    const inputs = $('cr-list').querySelectorAll('input:not([type])'); if (inputs.length) inputs[inputs.length - 1].focus();
+  });
   $('run').addEventListener('click', run);
   $('jx-btn').addEventListener('click', analyzeJob);
   $('print').addEventListener('click', () => window.print());

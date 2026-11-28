@@ -939,6 +939,17 @@
   // ── Job description analysis (Raio-X da Vaga inside MRE·AI) ─────────────
   // Only the job text is sent; CVs stay in this page. Free: never spends a comparison.
   let jx = null, jxOriginal = null;
+  // The analysis box serves the comparison's description (#job) or the job being edited in Vagas (#j-desc).
+  let jxTarget = 'job';
+  function moveJx(target) {
+    if (jxTarget === target) return;
+    jxTarget = target; jx = null; jxOriginal = null; $('jx-msg').hidden = true;
+    const box = $('jx');
+    if (target === 'j-desc') $('j-desc').insertAdjacentElement('afterend', box);
+    else $('job').parentElement.querySelector('.hint').insertAdjacentElement('afterend', box);
+    renderJx();
+  }
+
   const prettyModel = m => {
     const s = String(m || '');
     if (/^deepseek/i.test(s)) return 'DeepSeek ' + s.replace(/^deepseek-?/i, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -997,17 +1008,17 @@
     imp.appendChild(el('div', 'jx-improved', a.improved));
     out.appendChild(imp);
     const acts = el('div', 'jx-actions');
-    const usingImproved = jxOriginal !== null && $('job').value === a.improved.slice(0, MAX_JOB);
+    const usingImproved = jxOriginal !== null && $(jxTarget).value === a.improved.slice(0, MAX_JOB);
     if (!usingImproved) {
       acts.appendChild(Object.assign(el('button', 'btn btn-primary btn-sm', t('jx_use')), { type: 'button', onclick: () => {
-        jxOriginal = $('job').value;
-        $('job').value = a.improved.slice(0, MAX_JOB); $('job').dispatchEvent(new Event('input'));
-        $('job-src').className = ''; $('job-src').textContent = '';
+        jxOriginal = $(jxTarget).value;
+        $(jxTarget).value = a.improved.slice(0, MAX_JOB); $(jxTarget).dispatchEvent(new Event('input'));
+        if (jxTarget === 'job') { $('job-src').className = ''; $('job-src').textContent = ''; }
         showMsg($('jx-msg'), 'ok', t('jx_used')); renderJx();
       } }));
     } else {
       acts.appendChild(Object.assign(el('button', 'btn btn-ghost btn-sm', t('jx_undo')), { type: 'button', onclick: () => {
-        $('job').value = jxOriginal; jxOriginal = null; $('job').dispatchEvent(new Event('input'));
+        $(jxTarget).value = jxOriginal; jxOriginal = null; $(jxTarget).dispatchEvent(new Event('input'));
         showMsg($('jx-msg'), 'info', t('jx_undone')); renderJx();
       } }));
     }
@@ -1016,7 +1027,7 @@
   }
   async function analyzeJob() {
     const msg = $('jx-msg'); msg.hidden = true;
-    const job = $('job').value.trim();
+    const job = $(jxTarget).value.trim();
     if (job.length < 80) return showMsg(msg, 'err', t('jx_need'));
     const btn = $('jx-btn'); btn.disabled = true;
     $('jx-label').textContent = t('jx_running');
@@ -1237,10 +1248,11 @@
       $('j-title').value = ''; $('j-slug').value = '';
       $('j-desc').value = $('job').value.trim();   // the description already typed in the comparison, if any
     }
+    moveJx('j-desc');
     renderJobAddrPreview();
     $('j-title').focus();
   }
-  function closeJobForm() { editingJob = null; $('j-form').hidden = true; }
+  function closeJobForm() { editingJob = null; $('j-form').hidden = true; moveJx('job'); }
 
   async function saveJob() {
     const title = $('j-title').value.trim(), job_text = $('j-desc').value.trim(), slug = slugify($('j-slug').value);

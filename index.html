@@ -898,8 +898,8 @@
     }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-    <link rel="stylesheet" href="theme-a.css?v=20261128a">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="theme-a.css?v=20261128b">
 </head>
 <body>
 
@@ -952,32 +952,37 @@
     </div>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-radial"></div>
-    <div class="hero-grain"></div>
-    <div class="hero-content">
-        <div class="hero-eyebrow">
-            <span class="hero-eyebrow-dot"></span>
-            <span data-i18n="hero_badge">✦ Cloud · AI · Automation</span>
+<!-- HERO — split: message on the left, the product working on the right -->
+<header class="dhero">
+    <div class="dhero-in">
+        <div class="dhero-copy">
+            <div class="dhero-eyebrow"><span class="dhero-dot"></span><span data-i18n="hero_badge">✦ Cloud · AI · Automation</span></div>
+            <h1><span data-i18n="hero_title">Your IT team,</span> <span class="dhero-hl" data-i18n="hero_title_span">multiplied.</span></h1>
+            <p data-i18n="hero_sub">Cloud, automation and AI agents built with Claude, working alongside your team, from the server to customer service.</p>
+            <div class="dhero-cta">
+                <a href="#contact" class="dbtn dbtn-dark" data-i18n="hero_cta_talk">Book a conversation</a>
+                <a href="#layers" class="dbtn dbtn-link" data-i18n="hero_cta_how">See how it works →</a>
+            </div>
         </div>
-        <h1>
-            <span class="line1" data-i18n="hero_title">Technical Consulting for the</span>
-            <span class="line2" data-i18n="hero_title_span">Global Digital Age</span>
-        </h1>
-        <p data-i18n="hero_sub">We connect world-class IT talent with real opportunities and help companies build smarter, cloud-native, AI-powered solutions.</p>
-        <div class="hero-cta">
-            <a href="#platforms" class="btn-primary" data-i18n="hero_cta2">Explore Our Platforms</a>
-            <a href="#contact" class="btn-outline" data-i18n="nav_contact">Contact Us</a>
+        <div class="dhero-demo" aria-hidden="true">
+            <div class="dd-ask"><span><span data-i18n="hm_ask">Ask the agent:</span> <b data-i18n="hm_q">"Who are the top 3 for Senior Data Analyst?"</b></span><span class="dd-send">↑</span></div>
+            <div class="dd-steps">
+                <div class="dd-step"><span class="dd-ok">✓</span><span data-i18n="hm_s1">12 resumes read and anonymized</span></div>
+                <div class="dd-step"><span class="dd-ok">✓</span><span data-i18n="hm_s2">Criteria applied: SQL, Python, Power BI</span></div>
+                <div class="dd-step dd-wait"><span class="dd-spin"></span><span data-i18n="hm_s3">Writing interview questions…</span></div>
+            </div>
+            <div class="dd-rank">
+                <div class="dd-c dd-top"><span>1º</span><b data-i18n="hm_c1">Candidate A</b><em>92</em></div>
+                <div class="dd-c"><span>2º</span><b data-i18n="hm_c2">Candidate B</b><em>84</em></div>
+                <div class="dd-c"><span>3º</span><b data-i18n="hm_c3">Candidate C</b><em>77</em></div>
+            </div>
         </div>
     </div>
-    <div class="hero-scroll" onclick="document.getElementById('claude-startups').scrollIntoView({behavior:'smooth'})">
-        <span>Scroll</span>
-        <i class="fa-solid fa-chevron-down"></i>
+    <div class="dtech">
+        <span class="dtech-lbl" data-i18n="tech_lbl">Technologies we run every day</span>
+        <div class="dtech-row"><span>AWS</span><span>Azure</span><span>Google Cloud</span><span>Oracle Cloud</span><span>Kubernetes</span><span>Claude</span></div>
     </div>
-</div>
+</header>
 
 <!-- CLAUDE FOR STARTUPS — highlight -->
 <section class="cfs" id="claude-startups" style="border-top:none;">
@@ -1024,6 +1029,17 @@
 <div class="container">
 
     <!-- SERVICES -->
+    <!-- THREE LAYERS -->
+    <section id="layers" class="dlayers">
+        <div class="dlayers-in">
+            <h2 data-i18n="layers_h">Technology didn't get harder. It got stuck.</h2>
+            <p data-i18n="layers_p">Servers, cloud, data and AI spread across different vendors. We organize it all in three layers that talk to each other.</p>
+            <div class="dlayer dlayer-on"><div><span class="dlayer-n" data-i18n="layer3_n">LAYER 3</span><b data-i18n="layer3_t">AI agents and products</b></div><span data-i18n="layer3_d">MRE·AI · SantosBot · projects with Claude</span></div>
+            <div class="dlayer"><div><span class="dlayer-n" data-i18n="layer2_n">LAYER 2</span><b data-i18n="layer2_t">Data, automation and tracking</b></div><span data-i18n="layer2_d">Integrations · WhatsApp · GTM and GA4</span></div>
+            <div class="dlayer"><div><span class="dlayer-n" data-i18n="layer1_n">LAYER 1</span><b data-i18n="layer1_t">Infrastructure and cloud</b></div><span data-i18n="layer1_d">AWS · Azure · GCP · OCI · networks · security</span></div>
+        </div>
+    </section>
+
     <section id="services">
         <p class="section-label" data-i18n="svc_label">What we do</p>
         <h2 class="section-title" data-i18n="svc_title">Consultancy Services</h2>
@@ -1088,6 +1104,9 @@
             
         </div>
     </section>
+
+    <!-- SERVICES MARQUEE -->
+    <div class="dmq" aria-hidden="true"><div class="dmq-row"><span class="dmq-t" data-i18n="mq1"></span><span class="dmq-t dmq-hl" data-i18n="mq2"></span><span class="dmq-t" data-i18n="mq3"></span><span class="dmq-t" data-i18n="mq4"></span><span class="dmq-t" data-i18n="mq5"></span><span class="dmq-t dmq-hl" data-i18n="mq6"></span><span class="dmq-t" data-i18n="mq7"></span><span class="dmq-t" data-i18n="mq8"></span><span class="dmq-t" data-i18n="mq1"></span><span class="dmq-t dmq-hl" data-i18n="mq2"></span><span class="dmq-t" data-i18n="mq3"></span><span class="dmq-t" data-i18n="mq4"></span><span class="dmq-t" data-i18n="mq5"></span><span class="dmq-t dmq-hl" data-i18n="mq6"></span><span class="dmq-t" data-i18n="mq7"></span><span class="dmq-t" data-i18n="mq8"></span></div></div>
 
     <!-- SANTOSBOT -->
     <section id="santosbot" class="santosbot-section">
@@ -1588,6 +1607,18 @@
 
 </div>
 
+<!-- TRUST -->
+<section class="dtrust">
+    <div class="dtrust-in">
+        <h2 data-i18n="trust_h">Built for companies. Secure by default.</h2>
+        <div class="dtrust-grid">
+            <div><b data-i18n="trust1_t">Privacy first</b><p data-i18n="trust1_d">Resumes anonymized in the browser; data deleted within the agreed period.</p></div>
+            <div><b data-i18n="trust2_t">LGPD and GDPR</b><p data-i18n="trust2_d">A clear policy, access audit and control over who sees what.</p></div>
+            <div><b data-i18n="trust3_t">14 jurisdictions</b><p data-i18n="trust3_d">Serving Latin America and North America, in 3 languages.</p></div>
+        </div>
+    </div>
+</section>
+
 <!-- CONTACT FORM SECTION -->
 <div style="background:#f0f4ff;border-top:1px solid #e2e8f0;padding:64px 0;" id="contact-form-section">
     <div class="container" style="max-width:640px;">
@@ -1689,9 +1720,9 @@ const i18n = {
     en: {
         nav_services: 'Services', nav_platforms: 'Platforms', nav_vision: 'Vision', nav_academy: 'Academy', nav_meeb: 'Community Education', nav_contact: 'Contact', nav_santosbot: 'SantosBot', nav_miraai: 'MiraTech AI', nav_whatsapp: 'WhatsApp Bot',
         hero_badge: '✦ Cloud · AI · Automation',
-        hero_title: 'Technical Consulting',
-        hero_title_span: 'Global Digital Age',
-        hero_sub: 'We connect world-class IT talent with real opportunities and help companies build smarter, cloud-native, AI-powered solutions.',
+        hero_title: "Your IT team,",
+        hero_title_span: "multiplied.",
+        hero_sub: "Cloud, automation and AI agents built with Claude, working alongside your team, from the server to customer service.",
         hero_cta1: 'Visit our brazilian Site', hero_cta2: 'Explore our platforms',
         svc_label: 'What we do', svc_title: 'Consultancy Services',
         svc_sub: 'From cloud architecture to AI integration, we deliver end-to-end technical solutions and talent ecosystems.',
@@ -1902,14 +1933,51 @@ const i18n = {
         cfs_c4_d: 'We design, build and host AI solutions on Claude for your company: assistants, automation, document analysis and integrations.',
         cfs_cta1: 'Build your AI project with us',
         cfs_cta2: 'See Claude at work in MiraTech',
-        cfs_note: 'Claude and Anthropic are trademarks of Anthropic, PBC. Participation in the Claude for Startups program does not mean that Anthropic endorses Tecnologia Santos products or services.'
+        cfs_note: 'Claude and Anthropic are trademarks of Anthropic, PBC. Participation in the Claude for Startups program does not mean that Anthropic endorses Tecnologia Santos products or services.',
+        hero_cta_talk: "Book a conversation",
+        hero_cta_how: "See how it works →",
+        hm_ask: "Ask the agent:",
+        hm_q: "\"Who are the top 3 for Senior Data Analyst?\"",
+        hm_s1: "12 resumes read and anonymized",
+        hm_s2: "Criteria applied: SQL, Python, Power BI",
+        hm_s3: "Writing interview questions…",
+        hm_c1: "Candidate A",
+        hm_c2: "Candidate B",
+        hm_c3: "Candidate C",
+        tech_lbl: "Technologies we run every day",
+        layers_h: "Technology didn't get harder. It got stuck.",
+        layers_p: "Servers, cloud, data and AI spread across different vendors. We organize it all in three layers that talk to each other.",
+        layer3_n: "LAYER 3",
+        layer3_t: "AI agents and products",
+        layer3_d: "MRE·AI · SantosBot · projects with Claude",
+        layer2_n: "LAYER 2",
+        layer2_t: "Data, automation and tracking",
+        layer2_d: "Integrations · WhatsApp · GTM and GA4",
+        layer1_n: "LAYER 1",
+        layer1_t: "Infrastructure and cloud",
+        layer1_d: "AWS · Azure · GCP · OCI · networks · security",
+        mq1: "CLOUD MIGRATION",
+        mq2: "AGENTS WITH CLAUDE",
+        mq3: "KUBERNETES & GITOPS",
+        mq4: "GTM · GA4 · CONVERSIONS API",
+        mq5: "ACTIVE DIRECTORY",
+        mq6: "WHATSAPP AUTOMATION",
+        mq7: "SOC2 · ISO 27001",
+        mq8: "MIKROTIK · CISCO · UNIFI NETWORKS",
+        trust_h: "Built for companies. Secure by default.",
+        trust1_t: "Privacy first",
+        trust1_d: "Resumes anonymized in the browser; data deleted within the agreed period.",
+        trust2_t: "LGPD and GDPR",
+        trust2_d: "A clear policy, access audit and control over who sees what.",
+        trust3_t: "14 jurisdictions",
+        trust3_d: "Serving Latin America and North America, in 3 languages.",
     },
     pt: {
         nav_services: 'Serviços', nav_platforms: 'Plataformas', nav_vision: 'Visão', nav_academy: 'Academy', nav_meeb: 'Educação Comunitária', nav_contact: 'Contato', nav_santosbot: 'SantosBot', nav_miraai: 'MiraTech AI', nav_whatsapp: 'Bot WhatsApp',
         hero_badge: '✦ Cloud · IA · Automação',
-        hero_title: 'Consultoria Técnica',
-        hero_title_span: 'Era Digital Global',
-        hero_sub: 'Conectamos talentos de TI de alto nível com oportunidades reais e ajudamos empresas a construir soluções mais inteligentes, nativas em nuvem e movidas por IA.',
+        hero_title: "Sua equipe de TI,",
+        hero_title_span: "multiplicada.",
+        hero_sub: "Nuvem, automação e agentes de IA com Claude, que trabalham junto com o seu time, do servidor ao atendimento.",
         hero_cta1: 'Visite nosso site brasileiro', hero_cta2: 'Explore nossas plataformas',
         svc_label: 'O que fazemos', svc_title: 'Serviços de Consultoria',
         svc_sub: 'Da arquitetura em nuvem à integração de IA, entregamos soluções técnicas completas e ecossistemas de talentos.',
@@ -2120,14 +2188,51 @@ const i18n = {
         cfs_c4_d: 'Projetamos, desenvolvemos e hospedamos soluções de IA com o Claude para a sua empresa: assistentes, automação, análise de documentos e integrações.',
         cfs_cta1: 'Construa seu projeto de IA conosco',
         cfs_cta2: 'Veja o Claude em ação no MiraTech',
-        cfs_note: 'Claude e Anthropic são marcas da Anthropic, PBC. A participação no programa Claude for Startups não significa que a Anthropic endossa produtos ou serviços da Tecnologia Santos.'
+        cfs_note: 'Claude e Anthropic são marcas da Anthropic, PBC. A participação no programa Claude for Startups não significa que a Anthropic endossa produtos ou serviços da Tecnologia Santos.',
+        hero_cta_talk: "Agendar conversa",
+        hero_cta_how: "Veja como funciona →",
+        hm_ask: "Pergunte ao agente:",
+        hm_q: "\"Quem são os 3 melhores para Analista de Dados Sênior?\"",
+        hm_s1: "12 currículos lidos e anonimizados",
+        hm_s2: "Critérios aplicados: SQL, Python, Power BI",
+        hm_s3: "Gerando perguntas de entrevista…",
+        hm_c1: "Candidata A",
+        hm_c2: "Candidato B",
+        hm_c3: "Candidata C",
+        tech_lbl: "Tecnologias que operamos todos os dias",
+        layers_h: "A tecnologia não ficou mais difícil. Ficou travada.",
+        layers_p: "Servidores, nuvem, dados e IA espalhados em fornecedores diferentes. Nós organizamos tudo em três camadas que conversam entre si.",
+        layer3_n: "CAMADA 3",
+        layer3_t: "Agentes e produtos de IA",
+        layer3_d: "MRE·AI · SantosBot · projetos com Claude",
+        layer2_n: "CAMADA 2",
+        layer2_t: "Dados, automação e rastreamento",
+        layer2_d: "Integrações · WhatsApp · GTM e GA4",
+        layer1_n: "CAMADA 1",
+        layer1_t: "Infraestrutura e nuvem",
+        layer1_d: "AWS · Azure · GCP · OCI · redes · segurança",
+        mq1: "MIGRAÇÃO PARA NUVEM",
+        mq2: "AGENTES COM CLAUDE",
+        mq3: "KUBERNETES E GITOPS",
+        mq4: "GTM · GA4 · API DE CONVERSÕES",
+        mq5: "ACTIVE DIRECTORY",
+        mq6: "AUTOMAÇÃO DE WHATSAPP",
+        mq7: "SOC2 · ISO 27001",
+        mq8: "REDES MIKROTIK · CISCO · UNIFI",
+        trust_h: "Feito para empresas. Seguro por padrão.",
+        trust1_t: "Privacidade primeiro",
+        trust1_d: "Currículos anonimizados no navegador; dados apagados no prazo combinado.",
+        trust2_t: "LGPD e GDPR",
+        trust2_d: "Política clara, auditoria de acessos e controle de quem vê o quê.",
+        trust3_t: "14 jurisdições",
+        trust3_d: "Atendimento na América Latina e na América do Norte, em 3 idiomas.",
     },
     es: {
         nav_services: 'Servicios', nav_platforms: 'Plataformas', nav_vision: 'Visión', nav_academy: 'Academy', nav_meeb: 'Educación Comunitaria', nav_contact: 'Contacto', nav_santosbot: 'SantosBot', nav_miraai: 'MiraTech AI', nav_whatsapp: 'Bot de WhatsApp',
         hero_badge: '✦ Cloud · IA · Automatización',
-        hero_title: 'Consultoría Técnica',
-        hero_title_span: 'Era Digital Global',
-        hero_sub: 'Conectamos talento IT de alto nivel con oportunidades reales y ayudamos a empresas a construir soluciones más inteligentes, nativas en la nube e impulsadas por IA.',
+        hero_title: "Su equipo de TI,",
+        hero_title_span: "multiplicado.",
+        hero_sub: "Nube, automatización y agentes de IA con Claude, que trabajan junto a su equipo, del servidor a la atención al cliente.",
         hero_cta1: 'Visita nuestro sitio brasileño', hero_cta2: 'Explorar nuestras plataformas',
         svc_label: 'Lo que hacemos', svc_title: 'Servicios de Consultoría',
         svc_sub: 'Desde arquitectura cloud hasta integración de IA, entregamos soluciones técnicas integrales y ecosistemas de talento.',
@@ -2338,7 +2443,44 @@ const i18n = {
         cfs_c4_d: 'Diseñamos, desarrollamos y alojamos soluciones de IA con Claude para su empresa: asistentes, automatización, análisis de documentos e integraciones.',
         cfs_cta1: 'Construya su proyecto de IA con nosotros',
         cfs_cta2: 'Vea Claude en acción en MiraTech',
-        cfs_note: 'Claude y Anthropic son marcas de Anthropic, PBC. La participación en el programa Claude for Startups no significa que Anthropic respalde los productos o servicios de Tecnologia Santos.'
+        cfs_note: 'Claude y Anthropic son marcas de Anthropic, PBC. La participación en el programa Claude for Startups no significa que Anthropic respalde los productos o servicios de Tecnologia Santos.',
+        hero_cta_talk: "Agendar una conversación",
+        hero_cta_how: "Vea cómo funciona →",
+        hm_ask: "Pregunte al agente:",
+        hm_q: "\"¿Quiénes son los 3 mejores para Analista de Datos Sénior?\"",
+        hm_s1: "12 CVs leídos y anonimizados",
+        hm_s2: "Criterios aplicados: SQL, Python, Power BI",
+        hm_s3: "Generando preguntas de entrevista…",
+        hm_c1: "Candidata A",
+        hm_c2: "Candidato B",
+        hm_c3: "Candidata C",
+        tech_lbl: "Tecnologías que operamos todos los días",
+        layers_h: "La tecnología no se volvió más difícil. Se trabó.",
+        layers_p: "Servidores, nube, datos e IA repartidos entre proveedores distintos. Lo organizamos todo en tres capas que conversan entre sí.",
+        layer3_n: "CAPA 3",
+        layer3_t: "Agentes y productos de IA",
+        layer3_d: "MRE·AI · SantosBot · proyectos con Claude",
+        layer2_n: "CAPA 2",
+        layer2_t: "Datos, automatización y rastreo",
+        layer2_d: "Integraciones · WhatsApp · GTM y GA4",
+        layer1_n: "CAPA 1",
+        layer1_t: "Infraestructura y nube",
+        layer1_d: "AWS · Azure · GCP · OCI · redes · seguridad",
+        mq1: "MIGRACIÓN A LA NUBE",
+        mq2: "AGENTES CON CLAUDE",
+        mq3: "KUBERNETES Y GITOPS",
+        mq4: "GTM · GA4 · API DE CONVERSIONES",
+        mq5: "ACTIVE DIRECTORY",
+        mq6: "AUTOMATIZACIÓN DE WHATSAPP",
+        mq7: "SOC2 · ISO 27001",
+        mq8: "REDES MIKROTIK · CISCO · UNIFI",
+        trust_h: "Hecho para empresas. Seguro por defecto.",
+        trust1_t: "Privacidad primero",
+        trust1_d: "CVs anonimizados en el navegador; datos eliminados en el plazo acordado.",
+        trust2_t: "LGPD y GDPR",
+        trust2_d: "Política clara, auditoría de accesos y control de quién ve qué.",
+        trust3_t: "14 jurisdicciones",
+        trust3_d: "Atención en América Latina y América del Norte, en 3 idiomas.",
     }
 };
 

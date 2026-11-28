@@ -1,45 +1,69 @@
-/* MRE·AI landing (/mre-ai/) — same look as tecnologiasantos.com: navy hero with the gradient headline,
-   eyebrow pill, white floating form card, dark footer. Only index.html loads this file; the app keeps trial.css. */
-body.landing{background:var(--bg)}
+/* MRE·AI landing (/mre-ai/) — same look as tecnologiasantos.com, visual "A · Escuro técnico" (theme-a.css):
+   ink hero with a faint grid, lime accent, Space Grotesk titles, white form card, dark footer.
+   Only index.html loads this file; the app keeps trial.css as it is. */
+body.landing{--blue:#0A0C10;--blue-dark:#2A2F3A;--blue-light:#EEF8D2;--bg:#F4F5F7;--border:#DADDE3;--text:#0A0C10;--muted:#4B5563;
+  --accent:#C8F560;--ink:#0A0C10;--ink-line:#222733;--ink-muted:#A9AFBC;
+  font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.landing h1,.landing h2,.landing h3{font-family:'Space Grotesk',Inter,system-ui,sans-serif;letter-spacing:-.02em}
+
+/* Nav like the site's */
+.landing .nav{background:#fff}
 @media (min-width:901px){.landing .nav .logo .logo-mark{display:none}}
-.landing .nav .logo .txt{color:var(--blue);font-weight:700;font-size:18px}
+.landing .nav .logo .logo-mark{background:var(--ink);color:var(--accent)}
+.landing .nav .logo .txt{color:var(--ink);font-family:'Space Grotesk',Inter,sans-serif;font-weight:700;font-size:18px}
 .lp-links{display:flex;gap:26px}
 .lp-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
-.lp-links a:hover,.lp-links a.on{color:var(--blue)}
+.lp-links a:hover{color:var(--ink)}
+.lp-links a.on{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px;text-underline-offset:8px}
 @media (max-width:980px){.lp-links{display:none}}
+.landing .langs button.on,.landing .langs button[aria-pressed="true"]{background:var(--ink);color:#fff}
 
+/* Hero */
 .lp-hero{position:relative;overflow:hidden;color:#fff;
-  background:radial-gradient(ellipse 90% 60% at 50% -5%,rgba(56,130,255,.28) 0%,transparent 68%),
-             radial-gradient(ellipse 50% 40% at 88% 95%,rgba(14,159,110,.16) 0%,transparent 58%),
-             linear-gradient(160deg,#040c2a 0%,#0a2b76 50%,#04162c 100%)}
-.lp-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.035;background-size:200px;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.lp-wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:72px 24px 80px}
+  background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(200,245,96,.12) 0%,transparent 65%),
+             linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/64px 64px,
+             linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/64px 64px,
+             #0A0C10}
+.lp-wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:80px 24px 88px}
 .lp-hero .grid2{align-items:center}
-.lp-hero .label{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);
-  color:rgba(255,255,255,.9);font-size:12px;letter-spacing:1.8px;padding:6px 16px;border-radius:24px;margin-bottom:22px;backdrop-filter:blur(10px)}
-.lp-hero .label::before{content:"";width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.7);animation:lp-pulse 2.2s ease infinite}
-@keyframes lp-pulse{0%,100%{box-shadow:0 0 6px rgba(52,211,153,.6)}50%{box-shadow:0 0 14px rgba(52,211,153,1)}}
-.lp-hero h1{font-size:clamp(32px,4.6vw,52px);line-height:1.1;letter-spacing:-1px;margin-bottom:18px;
-  background:linear-gradient(95deg,#fff 0%,#fff 35%,#93c5fd 62%,#a78bfa 82%,#34d399 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.lp-hero .lead{color:rgba(255,255,255,.78);font-size:18px;line-height:1.7}
+.lp-hero .label{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:500;
+  background:rgba(255,255,255,.05);border:1px solid var(--ink-line);color:var(--ink-muted);font-size:12px;letter-spacing:.08em;
+  padding:6px 14px;border-radius:999px;margin-bottom:22px}
+.lp-hero .label::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(200,245,96,.7)}
+.lp-hero h1{font-size:clamp(34px,4.8vw,56px);line-height:1.02;letter-spacing:-.035em;font-weight:700;margin-bottom:18px;color:#fff}
+.lp-hero .lead{color:var(--ink-muted);font-size:18px;line-height:1.7}
 .lp-hero .feats b{color:#fff}
-.lp-hero .feats span{color:rgba(255,255,255,.68)}
-.lp-hero .feats .ic{background:rgba(255,255,255,.10)!important;color:#fff!important;border:1px solid rgba(255,255,255,.18)}
-.lp-hero .terms,.lp-hero .terms summary{color:rgba(255,255,255,.8)}
-.lp-hero .terms ol{color:rgba(255,255,255,.7)}
-.lp-hero .terms a{color:#93c5fd}
-.lp-hero .card{color:var(--text);box-shadow:0 24px 60px rgba(2,8,30,.45);border:0}
+.lp-hero .feats span{color:#8B93A3}
+.lp-hero .feats .ic{background:var(--accent)!important;color:var(--ink)!important;border:0}
+.lp-hero .terms,.lp-hero .terms summary{color:var(--ink-muted)}
+.lp-hero .terms ol{color:#8B93A3}
+.lp-hero .terms a{color:var(--accent)}
+.lp-hero .card{color:var(--text);box-shadow:0 24px 60px rgba(0,0,0,.45);border:0;border-radius:18px}
+.lp-hero .card .tabs button.on{color:var(--ink)}
 @media (prefers-reduced-motion:no-preference){
   .lp-hero .grid2>section:first-child{animation:lp-up .9s cubic-bezier(.22,1,.36,1) both .1s}
   .lp-hero .card{animation:lp-up .9s cubic-bezier(.22,1,.36,1) both .3s}
 }
 @keyframes lp-up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@media (max-width:860px){.lp-wrap{padding:44px 20px 56px}}
+@media (max-width:860px){.lp-wrap{padding:48px 20px 60px}}
 
-.landing main{padding-top:48px}
-.landing .mre-media{box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.landing footer{background:#1a202c;border-top:0;color:#94a3b8;padding:24px}
-.landing footer a{color:#94a3b8}
+/* Light part: video, plans */
+.landing main{padding-top:56px}
+.landing .card,.landing .mre-media{border-radius:16px;box-shadow:none}
+.landing .btn-primary{background:var(--ink);box-shadow:none}
+.landing .btn-primary:hover{background:#2A2F3A}
+.landing .mre-media .mm-btn.primary{background:var(--ink);border-color:var(--ink)}
+.landing .mre-media .mm-btn.primary:hover{background:#2A2F3A}
+.landing main a:not(.btn):not(.mm-btn){color:var(--ink)}
+.landing a.btn-primary,.landing button.btn-primary{color:#fff}
+
+/* Footer like the site's */
+.landing footer{background:#0A0C10;border-top:0;color:#8B93A3;padding:24px}
+.landing footer a{color:#A9AFBC}
 .landing footer a:hover{color:#fff}
+
+/* SantosBot widget on this page, in the same colors */
+.landing .sb-fab{background:var(--accent);color:#0A0C10;box-shadow:0 8px 26px rgba(10,12,16,.35)}
+.landing .sb-head{background:#0A0C10}
+.landing .sb-msg.user{background:#0A0C10}
+.landing .sb-send{background:#0A0C10}

@@ -22,3 +22,12 @@ footer a{color:#A9AFBC}
 .rx-cta p,.rx-cta .muted{color:#A9AFBC}
 .rx-cta h2,.rx-cta h3,.rx-cta b{color:#fff}
 .rx-cta .btn-primary{background:var(--accent);color:#0A0C10}
+/* Work role and permissions */
+.wr-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.wr-row select,.wr-row input{min-width:220px}
+.pm-list{display:grid;gap:10px;margin:14px 0}
+.pm-row{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer}
+.pm-row input{margin-top:4px;accent-color:#0A0C10}
+.pm-row span{display:flex;flex-direction:column;gap:2px}
+.tg.bad{background:#FDECEC;color:#B42318}
+.wr-row select,.wr-row input{border:1px solid var(--border);border-radius:9px;padding:9px 12px;background:#fff;color:var(--text)}

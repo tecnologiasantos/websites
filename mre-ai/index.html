@@ -25,11 +25,11 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="trial.css?v=20261127j">
+<link rel="stylesheet" href="trial.css?v=20261128e">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="landing.css?v=20261128b">
-<script src="trial.js?v=20261127j"></script>
+<script src="trial.js?v=20261128e"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 </head>
 <body class="landing">
@@ -79,7 +79,8 @@
         <div class="field"><label for="s-email" data-t="l_email">Work e-mail</label><input id="s-email" name="email" type="email" required maxlength="254" autocomplete="email">
           <div class="hint" data-t="hint_email"></div></div>
         <div class="field"><label for="s-company" data-t="l_company">Company</label><input id="s-company" name="company" required maxlength="120" autocomplete="organization"></div>
-        <div class="field"><label for="s-title" data-t="l_title">Job title (optional)</label><input id="s-title" name="job_title" maxlength="100" autocomplete="organization-title"></div>
+        <div class="field"><label for="s-wrole" data-t="l_wrole">What do you do? (optional)</label><select id="s-wrole" name="work_role"><option value="" data-t="wr_none">Choose…</option><option value="recruiter" data-t="wr_recruiter"></option><option value="hr" data-t="wr_hr"></option><option value="hiring_manager" data-t="wr_hiring_manager"></option><option value="agency" data-t="wr_agency"></option><option value="executive" data-t="wr_executive"></option><option value="other" data-t="wr_other"></option></select></div>
+        <div class="field" id="s-title-f" hidden><label for="s-title" data-t="l_wother">Which one?</label><input id="s-title" name="job_title" maxlength="100" autocomplete="organization-title"></div>
         <div class="hp" aria-hidden="true"><input id="hp-website" tabindex="-1" autocomplete="off"><input id="hp-email2" tabindex="-1" autocomplete="off"></div>
         <label class="check"><input type="checkbox" id="s-terms"><span data-th="c_terms"></span></label>
         <label class="check"><input type="checkbox" id="s-marketing"><span data-t="c_marketing"></span></label>
@@ -181,7 +182,7 @@
 </main>
 
 <footer>© 2026 Tecnologia Santos · <a href="../privacy-policy.html">Privacy Policy</a> · <a href="../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
-<script src="signup.js?v=20261124a"></script>
+<script src="signup.js?v=20261128e"></script>
   <script src="plans.js?v=20261127c"></script>
 <script src="media.js?v=20261123b"></script>
 <script src="santosbot.js?v=20261123a"></script>

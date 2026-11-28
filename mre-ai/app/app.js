@@ -10,6 +10,7 @@
   let pending = null;   // { id, job, offset }
   let criteria = [];    // [{ name, required, weight }] for the next new comparison
   // Jobs (Vagas): the company's open positions; currentJob is the one the next new comparison is for.
+  let intake = { address: null, items: [], gmail: null, retention_days: 30 };
   let jobs = [], jobsMailbox = null, canSetMailbox = false, showClosed = false, editingJob = null, currentJob = null;
   const offset = () => (pending ? pending.offset : 0);
   let me = null, cvs = [], current = null, past = [], usage = null, team = [], auditEvents = null;
@@ -113,6 +114,7 @@
 
   // ── CV list ──────────────────────────────────────────────────────────────
   function renderCvs() {
+    renderIntakeBox();
     const box = $('cvs'); box.textContent = '';
     cvs.forEach((cv, i) => {
       if (cv.status === 'ok') prepare(cv, i);
@@ -161,7 +163,7 @@
     const files = [...list].slice(0, Math.max(0, room));
     if (list.length > files.length) showMsg($('run-msg'), 'info', t('cv_limit')(MAX_ROUND));
     for (const f of files) {
-      const cv = { file: f.name, name: '', raw: '', sent: '', status: 'reading' };
+      const cv = { file: f.name, name: '', raw: '', sent: '', status: 'reading', intakeId: f.intakeId || null };
       cvs.push(cv); renderCvs();
       try {
         if (f.size > 15 * 1024 * 1024) throw new Error('too big');
@@ -936,7 +938,7 @@
     renderMe();
   }
 
-  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); renderJobs(); setCurrentJob(currentJob); } }
+  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); renderJobs(); setCurrentJob(currentJob); renderIntake(); } }
 
   // ── Job description analysis (Raio-X da Vaga inside MRE·AI) ─────────────
   // Only the job text is sent; CVs stay in this page. Free: never spends a comparison.
@@ -1062,6 +1064,7 @@
     if (batches.length > creditsLeft()) return showMsg(msg, 'err', t('need_credits')(batches.length, creditsLeft()));
     const crit = !pending ? criteriaForApi() : null;
     if (crit === false) return;
+    const sentList = cvs.slice();   // CVs of this run, in order (received-by-e-mail ones carry intakeId)
     const btn = $('run'); btn.disabled = true;
     const sp = el('span', 'spinner'); btn.prepend(sp);
     let ev = null, done = 0, appendTo = pending ? pending.id : null;
@@ -1092,12 +1095,14 @@
         currentJob.criteria = crit;
         api('POST', '/api/jobs/update', { id: currentJob.id, criteria: crit }).catch(() => {});
       }
+      intakeUsed(sentList);
       if (currentJob) loadJobs().catch(() => {});
     } catch (err) {
       if (err.status === 401) return gate();
       if (appendTo) {
         // Part of the round is done: keep it, and let the person send the rest later.
         pending = { id: appendTo, job, offset: start + done, title: ev ? ev.job_title : (pending && pending.title) };
+        intakeUsed(sentList.slice(0, done));
         cvs = cvs.slice(done);
         showMsg(msg, 'err', err.message + ' ' + t('round_partial')(start + done, total));
       } else showMsg(msg, 'err', err.message);
@@ -1188,9 +1193,96 @@
     const r = await api('GET', '/api/jobs');
     jobs = r.jobs || []; jobsMailbox = r.mailbox || null; canSetMailbox = !!r.can_set_mailbox;
     renderJobs();
+    loadIntake().catch(() => {});
   }
 
-  function renderJobs() {
+  // ── CVs received by e-mail (intake) ──────────────────────────────────────
+  // The recruiting mailbox forwards vagas+<job>@… to the company's reception address; the files wait here
+  // (encrypted on the server) until a comparison reads them in this browser, like uploaded files.
+  async function loadIntake() {
+    intake = await api('GET', '/api/intake');
+    renderIntake(); renderJobs(true); renderIntakeBox();
+  }
+  const intakeFor = jobId => intake.items.filter(i => (i.job_id || null) === jobId && !cvs.some(c => c.intakeId === i.id));
+  function renderIntake() {
+    const box = $('in-recv');
+    box.hidden = !intake.address;
+    if (intake.address) {
+      const local = (jobsMailbox || '').split('@')[0];
+      $('in-addr').textContent = intake.address;
+      $('in-lead').textContent = jobsMailbox ? t('in_lead')(jobsMailbox, local) : '';
+      $('in-gmail-steps').textContent = t('in_gmail_steps')(intake.address, local);
+      $('in-outlook-steps').textContent = t('in_outlook_steps')(intake.address, local);
+      $('in-privacy').textContent = t('in_privacy')(intake.retention_days || 30);
+      $('in-rotate').hidden = !canSetMailbox;
+      const g = $('in-gmail');
+      g.hidden = !intake.gmail;
+      if (intake.gmail) g.textContent = intake.gmail.code ? t('in_gmail_code')(intake.gmail.code) : t('in_gmail_link');
+    }
+    // CVs that came without a job: move to a job or discard.
+    const un = $('in-unassigned'); un.textContent = '';
+    const list = intake.items.filter(i => !i.job_id);
+    if (!list.length) return;
+    un.appendChild(el('b', '', t('in_unassigned')(list.length)));
+    const wrap = el('div', 'in-list');
+    for (const it of list) {
+      const row = el('div', 'in-row');
+      row.appendChild(el('span', 'grow', t('in_row')(it.from_name || it.from_email || '—', it.file_name, fmtDate(it.received_at))));
+      const sel = el('select');
+      sel.appendChild(Object.assign(el('option', '', t('in_move')), { value: '' }));
+      jobs.filter(j => j.status === 'open').forEach(j => sel.appendChild(Object.assign(el('option', '', j.title), { value: j.id })));
+      sel.addEventListener('change', async () => {
+        if (!sel.value) return;
+        try { await api('POST', '/api/intake/assign', { ids: [it.id], job_id: sel.value }); await loadIntake(); }
+        catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
+      });
+      const del = el('button', 'btn btn-ghost btn-sm', t('in_discard')); del.type = 'button';
+      del.addEventListener('click', () => askConfirm({ title: t('in_discard_title'), text: t('in_discard_text'), ok: t('in_discard'), danger: true,
+        action: async () => { await api('POST', '/api/intake/remove', { ids: [it.id], reason: 'discarded' }); await loadIntake(); } }));
+      row.append(sel, del);
+      wrap.appendChild(row);
+    }
+    un.appendChild(wrap);
+  }
+  function renderIntakeBox() {
+    const list = currentJob ? intakeFor(currentJob.id) : [];
+    $('in-job').hidden = !list.length;
+    if (list.length) { $('in-job-text').textContent = t('in_box')(list.length); $('in-job-add').textContent = t('in_add')(list.length); }
+  }
+  // Download the received files and add them like uploaded ones (read and anonymized here).
+  async function addIntakeCvs() {
+    if (!currentJob) return;
+    const list = intakeFor(currentJob.id);
+    const btn = $('in-job-add'); btn.disabled = true; btn.textContent = t('in_adding');
+    const files = []; let gone = 0;
+    for (const it of list) {
+      try {
+        const res = await fetch(TRIAL.API + '/api/intake/file?id=' + encodeURIComponent(it.id), { headers: { Authorization: 'Bearer ' + getSession() } });
+        if (res.status === 401) return gate();
+        if (!res.ok) { gone++; continue; }
+        const f = new File([await res.blob()], it.file_name, { type: res.headers.get('content-type') || '' });
+        f.intakeId = it.id;
+        files.push(f);
+      } catch (e) { gone++; }
+    }
+    btn.disabled = false;
+    if (gone) showMsg($('run-msg'), 'info', t('in_gone'));
+    await addFiles(files);
+    renderIntakeBox();
+  }
+  // After a comparison: the received files it read are deleted from the server.
+  function intakeUsed(list) {
+    const ids = list.filter(c => c.intakeId && c.status === 'ok').map(c => c.intakeId);
+    if (!ids.length) return;
+    api('POST', '/api/intake/remove', { ids, reason: 'used' }).then(() => loadIntake()).catch(() => {});
+  }
+  $('in-job-add').addEventListener('click', addIntakeCvs);
+  $('in-copy').addEventListener('click', e => copyText(intake.address || '', e.currentTarget));
+  $('in-rotate').addEventListener('click', () => askConfirm({ title: t('in_rotate_title'), text: t('in_rotate_text'), ok: t('in_rotate'),
+    action: async () => { await api('POST', '/api/intake/rotate', {}); await loadIntake(); } }));
+  window.addEventListener('focus', () => { if (me && !me.needs_consent && getSession()) loadIntake().catch(() => {}); });
+
+  function renderJobs(fromIntake) {
     const list = $('j-list'); list.textContent = '';
     const open = jobs.filter(j => j.status === 'open'), closed = jobs.filter(j => j.status !== 'open');
     if (!jobs.length) list.appendChild(el('p', 'muted small', t('j_none')));
@@ -1199,6 +1291,8 @@
       const top = el('div', 'j-top');
       const name = el('b', '', j.title);
       top.append(name, el('span', 'muted small', t('j_stats')(j.evaluations || 0, j.cvs || 0) + (j.status === 'open' ? '' : ' · ' + t('j_closed'))));
+      const fresh = intake.items.filter(i => i.job_id === j.id).length;
+      if (fresh) top.appendChild(el('span', 'j-new-cvs', t('in_new')(fresh)));
       box.appendChild(top);
       if (j.address) box.appendChild(el('div', 'j-addr', j.address));
       else box.appendChild(el('div', 'muted small', t('j_no_addr')));
@@ -1315,6 +1409,7 @@
     const lines = $('job').value.trim().split('\n').filter(l => l.trim());
     $('j-sum-text').textContent = j ? lines.slice(0, 4).join('\n') + (lines.length > 4 ? '\n…' : '') : '';
     renderJobPick();
+    renderIntakeBox();
   }
   function renderJobPick() {
     const sel = $('j-pick'); sel.textContent = '';

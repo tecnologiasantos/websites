@@ -7,8 +7,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <title>MRE·AI free trial · Tecnologia Santos</title>
-<link rel="stylesheet" href="../trial.css?v=20261128c">
-<script src="../trial.js?v=20261128c"></script>
+<link rel="stylesheet" href="../trial.css?v=20261128d">
+<script src="../trial.js?v=20261128d"></script>
 </head>
 <body>
 <nav class="nav">
@@ -80,6 +80,18 @@
         <div class="muted small" id="j-mb-text"></div>
         <div class="muted small" data-t="j_mb_hint"></div>
         <div id="j-mb-msg" class="msg" hidden></div>
+        <div class="in-recv" id="in-recv" hidden>
+          <b data-t="in_recv">MRE·AI reception e-mail</b>
+          <div class="j-mb-row"><code class="j-addr in-addr" id="in-addr"></code>
+            <button type="button" class="btn btn-ghost btn-sm" id="in-copy" data-t="in_copy">Copy</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="in-rotate" data-t="in_rotate" hidden>Change address</button></div>
+          <div class="muted small" id="in-lead"></div>
+          <div class="msg ok" id="in-gmail" hidden></div>
+          <details class="in-setup"><summary data-t="in_setup">How to set it up</summary>
+            <p class="small" id="in-gmail-steps"></p><p class="small" id="in-outlook-steps"></p></details>
+          <div class="muted small" id="in-privacy"></div>
+        </div>
+        <div id="in-unassigned"></div>
       </div>
     </section>
 
@@ -93,6 +105,8 @@
           <button type="button" class="btn btn-ghost btn-sm" id="j-sum-edit" data-t="j_sum_edit">See or edit in Jobs</button>
         </div>
       </div>
+      <div class="in-job" id="in-job" hidden><span id="in-job-text"></span>
+        <button type="button" class="btn btn-primary btn-sm" id="in-job-add"></button></div>
       <div class="field" id="job-field">
         <div class="job-head">
           <label for="job" data-t="l_job">Job description</label>
@@ -311,7 +325,7 @@
 
 <footer>© 2026 Tecnologia Santos · <a href="../../privacy-policy.html">Privacy Policy</a> · <a href="../../terms-of-service.html">Terms of Service</a> · support@tecnologiasantos.com</footer>
 <script src="support.js?v=20261127a"></script>
-<script src="app.js?v=20261128c"></script>
+<script src="app.js?v=20261128d"></script>
 <script src="../plans.js?v=20261127c"></script>
 </body>
 </html>

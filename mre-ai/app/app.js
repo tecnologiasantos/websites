@@ -453,6 +453,8 @@
       $('job').value = r.job; $('job').dispatchEvent(new Event('input'));
       jx = null; renderJx();
       pending = { id: ev.id, job: r.job.trim(), offset: ev.cv_count, title: ev.job_title };
+      const j = ev.job_id && jobs.find(x => x.id === ev.job_id);
+      setCurrentJob(j ? { id: j.id, title: j.title, criteria: null } : null);
       cvs = []; renderCvs(); renderCriteria();
       $('run-msg').hidden = true;
       $('new').scrollIntoView({ behavior: 'smooth' });
@@ -934,11 +936,22 @@
     renderMe();
   }
 
-  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); renderJobs(); if (currentJob) setCurrentJob(currentJob); } }
+  function rerender() { if (me) { renderMe(); renderCvs(); renderHistory(); renderTeam(); if (auditEvents) renderAudit(); if (current) renderResults(current); renderReferral(); renderJobs(); setCurrentJob(currentJob); } }
 
   // ── Job description analysis (Raio-X da Vaga inside MRE·AI) ─────────────
   // Only the job text is sent; CVs stay in this page. Free: never spends a comparison.
   let jx = null, jxOriginal = null;
+  // The analysis box serves the comparison's description (#job) or the job being edited in Vagas (#j-desc).
+  let jxTarget = 'job';
+  function moveJx(target) {
+    if (jxTarget === target) return;
+    jxTarget = target; jx = null; jxOriginal = null; $('jx-msg').hidden = true;
+    const box = $('jx');
+    if (target === 'j-desc') $('j-desc').insertAdjacentElement('afterend', box);
+    else $('job').parentElement.querySelector('.hint').insertAdjacentElement('afterend', box);
+    renderJx();
+  }
+
   const prettyModel = m => {
     const s = String(m || '');
     if (/^deepseek/i.test(s)) return 'DeepSeek ' + s.replace(/^deepseek-?/i, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -997,17 +1010,17 @@
     imp.appendChild(el('div', 'jx-improved', a.improved));
     out.appendChild(imp);
     const acts = el('div', 'jx-actions');
-    const usingImproved = jxOriginal !== null && $('job').value === a.improved.slice(0, MAX_JOB);
+    const usingImproved = jxOriginal !== null && $(jxTarget).value === a.improved.slice(0, MAX_JOB);
     if (!usingImproved) {
       acts.appendChild(Object.assign(el('button', 'btn btn-primary btn-sm', t('jx_use')), { type: 'button', onclick: () => {
-        jxOriginal = $('job').value;
-        $('job').value = a.improved.slice(0, MAX_JOB); $('job').dispatchEvent(new Event('input'));
-        $('job-src').className = ''; $('job-src').textContent = '';
+        jxOriginal = $(jxTarget).value;
+        $(jxTarget).value = a.improved.slice(0, MAX_JOB); $(jxTarget).dispatchEvent(new Event('input'));
+        if (jxTarget === 'job') { $('job-src').className = ''; $('job-src').textContent = ''; }
         showMsg($('jx-msg'), 'ok', t('jx_used')); renderJx();
       } }));
     } else {
       acts.appendChild(Object.assign(el('button', 'btn btn-ghost btn-sm', t('jx_undo')), { type: 'button', onclick: () => {
-        $('job').value = jxOriginal; jxOriginal = null; $('job').dispatchEvent(new Event('input'));
+        $(jxTarget).value = jxOriginal; jxOriginal = null; $(jxTarget).dispatchEvent(new Event('input'));
         showMsg($('jx-msg'), 'info', t('jx_undone')); renderJx();
       } }));
     }
@@ -1016,7 +1029,7 @@
   }
   async function analyzeJob() {
     const msg = $('jx-msg'); msg.hidden = true;
-    const job = $('job').value.trim();
+    const job = $(jxTarget).value.trim();
     if (job.length < 80) return showMsg(msg, 'err', t('jx_need'));
     const btn = $('jx-btn'); btn.disabled = true;
     $('jx-label').textContent = t('jx_running');
@@ -1070,7 +1083,7 @@
         saveNames(r.id, names);
         appendTo = r.id; done += batches[k].length;
         ev = { id: r.id, created_at: r.created_at, job_title: r.job_title, cv_count: r.cv_count || done, ranking: r.ranking, author: r.author,
-          has_job: r.has_job, delete_after: r.delete_after, model: r.model };
+          has_job: r.has_job, delete_after: r.delete_after, model: r.model, job_id: currentJob ? currentJob.id : (ev && ev.job_id) || null };
         if (me) me.credits_remaining = r.credits_remaining;
       }
       pending = null; cvs = [];
@@ -1219,6 +1232,7 @@
     if (canSetMailbox && document.activeElement !== $('j-mb-in')) $('j-mb-in').value = jobsMailbox || '';
     $('j-mb-text').textContent = canSetMailbox ? '' : (jobsMailbox ? t('j_mb_is')(jobsMailbox) : t('j_mb_none'));
     renderJobAddrPreview();
+    renderJobPick();
   }
 
   function renderJobAddrPreview() {
@@ -1237,28 +1251,32 @@
       $('j-title').value = ''; $('j-slug').value = '';
       $('j-desc').value = $('job').value.trim();   // the description already typed in the comparison, if any
     }
+    moveJx('j-desc');
     renderJobAddrPreview();
     $('j-title').focus();
   }
-  function closeJobForm() { editingJob = null; $('j-form').hidden = true; }
+  function closeJobForm() { editingJob = null; $('j-form').hidden = true; moveJx('job'); }
 
   async function saveJob() {
     const title = $('j-title').value.trim(), job_text = $('j-desc').value.trim(), slug = slugify($('j-slug').value);
     if (title.length < 3 || job_text.length < 50) return showMsg($('j-msg'), 'err', t('j_need'));
     const btn = $('j-save'); btn.disabled = true;
     try {
+      let pick = null;
       if (editingJob === 'new') {
         const body = { title, job_text };
         if (slug) body.slug = slug;
-        await api('POST', '/api/jobs', body);
+        pick = (await api('POST', '/api/jobs', body)).job.id;
       } else {
         const body = { id: editingJob.id, title, job_text };
         if (slug && slug !== editingJob.slug) body.slug = slug;
         await api('POST', '/api/jobs/update', body);
-        if (currentJob && currentJob.id === editingJob.id) setCurrentJob({ ...currentJob, title });
+        if (currentJob && currentJob.id === editingJob.id) pick = editingJob.id;
       }
       closeJobForm();
       await loadJobs();
+      // The new comparison follows the job just saved, unless a round is half-way.
+      if (pick && !pending && !cvs.length) await useJob(pick, null, false);
     } catch (err) { if (err.status === 401) return gate(); showMsg($('j-msg'), 'err', err.message); }
     finally { btn.disabled = false; }
   }
@@ -1266,13 +1284,15 @@
   async function setJobStatus(j, status) {
     try {
       await api('POST', '/api/jobs/status', { id: j.id, status });
-      if (status === 'closed' && currentJob && currentJob.id === j.id) setCurrentJob(null);
+      if (status === 'closed' && currentJob && currentJob.id === j.id) {
+        setCurrentJob(null); $('job').value = ''; $('job').dispatchEvent(new Event('input')); criteria = []; renderCriteria();
+      }
       await loadJobs();
     } catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
   }
 
   // Fill the new comparison with the job's description and criteria.
-  async function useJob(id, btn) {
+  async function useJob(id, btn, scroll = true) {
     if (btn) btn.disabled = true;
     try {
       const r = await api('GET', '/api/jobs/get?id=' + encodeURIComponent(id));
@@ -1280,16 +1300,30 @@
       $('job').value = r.job.job_text; $('job').dispatchEvent(new Event('input'));
       criteria = (r.job.criteria || []).map(k => ({ name: k.name, required: !!k.required, weight: k.weight || 1 }));
       renderCriteria();
+      jx = null; renderJx();
       setCurrentJob({ id: r.job.id, title: r.job.title, criteria: r.job.criteria && r.job.criteria.length ? r.job.criteria : null });
-      $('new').scrollIntoView({ behavior: 'smooth' });
+      if (scroll) $('new').scrollIntoView({ behavior: 'smooth' });
     } catch (err) { if (err.status === 401) return gate(); showMsg($('j-mb-msg'), 'err', err.message); }
     finally { if (btn) btn.disabled = false; }
   }
 
+  // The new comparison is for a saved job (its description shown as a summary) or for no job (description typed here).
   function setCurrentJob(j) {
     currentJob = j;
-    $('j-for').hidden = !j;
-    $('j-for-text').textContent = j ? t('j_for')(j.title) : '';
+    $('job-field').hidden = !!j;
+    $('j-sum').hidden = !j;
+    const lines = $('job').value.trim().split('\n').filter(l => l.trim());
+    $('j-sum-text').textContent = j ? lines.slice(0, 4).join('\n') + (lines.length > 4 ? '\n…' : '') : '';
+    renderJobPick();
+  }
+  function renderJobPick() {
+    const sel = $('j-pick'); sel.textContent = '';
+    sel.appendChild(Object.assign(el('option', '', t('j_pick_none')), { value: '' }));
+    const open = jobs.filter(j => j.status === 'open');
+    for (const j of open) sel.appendChild(Object.assign(el('option', '', j.title), { value: j.id }));
+    if (currentJob && !open.some(j => j.id === currentJob.id)) sel.appendChild(Object.assign(el('option', '', currentJob.title), { value: currentJob.id }));
+    sel.value = currentJob ? currentJob.id : '';
+    $('j-pick-field').hidden = !open.length && !currentJob;
   }
 
   $('j-new').addEventListener('click', () => openJobForm(null));
@@ -1298,7 +1332,14 @@
   $('j-title').addEventListener('input', renderJobAddrPreview);
   $('j-slug').addEventListener('input', renderJobAddrPreview);
   $('j-closed').addEventListener('click', () => { showClosed = !showClosed; renderJobs(); });
-  $('j-for-x').addEventListener('click', () => setCurrentJob(null));
+  $('j-pick').addEventListener('change', e => {
+    const id = e.target.value;
+    if (id) return useJob(id, e.target, false);
+    pending = null; setCurrentJob(null);
+    $('job').value = ''; $('job').dispatchEvent(new Event('input'));
+    criteria = []; renderCriteria(); $('job').focus();
+  });
+  $('j-sum-edit').addEventListener('click', () => { const j = jobs.find(x => currentJob && x.id === currentJob.id); if (j) { $('jobs').scrollIntoView({ behavior: 'smooth' }); openJobForm(j); } });
   $('j-mb-save').addEventListener('click', async () => {
     const btn = $('j-mb-save'); btn.disabled = true;
     try {

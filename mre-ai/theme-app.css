@@ -1,0 +1,24 @@
+/* MRE·AI app, shared shortlist and Raio-X da Vaga in the site's look (theme A): ink + white, lime accent,
+   Space Grotesk titles, Inter text. Loaded right after trial.css; landing.css does the same for /mre-ai/. */
+:root{--blue:#0A0C10;--blue-dark:#2A2F3A;--blue-light:#EEF8D2;--bg:#F4F5F7;--border:#DADDE3;--text:#0A0C10;--muted:#4B5563;
+  --accent:#C8F560;--ink:#0A0C10;--radius:14px;--shadow:none}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Space Grotesk',Inter,system-ui,sans-serif;letter-spacing:-.02em}
+.nav .logo{color:var(--ink);font-family:'Space Grotesk',Inter,sans-serif}
+.nav .logo-mark{background:var(--ink);color:var(--accent)}
+.langs button.on,.langs button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.label{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:500;color:var(--muted)}
+.card{border-radius:16px}
+.btn-primary{background:var(--ink);color:#fff;box-shadow:none}
+.btn-primary:hover{background:#2A2F3A}
+a{color:var(--ink)}
+a.btn-primary,button.btn-primary{color:#fff}
+.sb-fab{background:var(--accent);color:#0A0C10}
+.sb-head,.sb-msg.user,.sb-send{background:#0A0C10}
+footer{background:#0A0C10;color:#8B93A3;border-top:0}
+footer a{color:#A9AFBC}
+/* Raio-X da Vaga */
+.rx-cta{background:#0A0C10;color:#fff;border-color:#0A0C10}
+.rx-cta p,.rx-cta .muted{color:#A9AFBC}
+.rx-cta h2,.rx-cta h3,.rx-cta b{color:#fff}
+.rx-cta .btn-primary{background:var(--accent);color:#0A0C10}

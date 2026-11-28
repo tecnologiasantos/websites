@@ -1,0 +1,16 @@
+/* Privacy policy and terms of service in the site's look (theme A): ink + white, lime accent,
+   Space Grotesk titles, Inter text. Loaded after each page's own <style>. */
+:root{--blue:#0A0C10;--blue-dark:#0A0C10;--blue-light:#EEF8D2;--teal-light:#E5E7EB;--text:#0A0C10;--text-muted:#4B5563;
+  --border:#DADDE3;--bg:#F4F5F7;--accent:#C8F560;--ink:#0A0C10}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.doc-title,.policy h2,h1,h2,h3{font-family:'Space Grotesk',Inter,system-ui,sans-serif;letter-spacing:-.02em}
+nav{background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(10px)}
+.nav-logo{color:var(--ink);font-family:'Space Grotesk',Inter,sans-serif}
+.nav-logo span{display:none}
+.nav-back:hover{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px;text-underline-offset:6px}
+.policy h2{border-bottom:2px solid var(--accent)}
+.policy a,.contact-box a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+.contact-box{border-radius:16px;box-shadow:none}
+table.data-table th{background:#0A0C10;color:#fff}
+footer{background:#0A0C10;color:#8B93A3;border-top:0}
+footer a{color:#A9AFBC}

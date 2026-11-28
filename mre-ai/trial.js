@@ -10,7 +10,7 @@ const TRIAL = {
 
 const T = {
   en: {
-    nav_back: 'Back to site',
+    nav_back: 'Back to site', lp_services: 'Services', lp_platforms: 'Platforms', lp_contact: 'Contact',
     s_label: 'MRE·AI · Free trial',
     s_title: 'Rank your candidates with AI, on your own vacancy',
     s_lead: 'Paste or upload a job description, add up to 50 CVs (every 5 use 1 comparison) and get a ranking with scores, strengths, gaps and evidence in under a minute.',
@@ -125,7 +125,7 @@ const T = {
     },
   },
   pt: {
-    nav_back: 'Voltar ao site',
+    nav_back: 'Voltar ao site', lp_services: 'Serviços', lp_platforms: 'Plataformas', lp_contact: 'Contato',
     s_label: 'MRE·AI · Teste grátis',
     s_title: 'Classifique seus candidatos com IA, na sua própria vaga',
     s_lead: 'Cole ou envie a descrição da vaga, adicione até 50 currículos (cada 5 usam 1 comparação) e receba um ranking com notas, pontos fortes, lacunas e evidências em menos de um minuto.',
@@ -240,7 +240,7 @@ const T = {
     },
   },
   es: {
-    nav_back: 'Volver al sitio',
+    nav_back: 'Volver al sitio', lp_services: 'Servicios', lp_platforms: 'Plataformas', lp_contact: 'Contacto',
     s_label: 'MRE·AI · Prueba gratuita',
     s_title: 'Clasifica a tus candidatos con IA, en tu propia vacante',
     s_lead: 'Pega o sube una descripción de vacante, agrega hasta 50 CVs (cada 5 usan 1 comparación) y recibe un ranking con puntajes, fortalezas, brechas y evidencias en menos de un minuto.',

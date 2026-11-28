@@ -26,12 +26,20 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="trial.css?v=20261127j">
+<link rel="stylesheet" href="landing.css?v=20261128a">
 <script src="trial.js?v=20261127j"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 </head>
-<body>
+<body class="landing">
 <nav class="nav">
   <a class="logo" href="../" data-keep-lang><span class="logo-mark">TS</span><span class="txt">Tecnologia Santos</span></a>
+  <div class="lp-links">
+    <a href="../#services" data-keep-lang data-t="lp_services">Services</a>
+    <a href="../#santosbot" data-keep-lang>SantosBot</a>
+    <a href="../#platforms" data-keep-lang data-t="lp_platforms">Platforms</a>
+    <a href="./" class="on" aria-current="page">MRE·AI</a>
+    <a href="../#contact" data-keep-lang data-t="lp_contact">Contact</a>
+  </div>
   <div class="nav-right">
     <a class="btn btn-ghost btn-sm" href="../" data-t="nav_back">Back to site</a>
     <div class="langs" role="group" aria-label="Language">
@@ -40,7 +48,7 @@
   </div>
 </nav>
 
-<main>
+<div class="lp-hero"><div class="lp-wrap">
   <div class="grid2">
     <section>
       <div class="label" data-t="s_label">MRE·AI · Free trial</div>
@@ -101,6 +109,9 @@
       </div>
     </section>
   </div>
+</div></div>
+
+<main>
   <!-- MRE·AI: vídeo-convite + manual por idioma. Colar dentro de <main>, entre <div class="grid2"> e <div id="plans">. -->
   <style>
     .mre-media{margin:32px 0;padding:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}

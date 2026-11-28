@@ -864,8 +864,15 @@
     const c = $('credits'); c.textContent = t('a_credits')(left); c.classList.toggle('warn', left <= 1);
     $('until').textContent = hasPackOnly() ? t('a_pack_until')(fmtDate(me.pack_expires_at))
       : !me.trial_expires_at ? '' : (isPaid() ? t('b_paid_until') : t('a_until'))(fmtDate(me.trial_expires_at));
-    const active = left > 0;
-    $('new').hidden = !active; $('over').hidden = active;
+    const active = left > 0, perms = me.perms || {};
+    $('new').hidden = !active || perms.compare === false; $('over').hidden = active;
+    $('j-new').hidden = perms.jobs === false;
+    $('share').hidden = perms.share === false;
+    renderWorkRole();
+    // Hiring managers and directors usually come to compare CVs; recruiters start from their jobs.
+    const jb = $('jobs'), nw = $('new'), cmpFirst = ['hiring_manager', 'executive'].includes(me.work_role);
+    const nwAfter = !!(jb.compareDocumentPosition(nw) & Node.DOCUMENT_POSITION_FOLLOWING);
+    if (jb.parentNode === nw.parentNode && cmpFirst === nwAfter) jb.parentNode.insertBefore(cmpFirst ? nw : jb, cmpFirst ? jb : nw);
     $('over').querySelector('h2').textContent = (isPaid() && t('over_paid_title')) || t('over_title');
     $('over').querySelector('p').textContent = (isPaid() && t('over_paid_text')) || t('over_text');
     const planLabel = t('b_plan') && t('b_plan')[me.plan];
@@ -1200,6 +1207,7 @@
   // The recruiting mailbox forwards vagas+<job>@… to the company's reception address; the files wait here
   // (encrypted on the server) until a comparison reads them in this browser, like uploaded files.
   async function loadIntake() {
+    if (me && me.perms && me.perms.intake === false) return;
     intake = await api('GET', '/api/intake');
     renderIntake(); renderJobs(true); renderIntakeBox();
   }
@@ -1314,7 +1322,8 @@
       st.addEventListener('click', () => j.status === 'open'
         ? askConfirm({ title: t('j_close_title'), text: t('j_close_text'), ok: t('j_close'), action: () => setJobStatus(j, 'closed') })
         : setJobStatus(j, 'open'));
-      acts.append(ed, st);
+      if (!me.perms || me.perms.jobs !== false) acts.append(ed, st);
+      if (me.perms && me.perms.compare === false) acts.querySelectorAll('.btn-primary').forEach(x => x.remove());
       box.appendChild(acts);
       list.appendChild(box);
     }
@@ -1491,12 +1500,32 @@
     if (billingFlag === 'success') afterCheckout();
   }
 
+  // What each person does (informative): on first sign-in and in "Your role in hiring".
+  $('c-wrole').addEventListener('change', () => { $('c-title-f').hidden = $('c-wrole').value !== 'other'; });
+  $('a-wrole').addEventListener('change', () => { $('a-title').hidden = $('a-wrole').value !== 'other'; });
+  function renderWorkRole() {
+    $('a-wrole').value = me.work_role || '';
+    $('a-title').hidden = me.work_role !== 'other'; $('a-title').value = me.work_role === 'other' ? (me.job_title || '') : '';
+  }
+  $('a-wrole-save').addEventListener('click', async () => {
+    const btn = $('a-wrole-save'); btn.disabled = true;
+    try {
+      const v = $('a-wrole').value || null;
+      await api('POST', '/api/me/work-role', { work_role: v, job_title: v === 'other' ? $('a-title').value.trim() : null });
+      me.work_role = v; if (v === 'other') me.job_title = $('a-title').value.trim();
+      showMsg($('a-wrole-msg'), 'ok', t('acc_wrole_ok'));
+    } catch (err) { if (err.status === 401) return gate(); showMsg($('a-wrole-msg'), 'err', err.message); }
+    finally { btn.disabled = false; }
+  });
+
   // Invited people accept the terms on their first sign-in.
   $('c-terms').addEventListener('change', () => { $('c-btn').disabled = !$('c-terms').checked; });
   $('c-btn').addEventListener('click', async () => {
     $('c-btn').disabled = true; $('c-msg').hidden = true;
     try {
-      await api('POST', '/api/consent', { accept: true, marketing: $('c-mk').checked });
+      await api('POST', '/api/consent', { accept: true, marketing: $('c-mk').checked, work_role: $('c-wrole').value || null,
+        job_title: $('c-wrole').value === 'other' ? $('c-title').value.trim() : null });
+      me = await api('GET', '/api/me');
       me.needs_consent = false;
       await loadHistory();
       if (isManager()) await loadTeam();
@@ -1508,19 +1537,20 @@
   });
 
   // ── Generic confirmation dialog ──────────────────────────────────────────
-  function askConfirm({ title, text, ok, danger, typed, typedLabel, action }) {
+  function askConfirm({ title, text, ok, danger, typed, typedLabel, reason, action }) {
     const d = $('cf-dlg'), okb = $('cf-ok'), w = $('cf-word'), msg = $('cf-msg');
     $('cf-title').textContent = title; $('cf-text').textContent = text || '';
     $('cf-title').className = danger ? '' : 'neutral';
     okb.textContent = ok || t('cf_confirm'); okb.className = 'btn btn-sm ' + (danger ? 'btn-danger-solid' : 'btn-primary');
     msg.hidden = true; w.value = '';
     $('cf-typed').hidden = !typed;
+    $('cf-reason-f').hidden = !reason; $('cf-reason').value = '';
     if (typed) { $('cf-word-label').textContent = typedLabel || t('del_type')(typed); w.placeholder = typed; }
     const ready = () => { okb.disabled = !!typed && w.value.trim().toLowerCase() !== typed.toLowerCase(); };
     w.oninput = ready; ready();
     okb.onclick = async () => {
       okb.disabled = true;
-      try { await action(); d.close(); }
+      try { await action($('cf-reason').value.trim()); d.close(); }
       catch (err) { if (err.status === 401) { d.close(); return gate(); } showMsg(msg, 'err', err.message); ready(); }
     };
     $('cf-cancel').onclick = () => d.close();
@@ -1547,9 +1577,16 @@
       const who = el('div', 'who');
       who.appendChild(el('b', '', u.name + (u.me ? ` (${t('role_you')})` : '')));
       who.appendChild(el('span', 'muted small', u.email));
+      const fn = u.work_role === 'other' ? u.job_title : u.work_role ? t('wr_' + u.work_role) : '';
+      if (fn) who.appendChild(el('span', 'muted small', fn));
       const tags = el('div', 'tags');
       tags.appendChild(el('span', 'tg', roleName(u.role)));
-      tags.appendChild(el('span', 'tg ' + (u.status === 'active' ? 'ok' : 'warn'), t('st_' + u.status) || u.status));
+      tags.appendChild(el('span', 'tg ' + (u.status === 'active' ? 'ok' : ['locked', 'blocked'].includes(u.status) ? 'bad' : 'warn'), t('st_' + u.status) || u.status));
+      if (u.role === 'member' && u.perms) {
+        const off = Object.keys(u.perms).filter(k => k !== 'team_view' && !u.perms[k]);
+        if (off.length) tags.appendChild(el('span', 'tg warn', t('perm_without') + ' ' + off.map(k => t('perm_' + k)).join(', ')));
+        if (u.perms.team_view) tags.appendChild(el('span', 'tg', t('perm_team_view')));
+      }
       tags.appendChild(el('span', 'muted small', u.last_login_at ? t('t_last')(fmtDate(u.last_login_at)) : t('t_never')));
       tags.appendChild(el('span', 'muted small', '· ' + t('t_evals')(u.evaluations)));
       who.appendChild(tags);
@@ -1571,6 +1608,15 @@
             ok: t('b_transfer'), typed: u.email, typedLabel: t('cf_type_email'),
             action: () => post('/api/team/transfer', { user_id: u.id, confirm_email: u.email }).then(done('ok_transferred')) }));
         }
+        if (u.can_set_perms) b(t('b_perms'), 'btn-ghost', () => openPerms(u));
+        if (u.can_set_status) {
+          const st = (to, title, text, okKey, danger) => b(t(okKey), danger ? 'btn-danger' : 'btn-ghost', () => askConfirm({
+            title: t(title)(u.name), text: t(text), ok: t(okKey), danger, reason: to !== 'active',
+            action: reason => post('/api/team/status', { user_id: u.id, status: to, reason }).then(done(to === 'active' ? 'ok_reactivated' : to === 'paused' ? 'ok_paused' : 'ok_locked')) }));
+          if (u.status === 'active') { st('paused', 'cf_pause_title', 'cf_pause_text', 'b_pause'); st('locked', 'cf_lock_title', 'cf_lock_text', 'b_lock', true); }
+          else if (u.status === 'paused') { st('active', 'cf_unlock_title', 'cf_unlock_text', 'b_reactivate'); st('locked', 'cf_lock_title', 'cf_lock_text', 'b_lock', true); }
+          else if (u.status === 'locked') st('active', 'cf_unlock_title', 'cf_unlock_text', 'b_unlock');
+        }
         b(u.status === 'pending_email' ? t('b_cancel_invite') : t('b_remove'), 'btn-danger', () => askConfirm({ title: t('cf_remove_title')(u.name), text: t('cf_remove_text'),
           ok: t('b_remove'), danger: true, action: () => post('/api/team/remove', { user_id: u.id }).then(done('ok_removed')) }));
       }
@@ -1583,6 +1629,29 @@
     if (me.can_invite) $('invite-hint').textContent = t('t_invite_hint')(me.invite_domain);
     $('i-role').querySelector('option[value="admin"]').hidden = me.role !== 'owner';
     if (me.role !== 'owner') $('i-role').value = 'member';
+  }
+
+  // Permissions of one recruiter (managers always have everything).
+  function openPerms(u) {
+    const d = $('pm-dlg'), list = $('pm-list'), msg = $('pm-msg');
+    $('pm-title').textContent = t('perms_title')(u.name); $('pm-title').className = 'neutral'; msg.hidden = true; list.textContent = '';
+    const boxes = {};
+    for (const k of Object.keys(u.perms)) {
+      const row = el('label', 'pm-row');
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!u.perms[k]; boxes[k] = cb;
+      const txt = el('span'); txt.appendChild(el('b', '', t('perm_' + k))); txt.appendChild(el('span', 'muted small', t('perm_' + k + '_d')));
+      row.append(cb, txt); list.appendChild(row);
+    }
+    $('pm-ok').disabled = false;
+    $('pm-ok').onclick = async () => {
+      $('pm-ok').disabled = true;
+      try {
+        await post('/api/team/permissions', { user_id: u.id, perms: Object.fromEntries(Object.entries(boxes).map(([k, cb]) => [k, cb.checked])) });
+        d.close(); await refreshTeam(t('ok_perms'));
+      } catch (err) { if (err.status === 401) { d.close(); return gate(); } showMsg(msg, 'err', err.message); $('pm-ok').disabled = false; }
+    };
+    $('pm-cancel').onclick = () => d.close();
+    d.showModal();
   }
 
   $('invite').addEventListener('submit', async e => {

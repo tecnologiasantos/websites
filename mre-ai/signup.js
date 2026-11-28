@@ -22,6 +22,10 @@
     t('terms').forEach(line => { const li = document.createElement('li'); li.textContent = line; ol.appendChild(li); });
   }
 
+  // "Other" opens a short text field for the role.
+  const wr = $('s-wrole');
+  if (wr) wr.addEventListener('change', () => { $('s-title-f').hidden = wr.value !== 'other'; if (wr.value === 'other') $('s-title').focus(); });
+
   function showTab(which) {
     const login = which === 'login';
     $('tab-signup').classList.toggle('on', !login);
@@ -55,7 +59,7 @@
     busy($('s-btn'), true);
     try {
       const r = await api('POST', '/api/signup', {
-        name, email, company, job_title: $('s-title').value.trim(), lang: LANG,
+        name, email, company, work_role: $('s-wrole').value || null, job_title: $('s-wrole').value === 'other' ? $('s-title').value.trim() : '', lang: LANG,
         consent_terms: true, consent_marketing: $('s-marketing').checked,
         website: $('hp-website').value, email2: $('hp-email2').value, cfToken, ref: ref || undefined,
       });
